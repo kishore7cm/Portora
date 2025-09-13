@@ -39,6 +39,15 @@ app.add_middleware(
 def root():
     return {"ok": True}
 
+@app.get("/health")
+def health_check():
+    """Health check endpoint for deployment platforms"""
+    return {
+        "status": "healthy",
+        "service": "Portora Portfolio Advisor API",
+        "version": "1.0.0"
+    }
+
 @app.get("/portfolio")
 def get_portfolio():
     if run_analysis is None or historical_manager is None:
