@@ -10,4 +10,16 @@ services:
         value: 3.12.0
       - key: PORT
         value: 10000
+      - key: APCA_API_KEY_ID
+        sync: false  # Set this in Render dashboard
+      - key: APCA_API_SECRET_KEY
+        sync: false  # Set this in Render dashboard
+      - key: APCA_API_BASE_URL
+        value: "https://api.alpaca.markets"
+      - key: TWELVE_DATA_API_KEY
+        sync: false  # Set this in Render dashboard
+      - key: OPENAI_API_KEY
+        sync: false  # Set this in Render dashboard
+      - key: SECRET_KEY
+        generateValue: true  # Auto-generate a secure secret
     healthCheckPath: /health
