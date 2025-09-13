@@ -3,11 +3,13 @@ services:
     name: portora-backend
     env: python
     plan: free
-    buildCommand: pip install -r requirements.txt
+    buildCommand: pip install --upgrade pip && pip install -r requirements-minimal.txt
     startCommand: uvicorn backend.api:app --host 0.0.0.0 --port $PORT
+    # Alternative Docker deployment (uncomment if Python build fails)
+    # dockerfilePath: ./Dockerfile
     envVars:
       - key: PYTHON_VERSION
-        value: 3.12.0
+        value: 3.11.0
       - key: PORT
         value: 10000
       - key: APCA_API_KEY_ID
