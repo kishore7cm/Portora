@@ -12,9 +12,9 @@ interface OnboardingModalProps {
 const onboardingSteps = [
   {
     id: 1,
-    title: "Welcome to EaseLi",
+    title: "Welcome to Portora",
     subtitle: "Your Personal Portfolio Management Platform",
-    content: "EaseLi helps you track, analyze, and optimize your investment portfolio with advanced analytics and automated trading bots.",
+    content: "Portora helps you track, analyze, and optimize your investment portfolio with advanced analytics and automated trading bots.",
     icon: <Zap className="w-12 h-12 text-blue-600" />,
     features: [
       "Real-time portfolio tracking",

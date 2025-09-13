@@ -2,10 +2,10 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-from easeli_main import run_analysis, run_sp500_analysis
+from portora_main import run_analysis, run_sp500_analysis
 
-st.set_page_config(page_title="Easeli Advisor", layout="wide")
-st.title("📊 Easeli Portfolio Rebalancer")
+st.set_page_config(page_title="Portora Advisor", layout="wide")
+st.title("📊 Portora Portfolio Rebalancer")
 
 # Custom CSS for styling
 st.markdown("""

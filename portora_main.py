@@ -186,7 +186,7 @@ def run_analysis():
 
 
 if __name__ == "__main__":
-    print("📈 Easeli Portfolio Advisor - Smart Rebalance MVP")
+    print("📈 Portora Portfolio Advisor - Smart Rebalance MVP")
     final_df = run_analysis()
     print("\n📊 Smart Rebalancing Recommendations:\n")
     print(final_df.to_string(index=False))

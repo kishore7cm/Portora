@@ -1,4 +1,7 @@
 {
+  "name": "portora-portfolio-advisor",
+  "version": "1.0.0",
+  "description": "Portora Portfolio Advisor - A comprehensive portfolio management and investment advisory platform",
   "dependencies": {
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",

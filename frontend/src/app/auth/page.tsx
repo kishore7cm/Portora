@@ -16,12 +16,12 @@ export default function AuthPage() {
       const raw = localStorage.getItem('users');
       const parsed = raw ? JSON.parse(raw) : {};
       // Seed demo user if missing
-      if (!parsed['demo@easeli.com']) {
-        parsed['demo@easeli.com'] = '123456';
+      if (!parsed['demo@portora.com']) {
+        parsed['demo@portora.com'] = '123456';
       }
       return parsed;
     } catch {
-      return { 'demo@easeli.com': '123456' };
+      return { 'demo@portora.com': '123456' };
     }
   };
 
@@ -101,7 +101,7 @@ export default function AuthPage() {
             color: '#1e40af', 
             marginBottom: '8px' 
           }}>
-            Welcome to Easeli
+            Welcome to Portora
           </h1>
           <p style={{ color: '#6b7280', fontSize: '14px' }}>
             {isSignup ? 'Create your account' : 'Sign in to continue'}

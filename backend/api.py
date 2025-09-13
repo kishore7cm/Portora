@@ -12,7 +12,7 @@ import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 try:
-    from easeli_main import run_analysis, run_sp500_analysis
+    from portora_main import run_analysis, run_sp500_analysis
     from historical_data import historical_manager
 except ImportError as e:
     print(f"Warning: Could not import analysis modules: {e}")
@@ -22,7 +22,7 @@ except ImportError as e:
 
 SECRET_KEY = "change_me_super_secret"
 ALGORITHM = "HS256"
-COOKIE_NAME = "easeli_session"
+COOKIE_NAME = "portora_session"
 
 app = FastAPI()
 
@@ -431,7 +431,7 @@ async def login_user(payload: LoginRequest, response: Response):
     password_normalized = payload.password.strip()
 
     # Dev fallback: universal demo credentials
-    if email_normalized == "demo@easeli.com" and password_normalized == "123456":
+    if email_normalized == "demo@portora.com" and password_normalized == "123456":
         # Map demo credentials to a default demo user (conservative persona)
         try:
             demo_result = enhanced_user_manager.authenticate_user("conservative@example.com", "password123")

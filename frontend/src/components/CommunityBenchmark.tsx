@@ -136,7 +136,7 @@ export default function CommunityBenchmark() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Community Benchmark</h1>
-          <p className="text-gray-600">Compare your performance with the EaseLi community</p>
+          <p className="text-gray-600">Compare your performance with the Portora community</p>
         </div>
         <div className="flex items-center space-x-2 text-sm text-gray-500">
           <Users className="w-4 h-4" />

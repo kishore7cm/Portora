@@ -1,4 +1,4 @@
-# 📊 EaseLi Portfolio Advisor
+# 📊 Portora Portfolio Advisor
 
 A comprehensive portfolio management and investment advisory platform that combines real-time market data, AI-powered analysis, and social benchmarking features.
 
