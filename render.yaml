@@ -3,8 +3,8 @@ services:
     name: portora-backend
     env: python
     plan: free
-    buildCommand: pip install --upgrade pip && pip install -r requirements-minimal.txt
-    startCommand: uvicorn backend.api:app --host 0.0.0.0 --port $PORT
+    buildCommand: pip install --upgrade pip && pip install -r requirements-ultra-minimal.txt
+    startCommand: uvicorn backend.api_simple:app --host 0.0.0.0 --port $PORT
     # Alternative Docker deployment (uncomment if Python build fails)
     # dockerfilePath: ./Dockerfile
     envVars:
