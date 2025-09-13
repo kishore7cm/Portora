@@ -4,7 +4,7 @@ services:
     env: python
     plan: free
     buildCommand: echo "No dependencies needed - using Python standard library only"
-    startCommand: python backend/api_basic.py
+    startCommand: python app.py
     # Alternative Docker deployment (uncomment if Python build fails)
     # dockerfilePath: ./Dockerfile
     envVars:

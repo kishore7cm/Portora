@@ -1,14 +1,2 @@
-fastapi==0.104.1
-uvicorn[standard]==0.24.0
-pandas==2.0.3
-numpy==1.24.3
-requests==2.31.0
-python-multipart==0.0.6
-python-jose[cryptography]==3.3.0
-passlib[bcrypt]==1.7.4
-python-dotenv==1.0.0
-sqlalchemy==2.0.23
-alpaca-trade-api==3.0.0
-yfinance==0.2.28
-plotly==5.17.0
-streamlit==1.28.1
+# Empty requirements file - no dependencies needed
+# This file exists to satisfy Render's requirements.txt requirement
