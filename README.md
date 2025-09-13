@@ -236,4 +236,4 @@ For support, email support@easeli.com or create an issue in this repository.
 
 ---
 
-**Built with ❤️ by the EaseLi Team**
+**Built with ❤️ by the Portora Team**
