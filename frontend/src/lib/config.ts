@@ -1,5 +1,5 @@
 // API Configuration
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://portora-backend-a1d0.onrender.com';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || process.env.API_URL || 'https://portora-backend-a1d0.onrender.com';
 
 export const config = {
   apiUrl: API_BASE_URL,
