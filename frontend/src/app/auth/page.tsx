@@ -1,80 +1,22 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 
 export default function AuthPage() {
-  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [isSignup, setIsSignup] = useState(false);
-
-  const loadUsers = (): Record<string, string> => {
-    if (typeof window === 'undefined') return {};
-    try {
-      const raw = localStorage.getItem('users');
-      const parsed = raw ? JSON.parse(raw) : {};
-      // Seed demo user if missing
-      if (!parsed['demo@portora.com']) {
-        parsed['demo@portora.com'] = '123456';
-      }
-      return parsed;
-    } catch {
-      return { 'demo@portora.com': '123456' };
-    }
-  };
-
-  const saveUsers = (users: Record<string, string>) => {
-    if (typeof window === 'undefined') return;
-    localStorage.setItem('users', JSON.stringify(users));
-  };
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
-    const eLower = email.trim().toLowerCase();
-    const pTrim = password.trim();
-    const users = loadUsers();
-    const ok = users[eLower] && users[eLower] === pTrim;
-
-    if (ok) {
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('loggedIn', 'true');
-        localStorage.setItem('userEmail', eLower);
-      }
-      router.push('/dashboard');
+    if (email === 'demo@portora.com' && password === '123456') {
+      // Simple redirect
+      window.location.href = '/dashboard';
     } else {
-      setError('❌ Invalid email or password');
+      setError('Invalid email or password');
     }
-  };
-
-  const handleSignup = (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    const eLower = email.trim().toLowerCase();
-    const pTrim = password.trim();
-    if (!eLower || !pTrim) {
-      setError('❌ Please enter email and password');
-      return;
-    }
-    if (pTrim.length < 4) {
-      setError('❌ Password must be at least 4 characters');
-      return;
-    }
-    const users = loadUsers();
-    if (users[eLower]) {
-      setError('❌ Account already exists');
-      return;
-    }
-    users[eLower] = pTrim;
-    saveUsers(users);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('loggedIn', 'true');
-      localStorage.setItem('userEmail', eLower);
-    }
-    router.push('/dashboard');
   };
 
   return (
@@ -83,7 +25,7 @@ export default function AuthPage() {
       display: 'flex', 
       alignItems: 'center', 
       justifyContent: 'center',
-      background: 'linear-gradient(135deg, #e3f2fd 0%, #ffffff 50%, #e8f5e8 100%)',
+      backgroundColor: '#f3f4f6',
       padding: '20px'
     }}>
       <div style={{
@@ -104,11 +46,11 @@ export default function AuthPage() {
             Welcome to Portora
           </h1>
           <p style={{ color: '#6b7280', fontSize: '14px' }}>
-            {isSignup ? 'Create your account' : 'Sign in to continue'}
+            Sign in to continue
           </p>
         </div>
         
-        <form onSubmit={isSignup ? handleSignup : handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div>
             <input
               type="email"
@@ -159,39 +101,11 @@ export default function AuthPage() {
               cursor: 'pointer'
             }}
           >
-            {isSignup ? 'Create Account' : 'Login'}
+            Login
           </button>
           
           <div style={{ textAlign: 'center', fontSize: '14px', color: '#6b7280' }}>
-            {isSignup ? (
-              <button 
-                type="button" 
-                onClick={() => setIsSignup(false)} 
-                style={{ 
-                  color: '#1e40af', 
-                  textDecoration: 'underline', 
-                  background: 'none', 
-                  border: 'none', 
-                  cursor: 'pointer' 
-                }}
-              >
-                Have an account? Sign in
-              </button>
-            ) : (
-              <button 
-                type="button" 
-                onClick={() => setIsSignup(true)} 
-                style={{ 
-                  color: '#1e40af', 
-                  textDecoration: 'underline', 
-                  background: 'none', 
-                  border: 'none', 
-                  cursor: 'pointer' 
-                }}
-              >
-                Create account
-              </button>
-            )}
+            <p>Demo credentials: demo@portora.com / 123456</p>
           </div>
         </form>
       </div>
