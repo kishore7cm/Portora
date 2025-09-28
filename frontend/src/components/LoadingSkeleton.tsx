@@ -3,11 +3,12 @@
 interface SkeletonProps {
   className?: string;
   children?: React.ReactNode;
+  style?: React.CSSProperties;
 }
 
-export function Skeleton({ className = '', children }: SkeletonProps) {
+export function Skeleton({ className = '', children, style }: SkeletonProps) {
   return (
-    <div className={`animate-pulse bg-gray-200 dark:bg-gray-700 rounded ${className}`}>
+    <div className={`animate-pulse bg-gray-200 dark:bg-gray-700 rounded ${className}`} style={style}>
       {children}
     </div>
   );

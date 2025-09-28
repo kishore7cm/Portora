@@ -1,2 +1,0 @@
-# No external dependencies - uses only Python standard library
-# This file exists to satisfy Render's requirements.txt requirement

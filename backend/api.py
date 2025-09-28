@@ -1,1195 +1,1138 @@
-import sys
-print(">>> RUNNING API FILE:", __file__, file=sys.stderr)
-from fastapi import FastAPI, Response, Request
+from fastapi import FastAPI, HTTPException, Depends, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
-from typing import Optional, Dict, Any, List
-import jwt, datetime
+from sqlalchemy.orm import Session
+from sqlalchemy import and_
+from database import engine, get_db, Base
+from models import User, Login, Portfolio, Transaction, MarketData, HistoricalData, PortfolioSummary, PortfolioProjections, PortfolioPerformance, PortfolioChartData
+from seed_data import create_initial_data
 import pandas as pd
-import os
+import io
 
-# Add the parent directory to Python path to import analysis modules
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# Create tables
+Base.metadata.create_all(bind=engine)
 
-try:
-    from portora_main import run_analysis, run_sp500_analysis
-    from historical_data import historical_manager
-except ImportError as e:
-    print(f"Warning: Could not import analysis modules: {e}")
-    run_analysis = None
-    run_sp500_analysis = None
-    historical_manager = None
+# Create initial data
+create_initial_data()
 
-SECRET_KEY = "change_me_super_secret"
-ALGORITHM = "HS256"
-COOKIE_NAME = "portora_session"
+app = FastAPI(title="Portora API", version="1.0.0")
 
-app = FastAPI()
-
+# CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# --- existing endpoints ---
 @app.get("/")
-def root():
-    return {"ok": True}
+def read_root():
+    return {"message": "Database setup complete!", "status": "success"}
 
 @app.get("/health")
 def health_check():
-    """Health check endpoint for deployment platforms"""
-    return {
-        "status": "healthy",
-        "service": "Portora Portfolio Advisor API",
-        "version": "1.0.0"
-    }
+    return {"status": "healthy"}
 
-@app.get("/portfolio")
-def get_portfolio():
-    if run_analysis is None or historical_manager is None:
-        return {"error": "Analysis module not available"}
-    
+@app.get("/top-holdings/{user_id}")
+def get_top_holdings_simple(user_id: int, db: Session = Depends(get_db)):
+    """Simple endpoint for top holdings and movers"""
     try:
-        portfolio_df, summary_df = run_analysis()
+        from models import TopHoldings
         
-        # Get all tickers from portfolio
-        tickers = portfolio_df['Ticker'].unique().tolist()
+        holdings = db.query(TopHoldings).filter(
+            TopHoldings.user_id == user_id,
+            TopHoldings.type == "holdings"
+        ).order_by(TopHoldings.rank.asc()).all()
         
-        # Check if we have historical data, if not download it
-        print(f"Checking historical data for {len(tickers)} tickers...")
-        
-        # For now, just calculate with existing data
-        # In production, you'd want to check if data exists first
-        historical_data = historical_manager.calculate_portfolio_historical_values(portfolio_df)
-        
-        # Store current portfolio snapshot
-        current_total = portfolio_df['Curr $'].sum()
-        historical_manager.store_portfolio_snapshot(portfolio_df, current_total)
+        movers = db.query(TopHoldings).filter(
+            TopHoldings.user_id == user_id,
+            TopHoldings.type == "movers"
+        ).order_by(TopHoldings.rank.asc()).all()
         
         return {
-            "portfolio": portfolio_df.to_dict('records'),
-            "summary": summary_df.to_dict('records'),
-            "historical": historical_data
+            "user_id": user_id,
+            "holdings": [{
+                "ticker": h.ticker,
+                "shares": h.shares,
+                "current_price": h.current_price,
+                "total_value": h.total_value,
+                "gain_loss": h.gain_loss,
+                "gain_loss_percent": h.gain_loss_percent,
+                "rank": h.rank
+            } for h in holdings],
+            "movers": [{
+                "ticker": m.ticker,
+                "shares": m.shares,
+                "current_price": m.current_price,
+                "total_value": m.total_value,
+                "gain_loss": m.gain_loss,
+                "gain_loss_percent": m.gain_loss_percent,
+                "rank": m.rank
+            } for m in movers]
         }
     except Exception as e:
-        print(f"Error in portfolio endpoint: {str(e)}")
-        return {"error": f"Failed to analyze portfolio: {str(e)}"}
+        return {"error": str(e)}
 
-# Historical data calculation is now handled by historical_data.py
+@app.get("/users")
+def get_users(db: Session = Depends(get_db)):
+    """Get all users"""
+    users = db.query(User).all()
+    return {
+        "users": [
+            {
+                "id": user.id,
+                "name": user.name,
+                "email": user.email,
+                "created_at": user.created_at
+            }
+            for user in users
+        ]
+    }
+
+@app.get("/users/{user_id}/portfolio")
+def get_user_portfolio(user_id: int, db: Session = Depends(get_db)):
+    """Get portfolio for a specific user"""
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        return {"error": "User not found"}
+    
+    portfolio = db.query(Portfolio).filter(Portfolio.user_id == user_id).all()
+    return {
+        "user": {
+            "id": user.id,
+            "name": user.name,
+            "email": user.email
+        },
+        "portfolio": [
+            {
+                "ticker": stock.ticker,
+                "shares": stock.shares,
+                "avg_price": stock.avg_price,
+                "total_value": stock.shares * stock.avg_price
+            }
+            for stock in portfolio
+        ]
+    }
+
+@app.get("/portfolio/fast")
+def get_portfolio_fast(user_id: int = 1, db: Session = Depends(get_db)):
+    """Get portfolio data quickly with minimal processing"""
+    try:
+        from sqlalchemy import func, and_
+        
+        # Get user's portfolio
+        portfolio = db.query(Portfolio).filter(Portfolio.user_id == user_id).all()
+        
+        if not portfolio:
+            return {"error": "No portfolio found"}
+        
+        # Get only the most recent prices (optimized query)
+        latest_date = db.query(func.max(HistoricalData.date)).scalar()
+        
+        if latest_date:
+            # Get prices for portfolio tickers only
+            tickers = [p.ticker for p in portfolio]
+            prices = db.query(HistoricalData.ticker, HistoricalData.close_price).filter(
+                and_(
+                    HistoricalData.ticker.in_(tickers),
+                    HistoricalData.date == latest_date
+                )
+            ).all()
+            price_dict = {ticker: price for ticker, price in prices}
+        else:
+            price_dict = {}
+        
+        # Quick calculation
+        total_value = 0
+        portfolio_data = []
+        
+        for stock in portfolio:
+            current_price = price_dict.get(stock.ticker, stock.avg_price)
+            current_value = stock.shares * current_price
+            total_value += current_value
+            
+            portfolio_data.append({
+                "Ticker": stock.ticker,
+                "Qty": stock.shares,
+                "Current_Price": round(current_price, 2),
+                "Total_Value": round(current_value, 2),
+                "Gain_Loss_Percent": round(((current_price - stock.avg_price) / stock.avg_price * 100), 2) if stock.avg_price > 0 else 0
+            })
+        
+        return {
+            "portfolio": portfolio_data,
+            "summary": {
+                "Total_Value": round(total_value, 2),
+                "Total_Holdings": len(portfolio),
+                "Latest_Date": latest_date.strftime('%Y-%m-%d') if latest_date else None
+            }
+        }
+        
+    except Exception as e:
+        return {"error": str(e)}
+
+@app.get("/portfolio")
+def get_portfolio(user_id: int = 1, db: Session = Depends(get_db)):
+    """Get portfolio data from database for a specific user with current market data"""
+    try:
+        # Get user's portfolio by user_id
+        user = db.query(User).filter(User.id == user_id).first()
+        if not user:
+            return {"error": "User not found"}
+        
+        portfolio = db.query(Portfolio).filter(Portfolio.user_id == user_id).all()
+        
+        # Convert to the expected format with current market data
+        portfolio_data = []
+        total_value = 0
+        total_gain_loss = 0
+        
+        # Get current prices for each ticker (get most recent price for each)
+        price_dict = {}
+        for stock in portfolio:
+            latest_price = db.query(HistoricalData).filter(
+                HistoricalData.ticker == stock.ticker
+            ).order_by(HistoricalData.date.desc()).first()
+            
+            if latest_price:
+                price_dict[stock.ticker] = latest_price.close_price
+            else:
+                price_dict[stock.ticker] = stock.avg_price
+        
+        for stock in portfolio:
+            # Get current price from the pre-fetched data
+            current_price = price_dict.get(stock.ticker, stock.avg_price)
+            current_value = stock.shares * current_price
+            cost_basis = stock.shares * stock.avg_price
+            gain_loss = current_value - cost_basis
+            gain_loss_percent = (gain_loss / cost_basis) * 100 if cost_basis > 0 else 0
+            
+            portfolio_data.append({
+                "Ticker": stock.ticker,
+                "Qty": stock.shares,
+                "Avg_Price": stock.avg_price,
+                "Current_Price": current_price,
+                "Total_Value": current_value,
+                "Cost_Basis": cost_basis,
+                "Gain_Loss": gain_loss,
+                "Gain_Loss_Percent": gain_loss_percent,
+                "Category": "Stock"
+            })
+            
+            total_value += current_value
+            total_gain_loss += gain_loss
+        
+        # Calculate portfolio metrics
+        total_cost_basis = sum(item["Cost_Basis"] for item in portfolio_data)
+        total_gain_loss_percent = (total_gain_loss / total_cost_basis) * 100 if total_cost_basis > 0 else 0
+        
+        summary_data = {
+            "Total_Value": total_value,
+            "Total_Cost_Basis": total_cost_basis,
+            "Total_Gain_Loss": total_gain_loss,
+            "Total_Gain_Loss_Percent": total_gain_loss_percent,
+            "Total_Stocks": len(portfolio_data),
+            "User": user.name
+        }
+        
+        return {
+            "portfolio": portfolio_data,
+            "summary": summary_data,
+            "status": "success"
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to retrieve portfolio: {str(e)}")
+
 
 @app.get("/sp500")
 def get_sp500():
-    if run_sp500_analysis is None:
-        return {"error": "Analysis module not available"}
-    
+    """Get S&P 500 sample data"""
     try:
-        sp500_df = run_sp500_analysis()
-        return {"sp500": sp500_df.to_dict('records')}
+        # Sample S&P 500 data for demo
+        sp500_data = [
+            {"symbol": "AAPL", "name": "Apple Inc.", "price": 175.50, "change": 2.50, "change_percent": 1.69},
+            {"symbol": "MSFT", "name": "Microsoft Corporation", "price": 315.25, "change": -1.20, "change_percent": -0.40},
+            {"symbol": "GOOGL", "name": "Alphabet Inc.", "price": 2650.75, "change": 15.00, "change_percent": 0.60},
+            {"symbol": "AMZN", "name": "Amazon.com Inc.", "price": 185.25, "change": 3.00, "change_percent": 1.69},
+            {"symbol": "NVDA", "name": "NVIDIA Corporation", "price": 425.50, "change": -5.00, "change_percent": -0.55},
+        ]
+        return {"sp500": sp500_data}
     except Exception as e:
-        return {"error": f"Failed to analyze S&P 500: {str(e)}"}
+        raise HTTPException(status_code=500, detail=f"Failed to retrieve S&P 500 data: {str(e)}")
 
 @app.get("/historical-data/download")
-def download_historical_data():
-    """Download 1 year of historical data for all portfolio tickers"""
-    if run_analysis is None or historical_manager is None:
-        return {"error": "Analysis module not available"}
-    
+def download_historical_data(db: Session = Depends(get_db)):
+    """Download historical data for portfolio tickers"""
     try:
-        portfolio_df, _ = run_analysis()
-        tickers = portfolio_df['Ticker'].unique().tolist()
-        
-        print(f"Starting historical data download for {len(tickers)} tickers...")
-        successful, failed = historical_manager.download_historical_data(tickers, days_back=365)
+        # Get all unique tickers from portfolio
+        portfolio = db.query(Portfolio).all()
+        tickers = list(set([p.ticker for p in portfolio]))
         
         return {
             "status": "success",
-            "message": f"Downloaded historical data for {successful} tickers, {failed} failed",
-            "successful": successful,
-            "failed": failed,
-            "tickers": tickers
+            "message": f"Historical data download initiated for {len(tickers)} tickers",
+            "tickers": tickers,
+            "note": "Demo mode - actual download not performed"
         }
     except Exception as e:
-        return {"error": f"Failed to download historical data: {str(e)}"}
+        raise HTTPException(status_code=500, detail=f"Failed to initiate historical data download: {str(e)}")
 
-@app.get("/historical-data/update-daily")
-def update_daily_data():
-    """Update daily data for all portfolio tickers"""
-    if run_analysis is None or historical_manager is None:
-        return {"error": "Analysis module not available"}
-    
-    try:
-        portfolio_df, _ = run_analysis()
-        tickers = portfolio_df['Ticker'].unique().tolist()
-        
-        print(f"Updating daily data for {len(tickers)} tickers...")
-        historical_manager.update_daily_data(tickers)
-        
-        return {
-            "status": "success",
-            "message": f"Daily data updated for {len(tickers)} tickers",
-            "tickers": tickers
-        }
-    except Exception as e:
-        return {"error": f"Failed to update daily data: {str(e)}"}
-
-@app.get("/historical-data/snapshots")
-def get_portfolio_snapshots():
-    """Get recent portfolio snapshots"""
-    if historical_manager is None:
-        return {"error": "Historical data manager not available"}
-    
-    try:
-        snapshots = historical_manager.get_portfolio_snapshots(days_back=30)
-        return {"snapshots": snapshots}
-    except Exception as e:
-        return {"error": f"Failed to get snapshots: {str(e)}"}
-
-@app.get("/projections/portfolio")
-def get_portfolio_projections():
-    """Get portfolio projections based on historical data analysis"""
-    if run_analysis is None or historical_manager is None:
-        return {"error": "Analysis module not available"}
-    
-    try:
-        portfolio_df, _ = run_analysis()
-        projection_summary = historical_manager.get_projection_summary(portfolio_df)
-        
-        if projection_summary is None:
-            return {"error": "Unable to generate projections - insufficient historical data"}
-        
-        return {
-            "status": "success",
-            "projections": projection_summary
-        }
-    except Exception as e:
-        return {"error": f"Failed to generate projections: {str(e)}"}
-
-@app.get("/projections/asset/{ticker}")
-def get_asset_projections(ticker: str):
-    """Get projections for a specific asset"""
-    if historical_manager is None:
-        return {"error": "Historical data manager not available"}
-    
-    try:
-        projections = historical_manager.generate_projections(ticker, days_ahead=30)
-        
-        if projections is None:
-            return {"error": f"Unable to generate projections for {ticker} - insufficient data"}
-        
-        return {
-            "status": "success",
-            "ticker": ticker,
-            "projections": projections
-        }
-    except Exception as e:
-        return {"error": f"Failed to generate projections for {ticker}: {str(e)}"}
-
-@app.get("/analysis/trend/{ticker}")
-def get_asset_trend_analysis(ticker: str):
-    """Get trend analysis for a specific asset"""
-    if historical_manager is None:
-        return {"error": "Historical data manager not available"}
-    
-    try:
-        trend_analysis = historical_manager.calculate_trend_analysis(ticker)
-        
-        if trend_analysis is None:
-            return {"error": f"Unable to analyze trends for {ticker} - insufficient data"}
-        
-        return {
-            "status": "success",
-            "ticker": ticker,
-            "trend_analysis": trend_analysis
-        }
-    except Exception as e:
-        return {"error": f"Failed to analyze trends for {ticker}: {str(e)}"}
-
-# --- Portfolio Health endpoint ---
-@app.get("/portfolio-health-test")
-async def get_portfolio_health_test():
-    """Test endpoint for portfolio health"""
-    return {"status": "success", "health": 85, "test": "working"}
-
+# Additional endpoints for dashboard features
 @app.get("/portfolio-health")
-async def get_portfolio_health():
-    """Get portfolio health score, drivers, drift, and badges"""
-    # Return stub data for now
-    return {
-        "status": "success",
-        "health": 78.5,
-        "drivers": {
-            "diversification": 82.3,
-            "concentration": 75.0,
-            "cashDrag": 90.0,
-            "volProxy": 65.2
-        },
-        "driftAsset": {
-            "stocks": {
-                "current": 44.9,
-                "target": 40.0,
-                "delta": 4.9
-            },
-            "crypto": {
-                "current": 12.6,
-                "target": 10.0,
-                "delta": 2.6
-            },
-            "bonds": {
-                "current": 12.0,
-                "target": 20.0,
-                "delta": -8.0
-            },
-            "currencies": {
-                "current": 30.5,
-                "target": 30.0,
-                "delta": 0.5
-            }
-        },
-        "badges": ["Balanced", "Well Diversified", "Cash Optimized"],
-        "byAsset": {
-            "stocks": {"current": 44.9, "target": 40.0},
-            "crypto": {"current": 12.6, "target": 10.0},
-            "bonds": {"current": 12.0, "target": 20.0},
-            "currencies": {"current": 30.5, "target": 30.0}
-        },
-        "bySector": {
-            "Technology": 25.3,
-            "Healthcare": 15.2,
-            "Financial": 12.8,
-            "Consumer": 18.7,
-            "Industrial": 8.9,
-            "Other": 19.1
-        }
-    }
-
-def calculate_portfolio_health(portfolio, summary):
-    """Calculate portfolio health metrics"""
-    
-    # Initialize health metrics
-    health_metrics = {
-        'health': 0,
-        'drivers': {
-            'diversification': 0,
-            'concentration': 0,
-            'cashDrag': 0,
-            'volProxy': 0
-        },
-        'driftAsset': {},
-        'badges': [],
-        'byAsset': {},
-        'bySector': {}
-    }
-    
+def get_portfolio_health(user_id: int = 1, db: Session = Depends(get_db)):
+    """Get comprehensive portfolio health metrics"""
     try:
-        if not portfolio:
-            return health_metrics
+        from calculate_portfolio_health import calculate_portfolio_health_for_user
         
-        # Convert portfolio to DataFrame for easier calculations
-        df = pd.DataFrame(portfolio)
-        logger.info(f"DataFrame created with {len(df)} rows")
+        # Calculate real portfolio health
+        health_data = calculate_portfolio_health_for_user(user_id)
         
-        # Calculate total portfolio value
-        total_value = df['Curr $'].sum()
-        if total_value == 0:
-            return health_metrics
+        if health_data:
+            return health_data
+        else:
+            # Fallback to mock data
+            return {
+                "score": 75,
+                "riskLevel": "Medium",
+                "diversification": 0.7,
+                "concentration": 0.3,
+                "cashDrag": 0.05,
+                "volatility": 15.2,
+                "drivers": {
+                    "topPerformer": "AAPL",
+                    "worstPerformer": "TSLA",
+                    "riskFactors": ["High volatility", "Concentration risk"]
+                },
+                "driftAsset": {
+                    "symbol": "MSFT",
+                    "currentAllocation": 15.2,
+                    "targetAllocation": 12.0,
+                    "drift": 3.2
+                },
+                "badges": ["Diversified", "Consistent Performer", "Risk Managed"]
+            }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to calculate portfolio health: {str(e)}")
+
+@app.get("/portfolio/performance/{user_id}")
+def get_portfolio_performance(user_id: int, db: Session = Depends(get_db)):
+    """Get portfolio performance data for all time periods"""
+    try:
+        from models import PortfolioPerformance
         
-        # Calculate weights
-        df['weight'] = df['Curr $'] / total_value
+        # Get all performance records for the user
+        performances = db.query(PortfolioPerformance).filter(
+            PortfolioPerformance.user_id == user_id
+        ).all()
         
-        # 1. Diversification Score (HHI-based, 0-100)
-        hhi = (df['weight'] ** 2).sum()
-        diversification_score = max(0, 100 - (hhi * 100))  # Lower HHI = higher score
-        health_metrics['drivers']['diversification'] = round(diversification_score, 1)
-        
-        # 2. Concentration Score (penalize if top 3 > 35%)
-        top_3_weight = df.nlargest(3, 'weight')['weight'].sum()
-        concentration_score = max(0, 100 - ((top_3_weight - 0.35) * 200)) if top_3_weight > 0.35 else 100
-        health_metrics['drivers']['concentration'] = round(concentration_score, 1)
-        
-        # 3. Cash Drag Score (penalize if cash > 10%)
-        cash_weight = df[df['Category'].str.contains('Cash|Money Market', case=False, na=False)]['weight'].sum()
-        cash_drag_score = max(0, 100 - ((cash_weight - 0.10) * 500)) if cash_weight > 0.10 else 100
-        health_metrics['drivers']['cashDrag'] = round(cash_drag_score, 1)
-        
-        # 4. Volatility Proxy Score (based on equity allocation and beta)
-        equity_weight = df[df['Category'].str.contains('Stock|Equity', case=False, na=False)]['weight'].sum()
-        avg_beta = df[df['Category'].str.contains('Stock|Equity', case=False, na=False)]['Beta'].mean()
-        if pd.isna(avg_beta):
-            avg_beta = 1.0
-        
-        # Higher equity allocation and beta = higher risk = lower score
-        vol_proxy_score = max(0, 100 - (equity_weight * avg_beta * 50))
-        health_metrics['drivers']['volProxy'] = round(vol_proxy_score, 1)
-        
-        # Calculate overall health score (weighted average)
-        health_score = (
-            diversification_score * 0.30 +
-            concentration_score * 0.25 +
-            vol_proxy_score * 0.25 +
-            cash_drag_score * 0.20
-        )
-        health_metrics['health'] = round(health_score, 1)
-        
-        # Calculate asset class drift
-        asset_classes = df.groupby('Category').agg({
-            'weight': 'sum',
-            'Tgt %': 'first'
-        }).reset_index()
-        
-        drift_asset = {}
-        for _, row in asset_classes.iterrows():
-            category = row['Category']
-            current_pct = row['weight'] * 100
-            target_pct = row['Tgt %'] if not pd.isna(row['Tgt %']) else 0
-            drift_pct = current_pct - target_pct
+        if not performances:
+            # Calculate performance if no data exists
+            from calculate_portfolio_performance import calculate_portfolio_performance_for_user
+            calculate_portfolio_performance_for_user(user_id)
             
-            drift_asset[category] = {
-                'current': round(current_pct, 1),
-                'target': round(target_pct, 1),
-                'delta': round(drift_pct, 1)
+            # Query again after calculation
+            performances = db.query(PortfolioPerformance).filter(
+                PortfolioPerformance.user_id == user_id
+            ).all()
+        
+        # Format the response
+        performance_data = {}
+        for perf in performances:
+            performance_data[perf.period] = {
+                "start_date": perf.start_date.isoformat() if perf.start_date else None,
+                "end_date": perf.end_date.isoformat() if perf.end_date else None,
+                "start_value": round(perf.start_value, 2),
+                "end_value": round(perf.end_value, 2),
+                "total_return": round(perf.total_return, 2),
+                "total_gain_loss": round(perf.total_gain_loss, 2),
+                "annualized_return": round(perf.annualized_return, 2) if perf.annualized_return else None,
+                "volatility": round(perf.volatility, 2) if perf.volatility else None,
+                "sharpe_ratio": round(perf.sharpe_ratio, 2) if perf.sharpe_ratio else None,
+                "max_drawdown": round(perf.max_drawdown, 2) if perf.max_drawdown else None,
+                "calculation_date": perf.calculation_date.isoformat() if perf.calculation_date else None
             }
         
-        health_metrics['driftAsset'] = drift_asset
-        
-        # Generate badges based on thresholds
-        badges = []
-        if health_score >= 80:
-            badges.append("Balanced")
-        if health_score >= 90:
-            badges.append("Excellent")
-        if diversification_score >= 80:
-            badges.append("Well Diversified")
-        if concentration_score >= 80:
-            badges.append("Risk Tamer")
-        if cash_drag_score >= 80:
-            badges.append("Cash Optimized")
-        if vol_proxy_score >= 80:
-            badges.append("Risk Managed")
-        if health_score < 50:
-            badges.append("Needs Attention")
-        if health_score < 30:
-            badges.append("High Risk")
-        
-        health_metrics['badges'] = badges
-        
-        # Prepare byAsset and bySector data for future charts
-        health_metrics['byAsset'] = {
-            category: {
-                'current': round(row['weight'] * 100, 1),
-                'target': round(row['Tgt %'] if not pd.isna(row['Tgt %']) else 0, 1)
-            }
-            for _, row in asset_classes.iterrows()
+        return {
+            "user_id": user_id,
+            "performance": performance_data,
+            "status": "success"
         }
-        
-        # Group by sector (if available)
-        if 'Sector' in df.columns:
-            sectors = df.groupby('Sector')['weight'].sum().reset_index()
-            health_metrics['bySector'] = {
-                row['Sector']: round(row['weight'] * 100, 1)
-                for _, row in sectors.iterrows()
-            }
-        
-        logger.info(f"Health metrics calculated successfully: {health_metrics['health']}")
-        return health_metrics
         
     except Exception as e:
-        logger.error(f"Error in calculate_portfolio_health: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to get portfolio performance: {str(e)}")
+
+@app.get("/portfolio/performance-chart/{user_id}")
+def get_portfolio_performance_chart(user_id: int, period: str = "1Year", db: Session = Depends(get_db)):
+    """Get portfolio performance chart data for a specific period using pre-calculated data"""
+    try:
+        # Map frontend period names to database period names
+        period_mapping = {
+            "1Week": "1Week",
+            "1Month": "1Month",
+            "1Year": "1Year",
+            "YTD": "YTD",
+            # Legacy mappings for backward compatibility
+            "1M": "1Month",
+            "1Y": "1Year",
+            "5Y": "1Year"  # For now, use 1Year for 5Y
+        }
+        
+        db_period = period_mapping.get(period, "1Year")
+        print(f"📊 Frontend period: {period} -> Database period: {db_period}")
+        
+        # Get pre-calculated chart data
+        chart_records = db.query(PortfolioChartData).filter(
+            and_(
+                PortfolioChartData.user_id == user_id,
+                PortfolioChartData.period == db_period
+            )
+        ).order_by(PortfolioChartData.date.asc()).all()
+        
+        if not chart_records:
+            print(f"No pre-calculated data found for period {db_period}, generating mock data")
+            return generate_mock_performance_chart_data(period)
+        
+        # Convert to chart data format
+        chart_data = []
+        for record in chart_records:
+            chart_data.append({
+                "date": record.date.strftime("%Y-%m-%d"),
+                "total_value": round(record.total_value, 2)
+            })
+        
+        # Calculate performance metrics
+        start_value = chart_data[0]["total_value"] if chart_data else 0
+        end_value = chart_data[-1]["total_value"] if chart_data else 0
+        total_return = ((end_value - start_value) / start_value * 100) if start_value > 0 else 0
+        
+        print(f"📊 Returning {len(chart_data)} pre-calculated data points for {period}")
+        
+        return {
+            "period": period,
+            "data": chart_data,
+            "start_value": round(start_value, 2),
+            "end_value": round(end_value, 2),
+            "total_return": round(total_return, 2),
+            "status": "success",
+            "cached": True
+        }
+        
+    except Exception as e:
+        print(f"Error in performance chart: {e}")
         import traceback
-        logger.error(f"Traceback: {traceback.format_exc()}")
-        return health_metrics
+        traceback.print_exc()
+        # Return mock data as fallback
+        return generate_mock_performance_chart_data(period)
 
-# --- User Management ---
-from user_management import user_manager
-from enhanced_user_management import enhanced_user_manager
-from bot_management import bot_manager
-
-class LoginRequest(BaseModel):
-    email: str
-    password: str
-
-class RegisterRequest(BaseModel):
-    email: str
-    password: str
-    first_name: str = None
-    last_name: str = None
-
-class UserProfileUpdate(BaseModel):
-    first_name: str = None
-    last_name: str = None
-    email: str = None
-
-@app.post("/register")
-async def register_user(payload: RegisterRequest):
-    """Register a new user"""
-    result = user_manager.register_user(
-        email=payload.email,
-        password=payload.password,
-        first_name=payload.first_name,
-        last_name=payload.last_name
-    )
-    return result
-
-@app.post("/login")
-async def login_user(payload: LoginRequest, response: Response):
-    """Authenticate user and create session"""
-    email_normalized = payload.email.strip().lower()
-    password_normalized = payload.password.strip()
-
-    # Dev fallback: universal demo credentials
-    if email_normalized == "demo@portora.com" and password_normalized == "123456":
-        # Map demo credentials to a default demo user (conservative persona)
-        try:
-            demo_result = enhanced_user_manager.authenticate_user("conservative@example.com", "password123")
-            if not demo_result or not demo_result.get("success"):
-                # Ensure user exists
-                created = enhanced_user_manager.register_user(
-                    "conservative@example.com", "password123", "Conservative", "Investor"
-                )
-                if created and created.get("success"):
-                    demo_result = enhanced_user_manager.authenticate_user("conservative@example.com", "password123")
-            if demo_result and demo_result.get("success"):
-                user = demo_result["user"]
-                token = jwt.encode(
-                    {"sub": user["email"], "user_id": user["id"], "exp": datetime.datetime.utcnow() + datetime.timedelta(days=7)},
-                    SECRET_KEY, algorithm=ALGORITHM
-                )
-                # Set cookie for localhost so Next.js can send it back
-                response.set_cookie(key=COOKIE_NAME, value=token, httponly=True, samesite="lax", domain="localhost")
-                return {"status": "success", "user": user}
-        except Exception:
-            pass
-
-    # Normal authentication path
-    result = enhanced_user_manager.authenticate_user(email_normalized, password_normalized)
-    if result and result.get("success"):
-        user = result["user"]
-        token = jwt.encode(
-            {"sub": user["email"], "user_id": user["id"], "exp": datetime.datetime.utcnow() + datetime.timedelta(days=7)},
-            SECRET_KEY, algorithm=ALGORITHM
-        )
-        response.set_cookie(key=COOKIE_NAME, value=token, httponly=True, samesite="lax", domain="localhost")
-        return {"status": "success", "user": user}
-
-    return {"status": "failure", "message": "Invalid credentials"}
-
-@app.get("/me")
-async def get_me(request: Request):
-    """Get current user information"""
-    token = request.cookies.get(COOKIE_NAME)
-    if not token:
-        return {"status": "unauthenticated"}
-    try:
-        decoded = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        user_id = decoded.get("user_id")
-        if user_id:
-            user = enhanced_user_manager.get_user_by_id(user_id)
-            if user:
-                return {"status": "authenticated", "user": user}
-        return {"status": "unauthenticated", "message": "User not found"}
-    except jwt.ExpiredSignatureError:
-        return {"status": "unauthenticated", "message": "Session expired"}
-    except jwt.InvalidTokenError:
-        return {"status": "unauthenticated", "message": "Invalid session"}
-
-@app.put("/profile")
-async def update_profile(request: Request, payload: UserProfileUpdate):
-    """Update user profile"""
-    token = request.cookies.get(COOKIE_NAME)
-    if not token:
-        return {"status": "unauthenticated"}
+def generate_mock_performance_chart_data(period: str):
+    """Generate mock performance chart data"""
+    from datetime import datetime, timedelta
+    import random
     
-    try:
-        decoded = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        user_id = decoded.get("user_id")
-        if not user_id:
-            return {"status": "error", "message": "Invalid token"}
-        
-        # Update profile
-        update_data = {k: v for k, v in payload.dict().items() if v is not None}
-        success = user_manager.update_user_profile(user_id, **update_data)
-        
-        if success:
-            return {"status": "success", "message": "Profile updated successfully"}
-        else:
-            return {"status": "error", "message": "Failed to update profile"}
-            
-    except jwt.ExpiredSignatureError:
-        return {"status": "unauthenticated", "message": "Session expired"}
-    except jwt.InvalidTokenError:
-        return {"status": "unauthenticated", "message": "Invalid session"}
-
-@app.get("/preferences")
-async def get_preferences(request: Request):
-    """Get user preferences"""
-    token = request.cookies.get(COOKIE_NAME)
-    if not token:
-        return {"status": "unauthenticated"}
+    # Calculate days based on period
+    if period in ["1Week", "1W"]:
+        days = 7
+    elif period in ["1Month", "1M"]:
+        days = 30
+    elif period == "YTD":
+        days = (datetime.now() - datetime(datetime.now().year, 1, 1)).days
+    elif period in ["5Y", "5Year"]:
+        days = 365 * 5
+    else:  # 1Year, 1Y
+        days = 365
     
-    try:
-        decoded = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        user_id = decoded.get("user_id")
-        if not user_id:
-            return {"status": "error", "message": "Invalid token"}
-        
-        preferences = user_manager.get_all_user_preferences(user_id)
-        return {"status": "success", "preferences": preferences}
-        
-    except jwt.ExpiredSignatureError:
-        return {"status": "unauthenticated", "message": "Session expired"}
-    except jwt.InvalidTokenError:
-        return {"status": "unauthenticated", "message": "Invalid session"}
-
-@app.post("/preferences")
-async def set_preference(request: Request, key: str, value: str):
-    """Set a user preference"""
-    token = request.cookies.get(COOKIE_NAME)
-    if not token:
-        return {"status": "unauthenticated"}
+    # Generate mock data
+    start_value = 325850.92  # Use the actual portfolio value
+    end_value = start_value * (1 + random.uniform(0.05, 0.25))  # 5-25% growth
     
-    try:
-        decoded = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        user_id = decoded.get("user_id")
-        if not user_id:
-            return {"status": "error", "message": "Invalid token"}
-        
-        success = user_manager.set_user_preference(user_id, key, value)
-        if success:
-            return {"status": "success", "message": "Preference set successfully"}
-        else:
-            return {"status": "error", "message": "Failed to set preference"}
-            
-    except jwt.ExpiredSignatureError:
-        return {"status": "unauthenticated", "message": "Session expired"}
-    except jwt.InvalidTokenError:
-        return {"status": "unauthenticated", "message": "Invalid session"}
-
-@app.post("/logout")
-async def logout(response: Response):
-    """Logout user"""
-    response.delete_cookie(COOKIE_NAME)
-    return {"status": "logged_out"}
-
-# --- Portfolio Management ---
-@app.get("/portfolios")
-async def get_user_portfolios(request: Request):
-    """Get all portfolios for the current user"""
-    token = request.cookies.get(COOKIE_NAME)
-    if not token:
-        return {"status": "unauthenticated"}
+    chart_data = []
+    start_date = datetime.now() - timedelta(days=days)
     
-    try:
-        decoded = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        user_id = decoded.get("user_id")
+    step = max(1, days // 50) if days > 50 else 1
+    for i in range(0, days + 1, step):
+        current_date = start_date + timedelta(days=i)
+        progress = i / days if days > 0 else 0
         
-        if not user_id:
-            return {"status": "error", "message": "User not found"}
-        portfolios = enhanced_user_manager.get_user_portfolios(user_id)
+        # Add some realistic market movement
+        base_value = start_value + (end_value - start_value) * progress
+        volatility = random.uniform(-0.02, 0.02)  # 2% daily volatility
+        value = base_value * (1 + volatility)
         
-        return {"status": "success", "portfolios": portfolios}
-        
-    except jwt.ExpiredSignatureError:
-        return {"status": "unauthenticated", "message": "Session expired"}
-    except jwt.InvalidTokenError:
-        return {"status": "unauthenticated", "message": "Invalid session"}
-    except Exception as e:
-        logger.error(f"Error getting portfolios: {e}")
-        return {"status": "error", "message": "Failed to get portfolios"}
-
-@app.get("/portfolios/{portfolio_id}/holdings")
-async def get_portfolio_holdings(portfolio_id: int, request: Request):
-    """Get holdings for a specific portfolio"""
-    token = request.cookies.get(COOKIE_NAME)
-    if not token:
-        return {"status": "unauthenticated"}
-    
-    try:
-        decoded = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        user_id = decoded.get("user_id")
-        
-        if not user_id:
-            return {"status": "error", "message": "User not found"}
-        user_portfolios = enhanced_user_manager.get_user_portfolios(user_id)
-        
-        # Check if portfolio belongs to user
-        portfolio_exists = any(p["id"] == portfolio_id for p in user_portfolios)
-        if not portfolio_exists:
-            return {"status": "error", "message": "Portfolio not found"}
-        
-        holdings = enhanced_user_manager.get_portfolio_holdings(portfolio_id)
-        return {"status": "success", "holdings": holdings}
-        
-    except jwt.ExpiredSignatureError:
-        return {"status": "unauthenticated", "message": "Session expired"}
-    except jwt.InvalidTokenError:
-        return {"status": "unauthenticated", "message": "Invalid session"}
-    except Exception as e:
-        logger.error(f"Error getting portfolio holdings: {e}")
-        return {"status": "error", "message": "Failed to get holdings"}
-
-# --- Bot Management ---
-@app.get("/bots")
-async def get_user_bots(request: Request):
-    """Get all bots for the current user"""
-    token = request.cookies.get(COOKIE_NAME)
-    if not token:
-        return {"status": "unauthenticated"}
-    
-    try:
-        decoded = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        user_email = decoded["sub"]
-        
-        # Get user ID
-        user = enhanced_user_manager.authenticate_user(user_email, "dummy")
-        if not user["success"]:
-            return {"status": "error", "message": "User not found"}
-        
-        user_id = user["user"]["id"]
-        bots = enhanced_user_manager.get_user_bots(user_id)
-        
-        return {"status": "success", "bots": bots}
-        
-    except jwt.ExpiredSignatureError:
-        return {"status": "unauthenticated", "message": "Session expired"}
-    except jwt.InvalidTokenError:
-        return {"status": "unauthenticated", "message": "Invalid session"}
-    except Exception as e:
-        logger.error(f"Error getting bots: {e}")
-        return {"status": "error", "message": "Failed to get bots"}
-
-@app.get("/bots/types")
-async def get_bot_types():
-    """Get available bot types"""
-    try:
-        bot_types = bot_manager.get_available_bot_types()
-        return {"status": "success", "bot_types": bot_types}
-    except Exception as e:
-        logger.error(f"Error getting bot types: {e}")
-        return {"status": "error", "message": "Failed to get bot types"}
-
-@app.get("/bots/{bot_type}/config")
-async def get_bot_config_template(bot_type: str):
-    """Get configuration template for a bot type"""
-    try:
-        config = bot_manager.get_bot_config_template(bot_type)
-        return {"status": "success", "config": config}
-    except Exception as e:
-        logger.error(f"Error getting bot config: {e}")
-        return {"status": "error", "message": "Failed to get bot config"}
-
-class CreateBotRequest(BaseModel):
-    name: str
-    bot_type: str
-    config: Dict[str, Any] = {}
-
-@app.post("/bots")
-async def create_bot(request: CreateBotRequest, http_request: Request):
-    """Create a new trading bot"""
-    token = http_request.cookies.get(COOKIE_NAME)
-    if not token:
-        return {"status": "unauthenticated"}
-    
-    try:
-        decoded = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        user_email = decoded["sub"]
-        
-        # Get user ID
-        user = enhanced_user_manager.authenticate_user(user_email, "dummy")
-        if not user["success"]:
-            return {"status": "error", "message": "User not found"}
-        
-        user_id = user["user"]["id"]
-        result = bot_manager.create_bot(user_id, request.name, request.bot_type, request.config)
-        
-        return result
-        
-    except jwt.ExpiredSignatureError:
-        return {"status": "unauthenticated", "message": "Session expired"}
-    except jwt.InvalidTokenError:
-        return {"status": "unauthenticated", "message": "Invalid session"}
-    except Exception as e:
-        logger.error(f"Error creating bot: {e}")
-        return {"status": "error", "message": "Failed to create bot"}
-
-@app.post("/bots/{bot_id}/start")
-async def start_bot(bot_id: int, request: Request):
-    """Start a bot"""
-    token = request.cookies.get(COOKIE_NAME)
-    if not token:
-        return {"status": "unauthenticated"}
-    
-    try:
-        decoded = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        user_email = decoded["sub"]
-        
-        # Verify user owns this bot
-        user = enhanced_user_manager.authenticate_user(user_email, "dummy")
-        if not user["success"]:
-            return {"status": "error", "message": "User not found"}
-        
-        user_id = user["user"]["id"]
-        user_bots = enhanced_user_manager.get_user_bots(user_id)
-        
-        # Check if bot belongs to user
-        bot_exists = any(b["id"] == bot_id for b in user_bots)
-        if not bot_exists:
-            return {"status": "error", "message": "Bot not found"}
-        
-        result = bot_manager.start_bot(bot_id)
-        return result
-        
-    except jwt.ExpiredSignatureError:
-        return {"status": "unauthenticated", "message": "Session expired"}
-    except jwt.InvalidTokenError:
-        return {"status": "unauthenticated", "message": "Invalid session"}
-    except Exception as e:
-        logger.error(f"Error starting bot: {e}")
-        return {"status": "error", "message": "Failed to start bot"}
-
-@app.post("/bots/{bot_id}/stop")
-async def stop_bot(bot_id: int, request: Request):
-    """Stop a bot"""
-    token = request.cookies.get(COOKIE_NAME)
-    if not token:
-        return {"status": "unauthenticated"}
-    
-    try:
-        decoded = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        user_email = decoded["sub"]
-        
-        # Verify user owns this bot
-        user = enhanced_user_manager.authenticate_user(user_email, "dummy")
-        if not user["success"]:
-            return {"status": "error", "message": "User not found"}
-        
-        user_id = user["user"]["id"]
-        user_bots = enhanced_user_manager.get_user_bots(user_id)
-        
-        # Check if bot belongs to user
-        bot_exists = any(b["id"] == bot_id for b in user_bots)
-        if not bot_exists:
-            return {"status": "error", "message": "Bot not found"}
-        
-        result = bot_manager.stop_bot(bot_id)
-        return result
-        
-    except jwt.ExpiredSignatureError:
-        return {"status": "unauthenticated", "message": "Session expired"}
-    except jwt.InvalidTokenError:
-        return {"status": "unauthenticated", "message": "Invalid session"}
-    except Exception as e:
-        logger.error(f"Error stopping bot: {e}")
-        return {"status": "error", "message": "Failed to stop bot"}
-
-@app.get("/bots/{bot_id}/performance")
-async def get_bot_performance(bot_id: int, request: Request):
-    """Get bot performance data"""
-    token = request.cookies.get(COOKIE_NAME)
-    if not token:
-        return {"status": "unauthenticated"}
-    
-    try:
-        decoded = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        user_email = decoded["sub"]
-        
-        # Verify user owns this bot
-        user = enhanced_user_manager.authenticate_user(user_email, "dummy")
-        if not user["success"]:
-            return {"status": "error", "message": "User not found"}
-        
-        user_id = user["user"]["id"]
-        user_bots = enhanced_user_manager.get_user_bots(user_id)
-        
-        # Check if bot belongs to user
-        bot_exists = any(b["id"] == bot_id for b in user_bots)
-        if not bot_exists:
-            return {"status": "error", "message": "Bot not found"}
-        
-        result = bot_manager.get_bot_performance(bot_id)
-        return result
-        
-    except jwt.ExpiredSignatureError:
-        return {"status": "unauthenticated", "message": "Session expired"}
-    except jwt.InvalidTokenError:
-        return {"status": "unauthenticated", "message": "Invalid session"}
-    except Exception as e:
-        logger.error(f"Error getting bot performance: {e}")
-        return {"status": "error", "message": "Failed to get bot performance"}
-
-# --- Comparison & Benchmarking ---
-@app.get("/comparison")
-async def get_comparison_data(request: Request):
-    """Get comparison data; demo-friendly: if unauthenticated, use demo portfolio holdings."""
-    user_holdings = []
-    token = request.cookies.get(COOKIE_NAME)
-    if token:
-        try:
-            decoded = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-            user_id = decoded.get("user_id")
-            if user_id:
-                user_portfolios = enhanced_user_manager.get_user_portfolios(user_id)
-                if user_portfolios:
-                    conservative_portfolio = next((p for p in user_portfolios if "Conservative" in p["name"]), None)
-                    portfolio_id = conservative_portfolio["id"] if conservative_portfolio else user_portfolios[0]["id"]
-                    user_holdings = enhanced_user_manager.get_portfolio_holdings(portfolio_id)
-        except Exception:
-            pass
-
-    # Fallback to demo user's primary portfolio holdings if empty
-    if not user_holdings:
-        try:
-            demo_auth = enhanced_user_manager.authenticate_user("conservative@example.com", "password123")
-            if demo_auth and demo_auth.get("success"):
-                demo_user_id = demo_auth["user"]["id"]
-                primary_id = enhanced_user_manager.get_primary_portfolio_id(demo_user_id)
-                if primary_id:
-                    user_holdings = enhanced_user_manager.get_portfolio_holdings(primary_id)
-        except Exception:
-            user_holdings = []
-
-    # Calculate user metrics (stubbed for now)
-    user_metrics = calculate_user_metrics(user_holdings)
-
-    # Get community data (stubbed)
-    community_metrics = get_community_metrics()
-
-    # Stubbed benchmark data
-    comparison_data = {
-        "user": user_metrics,
-        "sp500": {
-            "one_year_return": 12.5,
-            "volatility": 18.2,
-            "dividend_yield": 1.8,
-            "allocation": {
-                "equity": 100.0,
-                "bond": 0.0,
-                "cash": 0.0
-            }
-        },
-        "model6040": {
-            "one_year_return": 10.8,
-            "volatility": 12.5,
-            "dividend_yield": 2.1,
-            "allocation": {
-                "equity": 60.0,
-                "bond": 40.0,
-                "cash": 0.0
-            }
-        },
-        "allWeather": {
-            "one_year_return": 8.9,
-            "volatility": 8.7,
-            "dividend_yield": 2.3,
-            "allocation": {
-                "equity": 30.0,
-                "bond": 55.0,
-                "cash": 15.0
-            }
-        },
-        "community": community_metrics
-    }
-
-    return {"status": "success", "data": comparison_data}
-
-def calculate_user_metrics(holdings):
-    """Calculate user portfolio metrics (stubbed)"""
-    if not holdings:
-        return {
-            "one_year_return": 0.0,
-            "volatility": 0.0,
-            "dividend_yield": 0.0,
-            "allocation": {
-                "equity": 0.0,
-                "bond": 0.0,
-                "cash": 0.0
-            }
-        }
-    
-    # Use realistic stubbed prices for holdings
-    stubbed_prices = {
-        "VTI": 250.0, "VEA": 45.0, "VWO": 42.0, "BND": 75.0, "GLD": 180.0,
-        "QQQ": 380.0, "ARKK": 45.0, "TSLA": 250.0, "NVDA": 450.0, "BTC-USD": 65000.0,
-        "AAPL": 175.0, "MSFT": 350.0, "GOOGL": 140.0, "AMZN": 150.0, "META": 300.0,
-        "SCHD": 80.0, "VYM": 90.0, "JNJ": 160.0, "KO": 60.0, "PG": 150.0
-    }
-    
-    # Calculate total value using stubbed prices
-    total_value = 0
-    for holding in holdings:
-        symbol = holding.get("symbol", "")
-        quantity = holding.get("quantity", 0)
-        price = stubbed_prices.get(symbol, 100.0)  # Default price if not found
-        total_value += quantity * price
-    
-    # Calculate allocation by asset class
-    equity_value = 0
-    bond_value = 0
-    cash_value = 0
-    
-    for holding in holdings:
-        symbol = holding.get("symbol", "")
-        quantity = holding.get("quantity", 0)
-        asset_class = holding.get("asset_class", "")
-        price = stubbed_prices.get(symbol, 100.0)
-        value = quantity * price
-        
-        if asset_class in ["equity", "crypto"]:
-            equity_value += value
-        elif asset_class == "bond":
-            bond_value += value
-        elif asset_class == "cash":
-            cash_value += value
-    
-    # Stubbed performance metrics - use realistic data based on holdings
-    if total_value > 0:
-        # Calculate allocation based on actual holdings
-        equity_pct = (equity_value / total_value * 100)
-        bond_pct = (bond_value / total_value * 100)
-        cash_pct = (cash_value / total_value * 100)
-        
-        # Generate performance metrics based on allocation
-        if equity_pct > 80:
-            # High equity allocation - higher returns, higher volatility
-            one_year_return = 18.5
-            volatility = 25.2
-            dividend_yield = 1.2
-        elif equity_pct > 60:
-            # Balanced allocation
-            one_year_return = 15.2
-            volatility = 22.1
-            dividend_yield = 1.5
-        elif equity_pct > 40:
-            # Conservative allocation
-            one_year_return = 12.8
-            volatility = 18.5
-            dividend_yield = 2.1
-        else:
-            # Very conservative allocation
-            one_year_return = 8.9
-            volatility = 12.3
-            dividend_yield = 2.8
-    else:
-        # No holdings - use default values
-        one_year_return = 15.2
-        volatility = 22.1
-        dividend_yield = 1.5
-        equity_pct = 85.0
-        bond_pct = 12.0
-        cash_pct = 3.0
+        chart_data.append({
+            "date": current_date.strftime("%Y-%m-%d"),
+            "total_value": round(value, 2)
+        })
     
     return {
-        "one_year_return": one_year_return,
-        "volatility": volatility,
-        "dividend_yield": dividend_yield,
-        "allocation": {
-            "equity": equity_pct if total_value > 0 else 85.0,
-            "bond": bond_pct if total_value > 0 else 12.0,
-            "cash": cash_pct if total_value > 0 else 3.0
-        }
+        "period": period,
+        "data": chart_data,
+        "start_value": round(start_value, 2),
+        "end_value": round(end_value, 2),
+        "total_return": round(((end_value - start_value) / start_value) * 100, 2),
+        "status": "mock"
     }
 
-def get_community_metrics():
-    """Get community average metrics (stubbed)"""
-    return {
-        "median_one_year_return": 11.8,
-        "median_volatility": 16.5,
-        "average_dividend_yield": 1.9,
-        "average_allocation": {
-            "equity": 75.0,
-            "bond": 20.0,
-            "cash": 5.0
-        }
-    }
-
-# Onboarding endpoints
 @app.get("/onboarding/status")
-async def get_onboarding_status():
-    """Get onboarding status for current user"""
-    try:
-        # For demo purposes, check if user is logged in via localStorage
-        # In production, this would use proper JWT authentication
-        return {
-            "has_seen_onboarding": False,  # Default for demo
-            "show_onboarding": True
-        }
-    except Exception as e:
-        logger.error(f"Error getting onboarding status: {e}")
-        return {"error": "Failed to get onboarding status"}
+def get_onboarding_status():
+    """Get onboarding status"""
+    return {"has_seen_onboarding": False}
 
 @app.post("/onboarding/complete")
-async def complete_onboarding():
-    """Mark onboarding as complete for current user"""
-    try:
-        # For demo purposes, this would update the user's preferences
-        # In production, this would use proper JWT authentication
-        return {
-            "success": True,
-            "message": "Onboarding completed successfully"
-        }
-    except Exception as e:
-        logger.error(f"Error completing onboarding: {e}")
-        return {"error": "Failed to complete onboarding"}
-
-# Alerts endpoints
-@app.get("/alerts")
-async def get_alerts(unread_only: bool = False, limit: int = 50):
-    """Get alerts for current user"""
-    try:
-        # For demo purposes, return sample alerts
-        # In production, this would use proper JWT authentication
-        sample_alerts = [
-            {
-                "id": 1,
-                "type": "portfolio",
-                "title": "Portfolio Health Alert",
-                "message": "Your portfolio health score has improved to 85! Great diversification.",
-                "is_read": False,
-                "priority": "medium",
-                "created_at": "2024-01-15T10:30:00Z",
-                "expires_at": None,
-                "metadata": {"health_score": 85}
-            },
-            {
-                "id": 2,
-                "type": "market",
-                "title": "Market Update",
-                "message": "S&P 500 is up 2.3% today. Consider reviewing your positions.",
-                "is_read": False,
-                "priority": "low",
-                "created_at": "2024-01-15T09:15:00Z",
-                "expires_at": "2024-01-16T09:15:00Z",
-                "metadata": {"market_change": 2.3}
-            },
-            {
-                "id": 3,
-                "type": "bot",
-                "title": "Trading Bot Activity",
-                "message": "DCA Bot executed a buy order for AAPL at $150.25",
-                "is_read": True,
-                "priority": "high",
-                "created_at": "2024-01-15T08:45:00Z",
-                "expires_at": None,
-                "metadata": {"symbol": "AAPL", "action": "buy", "price": 150.25}
-            }
-        ]
-        
-        if unread_only:
-            sample_alerts = [alert for alert in sample_alerts if not alert["is_read"]]
-        
-        return sample_alerts[:limit]
-        
-    except Exception as e:
-        logger.error(f"Error getting alerts: {e}")
-        return {"error": "Failed to get alerts"}
+def complete_onboarding():
+    """Mark onboarding as complete"""
+    return {"message": "Onboarding completed"}
 
 @app.get("/alerts/count")
-async def get_alert_count():
-    """Get unread alert count for current user"""
-    try:
-        # For demo purposes, return sample count
-        return {"unread_count": 2}
-    except Exception as e:
-        logger.error(f"Error getting alert count: {e}")
-        return {"error": "Failed to get alert count"}
+def get_alerts_count():
+    """Get alerts count"""
+    return {"count": 0, "alerts": []}
 
-@app.post("/alerts/{alert_id}/read")
-async def mark_alert_read(alert_id: int):
-    """Mark an alert as read"""
+# Historical data endpoints
+@app.get("/historical-data/status")
+def get_historical_data_status(db: Session = Depends(get_db)):
+    """Get status of historical data collection"""
     try:
-        # For demo purposes, just return success
-        # In production, this would update the database
-        return {"success": True, "message": "Alert marked as read"}
+        from models import HistoricalData
+        from sqlalchemy import func
+        
+        # Count total records
+        total_records = db.query(HistoricalData).count()
+        
+        # Count by asset type
+        stock_records = db.query(HistoricalData).filter(HistoricalData.asset_type == 'stock').count()
+        crypto_records = db.query(HistoricalData).filter(HistoricalData.asset_type == 'crypto').count()
+        
+        # Get date range
+        date_range = db.query(
+            func.min(HistoricalData.date).label('earliest'),
+            func.max(HistoricalData.date).label('latest')
+        ).first()
+        
+        return {
+            "status": "ready" if total_records > 1000 else "collecting",
+            "total_records": total_records,
+            "stock_records": stock_records,
+            "crypto_records": crypto_records,
+            "earliest_date": date_range.earliest.isoformat() if date_range.earliest else None,
+            "latest_date": date_range.latest.isoformat() if date_range.latest else None
+        }
     except Exception as e:
-        logger.error(f"Error marking alert as read: {e}")
-        return {"error": "Failed to mark alert as read"}
+        return {
+            "status": "error",
+            "total_records": 0,
+            "stock_records": 0,
+            "crypto_records": 0,
+            "error": str(e)
+        }
 
-@app.post("/alerts/read-all")
-async def mark_all_alerts_read():
-    """Mark all alerts as read for current user"""
+@app.post("/historical-data/collect")
+def collect_historical_data():
+    """Start historical data collection"""
     try:
-        # For demo purposes, just return success
-        # In production, this would update the database
-        return {"success": True, "message": "All alerts marked as read"}
+        from data_collector import HistoricalDataCollector
+        from database import get_db
+        
+        # Start data collection in background
+        db = next(get_db())
+        collector = HistoricalDataCollector(db)
+        
+        # Run collection in a separate thread to avoid blocking
+        import threading
+        thread = threading.Thread(target=collector.collect_all_historical_data)
+        thread.daemon = True
+        thread.start()
+        
+        return {
+            "message": "Historical data collection started",
+            "status": "started"
+        }
     except Exception as e:
-        logger.error(f"Error marking all alerts as read: {e}")
-        return {"error": "Failed to mark all alerts as read"}
+        return {
+            "message": f"Failed to start data collection: {str(e)}",
+            "status": "error"
+        }
 
-# Community Benchmark endpoints
-@app.get("/community/comparison")
-async def get_community_comparison():
-    """Get community benchmark comparison data"""
+# Removed duplicate portfolio performance endpoint
+
+@app.get("/portfolio/real-time/{user_id}")
+def get_real_time_portfolio(user_id: int, db: Session = Depends(get_db)):
+    """Get real-time portfolio calculations using historical data"""
     try:
-        # Sample community data for demo
-        community_data = {
-            "community_stats": {
-                "total_users": 15420,
-                "active_users_30d": 8934,
-                "average_portfolio_value": 125000,
-                "median_portfolio_value": 85000,
-                "top_performers_count": 2341
-            },
-            "performance_benchmarks": {
-                "community_median_1y_return": 12.4,
-                "community_median_volatility": 18.2,
-                "community_median_sharpe_ratio": 0.68,
-                "community_median_max_drawdown": -15.3,
-                "top_quartile_1y_return": 24.7,
-                "bottom_quartile_1y_return": 2.1
-            },
-            "allocation_benchmarks": {
-                "community_avg_equity_allocation": 72.5,
-                "community_avg_bond_allocation": 18.3,
-                "community_avg_cash_allocation": 9.2,
-                "community_avg_crypto_allocation": 3.8,
-                "community_avg_international_allocation": 15.7
-            },
-            "sector_performance": {
-                "technology": {"avg_allocation": 28.4, "avg_return": 18.2},
-                "healthcare": {"avg_allocation": 12.1, "avg_return": 14.7},
-                "financials": {"avg_allocation": 15.8, "avg_return": 11.3},
-                "consumer_discretionary": {"avg_allocation": 8.9, "avg_return": 16.1},
-                "industrials": {"avg_allocation": 9.2, "avg_return": 9.8},
-                "energy": {"avg_allocation": 4.1, "avg_return": 22.4},
-                "utilities": {"avg_allocation": 3.2, "avg_return": 6.5},
-                "materials": {"avg_allocation": 2.8, "avg_return": 13.2}
-            },
-            "risk_profiles": {
-                "conservative": {"count": 2341, "avg_return": 8.2, "avg_volatility": 12.1},
-                "moderate": {"count": 6789, "avg_return": 12.4, "avg_volatility": 16.8},
-                "aggressive": {"count": 4567, "avg_return": 18.7, "avg_volatility": 24.3},
-                "very_aggressive": {"count": 1723, "avg_return": 25.1, "avg_volatility": 31.2}
-            },
-            "popular_strategies": [
-                {"name": "Dollar Cost Averaging", "users": 8934, "avg_return": 13.2},
-                {"name": "Value Investing", "users": 4567, "avg_return": 11.8},
-                {"name": "Growth Investing", "users": 6789, "avg_return": 16.4},
-                {"name": "Dividend Focus", "users": 3456, "avg_return": 9.7},
-                {"name": "Index Fund Strategy", "users": 5678, "avg_return": 12.1},
-                {"name": "Sector Rotation", "users": 1234, "avg_return": 14.8}
-            ],
-            "recent_trends": {
-                "most_bought_stocks": [
-                    {"symbol": "AAPL", "buys": 1234, "avg_price": 150.25},
-                    {"symbol": "MSFT", "buys": 987, "avg_price": 280.45},
-                    {"symbol": "GOOGL", "buys": 876, "avg_price": 95.67},
-                    {"symbol": "TSLA", "buys": 765, "avg_price": 245.32},
-                    {"symbol": "NVDA", "buys": 654, "avg_price": 425.18}
-                ],
-                "most_sold_stocks": [
-                    {"symbol": "META", "sells": 543, "avg_price": 285.67},
-                    {"symbol": "NFLX", "sells": 432, "avg_price": 345.21},
-                    {"symbol": "AMZN", "sells": 321, "avg_price": 125.43},
-                    {"symbol": "BABA", "sells": 210, "avg_price": 78.90},
-                    {"symbol": "PYPL", "sells": 198, "avg_price": 65.34}
-                ]
+        from models import HistoricalData, Portfolio
+        from sqlalchemy import func, and_
+        from datetime import datetime, timedelta
+        
+        # Get user's portfolio
+        portfolio = db.query(Portfolio).filter(Portfolio.user_id == user_id).all()
+        if not portfolio:
+            return {"error": "No portfolio found"}
+        
+        # Get the most recent date with data
+        latest_date = db.query(func.max(HistoricalData.date)).scalar()
+        if not latest_date:
+            return {"error": "No historical data available"}
+        
+        # Get prices for the most recent date
+        current_values = []
+        total_current_value = 0
+        total_cost_basis = 0
+        
+        for holding in portfolio:
+            # Get current price from historical data
+            price_data = db.query(HistoricalData).filter(
+                and_(
+                    HistoricalData.ticker == holding.ticker,
+                    HistoricalData.date == latest_date
+                )
+            ).first()
+            
+            if price_data:
+                current_price = price_data.close_price
+                current_value = holding.shares * current_price
+                cost_basis = holding.shares * holding.avg_price
+                gain_loss = current_value - cost_basis
+                gain_loss_percent = (gain_loss / cost_basis * 100) if cost_basis > 0 else 0
+                
+                current_values.append({
+                    "ticker": holding.ticker,
+                    "shares": holding.shares,
+                    "avg_price": holding.avg_price,
+                    "current_price": round(current_price, 2),
+                    "current_value": round(current_value, 2),
+                    "cost_basis": round(cost_basis, 2),
+                    "gain_loss": round(gain_loss, 2),
+                    "gain_loss_percent": round(gain_loss_percent, 2)
+                })
+                
+                total_current_value += current_value
+                total_cost_basis += cost_basis
+        
+        # Calculate total portfolio metrics
+        total_gain_loss = total_current_value - total_cost_basis
+        total_gain_loss_percent = (total_gain_loss / total_cost_basis * 100) if total_cost_basis > 0 else 0
+        
+        return {
+            "portfolio": current_values,
+            "summary": {
+                "total_current_value": round(total_current_value, 2),
+                "total_cost_basis": round(total_cost_basis, 2),
+                "total_gain_loss": round(total_gain_loss, 2),
+                "total_gain_loss_percent": round(total_gain_loss_percent, 2),
+                "latest_date": latest_date.strftime('%Y-%m-%d'),
+                "total_holdings": len(portfolio)
             }
         }
         
-        return community_data
+    except Exception as e:
+        return {"error": str(e)}
+
+@app.get("/portfolio/summary-metrics/{user_id}")
+def get_portfolio_summary_metrics(user_id: int, db: Session = Depends(get_db)):
+    """Get pre-calculated portfolio summary metrics for INSTANT loading"""
+    try:
+        from models import PortfolioSummary
+        
+        # Get pre-calculated summary data (INSTANT!)
+        summary = db.query(PortfolioSummary).filter(PortfolioSummary.user_id == user_id).first()
+        
+        if not summary:
+            return {"error": "No portfolio summary found"}
+        
+        # Return pre-calculated data instantly
+        return {
+            "summary": {
+                "total_value": round(summary.total_value, 2),
+                "total_gain_loss": round(summary.total_gain_loss, 2),
+                "total_gain_loss_percent": round(summary.total_gain_loss_percent, 2),
+                "one_year_cagr": round(summary.one_year_cagr or 0, 2),
+                "total_holdings": summary.total_holdings,
+                "category_breakdown": {
+                    "Stock": round(summary.stock_value, 2),
+                    "Crypto": round(summary.crypto_value, 2),
+                    "ETF": round(summary.etf_value, 2),
+                    "Bond": round(summary.bond_value, 2),
+                    "Cash": round(summary.cash_value, 2)
+                },
+                "latest_date": summary.latest_date.strftime('%Y-%m-%d') if summary.latest_date else datetime.now().strftime('%Y-%m-%d')
+            },
+            "status": "success",
+            "cached": True,
+            "last_updated": summary.last_updated.strftime('%Y-%m-%d %H:%M:%S') if summary.last_updated else None
+        }
         
     except Exception as e:
-        logger.error(f"Error getting community comparison: {e}")
-        return {"error": "Failed to get community comparison data"}
+        return {"error": str(e)}
+
+@app.get("/portfolio/performance-chart/{user_id}")
+def get_portfolio_performance_chart(user_id: int, period: str = "1Y", db: Session = Depends(get_db)):
+    """Get portfolio performance chart data using real historical data"""
+    try:
+        from models import HistoricalData, Portfolio
+        from sqlalchemy import func, and_
+        from datetime import datetime, timedelta
+        
+        # Calculate date range based on period
+        end_date = datetime.now()
+        if period == "1M":
+            start_date = end_date - timedelta(days=30)
+        elif period == "1Y":
+            start_date = end_date - timedelta(days=365)
+        elif period == "YTD":
+            # Year to date - start from January 1st of current year
+            start_date = datetime(end_date.year, 1, 1)
+        elif period == "5Y":
+            start_date = end_date - timedelta(days=1825)
+        else:
+            start_date = end_date - timedelta(days=365)
+        
+        # Get user's portfolio
+        portfolio = db.query(Portfolio).filter(Portfolio.user_id == user_id).all()
+        if not portfolio:
+            return {"data": [], "error": "No portfolio found"}
+        
+        # Get historical data for portfolio tickers
+        tickers = [holding.ticker for holding in portfolio]
+        
+        # Get daily data for each ticker
+        chart_data = []
+        current_date = start_date
+        
+        # Get all available dates for the portfolio tickers in the date range
+        # Limit to weekly data for better performance
+        available_dates = db.query(HistoricalData.date).filter(
+            and_(
+                HistoricalData.ticker.in_([holding.ticker for holding in portfolio]),
+                HistoricalData.date >= start_date,
+                HistoricalData.date <= end_date
+            )
+        ).distinct().order_by(HistoricalData.date).all()
+        
+        # Convert to list of dates and sample for performance
+        all_dates = [date[0] for date in available_dates]
+        
+        # Smart sampling for better performance
+        if period == "5Y":
+            dates = all_dates[::30]  # Monthly for 5 years
+        elif period == "1Y":
+            dates = all_dates[::7]   # Weekly for 1 year
+        elif period == "YTD":
+            dates = all_dates[::3]   # Every 3rd day for YTD
+        elif period == "6M":
+            dates = all_dates[::5]   # Every 5th day for 6 months
+        elif period == "3M":
+            dates = all_dates[::3]   # Every 3rd day for 3 months
+        else:  # 1M
+            dates = all_dates       # Daily for 1 month
+        
+        for date in dates:
+            daily_value = 0
+            ticker_data = {}
+            
+            for holding in portfolio:
+                ticker = holding.ticker
+                shares = holding.shares
+                
+                # Get price for this specific date
+                price_data = db.query(HistoricalData).filter(
+                    and_(
+                        HistoricalData.ticker == ticker,
+                        HistoricalData.date == date
+                    )
+                ).first()
+                
+                if price_data:
+                    price = price_data.close_price
+                    value = shares * price
+                    daily_value += value
+                    ticker_data[ticker] = {
+                        'price': round(price, 2),
+                        'value': round(value, 2),
+                        'shares': shares
+                    }
+            
+            if daily_value > 0:
+                chart_data.append({
+                    'date': date.isoformat().split('T')[0],
+                    'total_value': round(daily_value, 2),
+                    'tickers': ticker_data
+                })
+        
+        return {
+            "data": chart_data,
+            "period": period,
+            "total_points": len(chart_data),
+            "date_range": {
+                "start": start_date.strftime('%Y-%m-%d'),
+                "end": end_date.strftime('%Y-%m-%d')
+            }
+        }
+        
+    except Exception as e:
+        return {"data": [], "error": str(e)}
+
+@app.post("/portfolio/upload-csv")
+async def upload_portfolio_csv(file: UploadFile = File(...), db: Session = Depends(get_db)):
+    """Upload and process portfolio CSV file"""
+    try:
+        # Read CSV file
+        contents = await file.read()
+        df = pd.read_csv(io.StringIO(contents.decode('utf-8')))
+        
+        # Clear existing portfolio data for user 1
+        db.query(Portfolio).filter(Portfolio.user_id == 1).delete()
+        
+        # Process each row
+        portfolio_items = []
+        for _, row in df.iterrows():
+            symbol = row['Symbol']
+            classification = row['Classification']
+            quantity = float(row['Quantity Owned'])
+            
+            # Skip if quantity is 0
+            if quantity <= 0:
+                continue
+                
+            # Determine asset type
+            asset_type = 'crypto' if 'USD' in symbol else 'stock'
+            
+            # Get current price (mock for now - in real app, fetch from API)
+            current_price = 100.0  # Default price
+            if symbol == 'BTC-USD':
+                current_price = 45000.0
+            elif symbol == 'ETH-USD':
+                current_price = 3000.0
+            elif symbol == 'AAPL':
+                current_price = 175.0
+            elif symbol == 'MSFT':
+                current_price = 315.0
+            elif symbol == 'GOOGL':
+                current_price = 2650.0
+            elif symbol == 'TSLA':
+                current_price = 850.0
+            elif symbol == 'NVDA':
+                current_price = 425.0
+            
+            # Create portfolio entry
+            portfolio_item = Portfolio(
+                user_id=1,
+                ticker=symbol,
+                shares=quantity,
+                avg_price=current_price * 0.9  # Assume 10% gain
+            )
+            portfolio_items.append(portfolio_item)
+        
+        # Add all items to database
+        db.add_all(portfolio_items)
+        db.commit()
+        
+        return {
+            "message": f"Successfully uploaded {len(portfolio_items)} portfolio items",
+            "items_processed": len(portfolio_items),
+            "file_name": file.filename
+        }
+        
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=400, detail=f"Error processing CSV: {str(e)}")
+
+# ============================================================================
+# OPTIMIZED API ENDPOINTS - Pre-calculated Data
+# ============================================================================
+
+@app.get("/portfolio/optimized-summary/{user_id}")
+def get_optimized_portfolio_summary(user_id: int, db: Session = Depends(get_db)):
+    """Get pre-calculated portfolio summary for instant loading"""
+    try:
+        summary = db.query(PortfolioSummary).filter(PortfolioSummary.user_id == user_id).first()
+        
+        if not summary:
+            return {"error": "No portfolio summary found. Run calculate_all_metrics.py first."}
+        
+        return {
+            "summary": {
+                "total_value": round(summary.total_value, 2),
+                "total_cost_basis": round(summary.total_cost_basis, 2),
+                "total_gain_loss": round(summary.total_gain_loss, 2),
+                "total_gain_loss_percent": round(summary.total_gain_loss_percent, 2),
+                "one_year_cagr": round(summary.one_year_cagr or 0, 2),
+                "total_holdings": summary.total_holdings,
+                "category_breakdown": {
+                    "Stock": round(summary.stock_value, 2),
+                    "Crypto": round(summary.crypto_value, 2),
+                    "ETF": round(summary.etf_value, 2),
+                    "Bond": round(summary.bond_value, 2),
+                    "Cash": round(summary.cash_value, 2)
+                },
+                "latest_date": summary.latest_date.strftime('%Y-%m-%d') if summary.latest_date else None
+            },
+            "status": "success",
+            "cached": True,
+            "last_updated": summary.last_updated.strftime('%Y-%m-%d %H:%M:%S') if summary.last_updated else None
+        }
+        
+    except Exception as e:
+        return {"error": str(e)}
+
+@app.get("/portfolio/optimized-performance/{user_id}")
+def get_optimized_portfolio_performance(user_id: int, db: Session = Depends(get_db)):
+    """Get pre-calculated portfolio performance for all periods"""
+    try:
+        performances = db.query(PortfolioPerformance).filter(
+            PortfolioPerformance.user_id == user_id
+        ).all()
+        
+        if not performances:
+            return {"error": "No performance data found. Run calculate_all_metrics.py first."}
+        
+        result = {}
+        for perf in performances:
+            result[perf.period] = {
+                "start_date": perf.start_date.strftime('%Y-%m-%d'),
+                "end_date": perf.end_date.strftime('%Y-%m-%d'),
+                "start_value": round(perf.start_value, 2),
+                "end_value": round(perf.end_value, 2),
+                "total_return": round(perf.total_return, 2),
+                "total_gain_loss": round(perf.total_gain_loss, 2),
+                "annualized_return": round(perf.annualized_return or 0, 2),
+                "volatility": round(perf.volatility or 0, 2),
+                "sharpe_ratio": round(perf.sharpe_ratio or 0, 2),
+                "max_drawdown": round(perf.max_drawdown or 0, 2)
+            }
+        
+        return {
+            "performance": result,
+            "status": "success",
+            "cached": True
+        }
+        
+    except Exception as e:
+        return {"error": str(e)}
+
+@app.get("/portfolio/optimized-projections/{user_id}")
+def get_optimized_portfolio_projections(user_id: int, db: Session = Depends(get_db)):
+    """Get pre-calculated portfolio projections for all periods"""
+    try:
+        projections = db.query(PortfolioProjections).filter(
+            PortfolioProjections.user_id == user_id
+        ).all()
+        
+        if not projections:
+            return {"error": "No projection data found. Run calculate_all_metrics.py first."}
+        
+        result = {}
+        for proj in projections:
+            result[proj.period] = {
+                "projected_value": round(proj.projected_value, 2),
+                "projected_return": round(proj.projected_return, 2),
+                "projected_gain_loss": round(proj.projected_gain_loss, 2),
+                "confidence_level": round(proj.confidence_level, 2),
+                "volatility": round(proj.volatility, 2),
+                "sharpe_ratio": round(proj.sharpe_ratio or 0, 2),
+                "max_drawdown": round(proj.max_drawdown or 0, 2),
+                "projection_date": proj.projection_date.strftime('%Y-%m-%d')
+            }
+        
+        return {
+            "projections": result,
+            "status": "success",
+            "cached": True
+        }
+        
+    except Exception as e:
+        return {"error": str(e)}
+
+@app.get("/portfolio/optimized-dashboard/{user_id}")
+def get_optimized_dashboard_data(user_id: int, db: Session = Depends(get_db)):
+    """Get all pre-calculated dashboard data in one call"""
+    try:
+        # Get summary
+        summary = db.query(PortfolioSummary).filter(PortfolioSummary.user_id == user_id).first()
+        
+        # Get performance
+        performances = db.query(PortfolioPerformance).filter(
+            PortfolioPerformance.user_id == user_id
+        ).all()
+        
+        # Get projections
+        projections = db.query(PortfolioProjections).filter(
+            PortfolioProjections.user_id == user_id
+        ).all()
+        
+        if not summary:
+            return {"error": "No portfolio data found. Run calculate_all_metrics.py first."}
+        
+        # Format summary
+        summary_data = {
+            "total_value": round(summary.total_value, 2),
+            "total_cost_basis": round(summary.total_cost_basis, 2),
+            "total_gain_loss": round(summary.total_gain_loss, 2),
+            "total_gain_loss_percent": round(summary.total_gain_loss_percent, 2),
+            "one_year_cagr": round(summary.one_year_cagr or 0, 2),
+            "total_holdings": summary.total_holdings,
+            "category_breakdown": {
+                "Stock": round(summary.stock_value, 2),
+                "Crypto": round(summary.crypto_value, 2),
+                "ETF": round(summary.etf_value, 2),
+                "Bond": round(summary.bond_value, 2),
+                "Cash": round(summary.cash_value, 2)
+            }
+        }
+        
+        # Format performance
+        performance_data = {}
+        for perf in performances:
+            performance_data[perf.period] = {
+                "total_return": round(perf.total_return, 2),
+                "total_gain_loss": round(perf.total_gain_loss, 2),
+                "annualized_return": round(perf.annualized_return or 0, 2),
+                "volatility": round(perf.volatility or 0, 2),
+                "sharpe_ratio": round(perf.sharpe_ratio or 0, 2),
+                "max_drawdown": round(perf.max_drawdown or 0, 2)
+            }
+        
+        # Format projections
+        projection_data = {}
+        for proj in projections:
+            projection_data[proj.period] = {
+                "projected_value": round(proj.projected_value, 2),
+                "projected_return": round(proj.projected_return, 2),
+                "projected_gain_loss": round(proj.projected_gain_loss, 2),
+                "confidence_level": round(proj.confidence_level, 2)
+            }
+        
+        return {
+            "summary": summary_data,
+            "performance": performance_data,
+            "projections": projection_data,
+            "status": "success",
+            "cached": True,
+            "last_updated": summary.last_updated.strftime('%Y-%m-%d %H:%M:%S') if summary.last_updated else None
+        }
+        
+    except Exception as e:
+        return {"error": str(e)}
+
+@app.post("/portfolio/calculate-metrics/{user_id}")
+def calculate_user_metrics(user_id: int, db: Session = Depends(get_db)):
+    """Trigger calculation of all metrics for a specific user"""
+    try:
+        from calculate_all_metrics import calculate_all_metrics_for_user
+        calculate_all_metrics_for_user(user_id)
+        return {"message": f"Metrics calculated successfully for user {user_id}", "status": "success"}
+    except Exception as e:
+        return {"error": str(e), "status": "error"}
+
+@app.post("/portfolio/calculate-all-metrics")
+def calculate_all_user_metrics(db: Session = Depends(get_db)):
+    """Trigger calculation of all metrics for all users"""
+    try:
+        from calculate_all_metrics import calculate_all_metrics
+        calculate_all_metrics()
+        return {"message": "All metrics calculated successfully", "status": "success"}
+    except Exception as e:
+        return {"error": str(e), "status": "error"}
+
+@app.get("/portfolio/top-holdings/{user_id}")
+def get_top_holdings(user_id: int, type: str = "holdings", db: Session = Depends(get_db)):
+    """Get top holdings or movers for a user"""
+    try:
+        from models import TopHoldings
+        
+        # Get top holdings/movers from database
+        top_data = db.query(TopHoldings).filter(
+            TopHoldings.user_id == user_id,
+            TopHoldings.type == type
+        ).order_by(TopHoldings.rank.asc()).all()
+        
+        if not top_data:
+            # If no data exists, calculate it
+            from calculate_top_holdings import calculate_top_holdings_for_user
+            calculate_top_holdings_for_user(user_id)
+            
+            # Query again after calculation
+            top_data = db.query(TopHoldings).filter(
+                TopHoldings.user_id == user_id,
+                TopHoldings.type == type
+            ).order_by(TopHoldings.rank.asc()).all()
+        
+        # Format the response
+        formatted_data = []
+        for item in top_data:
+            formatted_data.append({
+                "ticker": item.ticker,
+                "shares": item.shares,
+                "current_price": round(item.current_price, 2),
+                "total_value": round(item.total_value, 2),
+                "gain_loss": round(item.gain_loss, 2),
+                "gain_loss_percent": round(item.gain_loss_percent, 2),
+                "rank": item.rank
+            })
+        
+        return {
+            "user_id": user_id,
+            "type": type,
+            "data": formatted_data,
+            "status": "success"
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to get top holdings: {str(e)}")
+
+@app.get("/portfolio/top-holdings-movers/{user_id}")
+def get_top_holdings_and_movers(user_id: int, db: Session = Depends(get_db)):
+    """Get both top holdings and movers for a user in a single call"""
+    try:
+        from models import TopHoldings
+        
+        # Get both types of data
+        holdings_data = db.query(TopHoldings).filter(
+            TopHoldings.user_id == user_id,
+            TopHoldings.type == "holdings"
+        ).order_by(TopHoldings.rank.asc()).all()
+        
+        movers_data = db.query(TopHoldings).filter(
+            TopHoldings.user_id == user_id,
+            TopHoldings.type == "movers"
+        ).order_by(TopHoldings.rank.asc()).all()
+        
+        if not holdings_data or not movers_data:
+            # If no data exists, calculate it
+            from calculate_top_holdings import calculate_top_holdings_for_user
+            calculate_top_holdings_for_user(user_id)
+            
+            # Query again after calculation
+            holdings_data = db.query(TopHoldings).filter(
+                TopHoldings.user_id == user_id,
+                TopHoldings.type == "holdings"
+            ).order_by(TopHoldings.rank.asc()).all()
+            
+            movers_data = db.query(TopHoldings).filter(
+                TopHoldings.user_id == user_id,
+                TopHoldings.type == "movers"
+            ).order_by(TopHoldings.rank.asc()).all()
+        
+        # Format the response
+        def format_data(data):
+            return [{
+                "ticker": item.ticker,
+                "shares": item.shares,
+                "current_price": round(item.current_price, 2),
+                "total_value": round(item.total_value, 2),
+                "gain_loss": round(item.gain_loss, 2),
+                "gain_loss_percent": round(item.gain_loss_percent, 2),
+                "rank": item.rank
+            } for item in data]
+        
+        return {
+            "user_id": user_id,
+            "holdings": format_data(holdings_data),
+            "movers": format_data(movers_data),
+            "status": "success"
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to get top holdings and movers: {str(e)}")
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)

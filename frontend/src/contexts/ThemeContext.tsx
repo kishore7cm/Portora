@@ -1,75 +1,61 @@
-'use client';
+'use client'
 
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 
-type Theme = 'light' | 'dark';
+type Theme = 'light' | 'dark'
 
 interface ThemeContextType {
-  theme: Theme;
-  toggleTheme: () => void;
-  setTheme: (theme: Theme) => void;
+  theme: Theme
+  toggleTheme: () => void
 }
 
-const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
+const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>('light');
-  const [mounted, setMounted] = useState(false);
+  const [theme, setTheme] = useState<Theme>('light')
+  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
-    // Check localStorage for saved theme
-    const savedTheme = localStorage.getItem('theme') as Theme;
+    setMounted(true)
+    // Load theme from localStorage
+    const savedTheme = localStorage.getItem('theme') as Theme
     if (savedTheme) {
-      setThemeState(savedTheme);
-    } else {
-      // Check system preference
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      setThemeState(prefersDark ? 'dark' : 'light');
+      setTheme(savedTheme)
     }
-    setMounted(true);
-  }, []);
+  }, [])
 
   useEffect(() => {
     if (mounted) {
-      localStorage.setItem('theme', theme);
-      
+      localStorage.setItem('theme', theme)
       // Apply theme to document
       if (theme === 'dark') {
-        document.documentElement.classList.add('dark');
+        document.documentElement.classList.add('dark')
       } else {
-        document.documentElement.classList.remove('dark');
+        document.documentElement.classList.remove('dark')
       }
     }
-  }, [theme, mounted]);
+  }, [theme, mounted])
 
   const toggleTheme = () => {
-    setThemeState(prev => prev === 'light' ? 'dark' : 'light');
-  };
+    setTheme(prev => prev === 'light' ? 'dark' : 'light')
+  }
 
-  const setTheme = (newTheme: Theme) => {
-    setThemeState(newTheme);
-  };
-
-  // Prevent hydration mismatch by not rendering until mounted
   if (!mounted) {
-    return <div className="min-h-screen bg-white">{children}</div>;
+    return <>{children}</>
   }
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme, setTheme }}>
-      <div className={`min-h-screen transition-colors duration-200 ${
-        theme === 'dark' ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'
-      }`}>
-        {children}
-      </div>
+    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+      {children}
     </ThemeContext.Provider>
-  );
+  )
 }
 
 export function useTheme() {
-  const context = useContext(ThemeContext);
+  const context = useContext(ThemeContext)
   if (context === undefined) {
-    throw new Error('useTheme must be used within a ThemeProvider');
+    // Return default theme instead of throwing error
+    return { theme: 'light' as Theme, toggleTheme: () => {} }
   }
-  return context;
+  return context
 }

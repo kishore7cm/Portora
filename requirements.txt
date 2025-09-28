@@ -1,2 +1,0 @@
-# Empty requirements file - no dependencies needed
-# This file exists to satisfy Render's requirements.txt requirement
