@@ -7,10 +7,19 @@ export default function Home() {
 
   useEffect(() => {
     setMounted(true);
-    // Redirect after component mounts
-    setTimeout(() => {
-      window.location.href = '/auth';
-    }, 1000);
+    // Check if user is already logged in
+    const isLoggedIn = localStorage.getItem('loggedIn') === 'true';
+    if (isLoggedIn) {
+      // Redirect to dashboard if already logged in
+      setTimeout(() => {
+        window.location.href = '/dashboard';
+      }, 1000);
+    } else {
+      // Redirect to auth if not logged in
+      setTimeout(() => {
+        window.location.href = '/auth';
+      }, 1000);
+    }
   }, []);
 
   if (!mounted) {
@@ -38,8 +47,8 @@ export default function Home() {
       backgroundColor: '#f3f4f6'
     }}>
       <div style={{ textAlign: 'center' }}>
-        <h1>Portora Portfolio Advisor</h1>
-        <p>Redirecting to login...</p>
+        <h1>EaseLi Portfolio Management</h1>
+        <p>Redirecting...</p>
         <a href="/auth">Click here if not redirected</a>
       </div>
     </div>

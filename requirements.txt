@@ -31,3 +31,7 @@ fastapi-cors==0.0.6
 
 # Additional utilities
 tqdm==4.66.1
+
+# Financial APIs
+alpaca-py==0.20.0
+twelvedata==0.1.0

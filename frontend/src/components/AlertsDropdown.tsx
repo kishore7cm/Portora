@@ -52,7 +52,7 @@ export default function AlertsDropdown({ isOpen, onClose }: AlertsDropdownProps)
   const fetchAlerts = async () => {
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:8000/alerts');
+      const response = await fetch('http://localhost:8001/alerts');
       if (response.ok) {
         const data = await response.json();
         setAlerts(data);
