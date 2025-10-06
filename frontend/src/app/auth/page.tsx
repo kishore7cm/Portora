@@ -46,7 +46,7 @@ export default function AuthPage() {
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="text-center">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-            EaseLi
+            Wealtheon
           </h1>
           <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
             Portfolio Management Platform

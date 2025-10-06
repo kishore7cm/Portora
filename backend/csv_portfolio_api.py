@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """
-Simple CSV Portfolio API - Reads directly from master_portfolio_new.csv
+Wealtheon CSV Portfolio API - Reads directly from master_portfolio_new.csv
 """
 
 import csv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-app = FastAPI(title="CSV Portfolio API")
+app = FastAPI(title="Wealtheon CSV Portfolio API")
 
 # CORS
 app.add_middleware(
@@ -60,7 +60,7 @@ load_csv_data()
 @app.get("/")
 def root():
     return {
-        "message": "CSV Portfolio API", 
+        "message": "Wealtheon CSV Portfolio API", 
         "records": len(portfolio_data),
         "total_value": total_value
     }
@@ -71,5 +71,5 @@ def get_portfolio(user_id: int = 1):
 
 if __name__ == "__main__":
     import uvicorn
-    print("🚀 Starting CSV Portfolio API on http://localhost:8001")
+    print("🚀 Starting Wealtheon CSV Portfolio API on http://localhost:8001")
     uvicorn.run(app, host="127.0.0.1", port=8001, reload=False)

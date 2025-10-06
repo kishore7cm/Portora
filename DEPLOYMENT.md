@@ -1,4 +1,4 @@
-# Vercel Deployment
+# Vercel Deployment - Wealtheon
 
 This project should be deployed from the `frontend/` directory.
 

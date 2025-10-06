@@ -47,7 +47,7 @@ export default function Home() {
       backgroundColor: '#f3f4f6'
     }}>
       <div style={{ textAlign: 'center' }}>
-        <h1>EaseLi Portfolio Management</h1>
+        <h1>Wealtheon Portfolio Management</h1>
         <p>Redirecting...</p>
         <a href="/auth">Click here if not redirected</a>
       </div>

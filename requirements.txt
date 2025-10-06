@@ -1,4 +1,4 @@
-# EaseLi Portfolio Dashboard - Python Dependencies
+# Wealtheon Portfolio Dashboard - Python Dependencies
 
 # FastAPI and web framework
 fastapi==0.104.1

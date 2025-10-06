@@ -1544,7 +1544,7 @@ export default function Dashboard() {
               </button>
               
               <h1 className="text-2xl font-bold" style={{ color: yachtClubTheme.colors.primary }}>
-                EaseLi
+                Wealtheon
               </h1>
               <span className="ml-2 text-sm" style={{ color: yachtClubTheme.colors.textSecondary }}>
                 Portfolio Management Platform

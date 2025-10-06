@@ -1,10 +1,11 @@
-# EaseLi - Portfolio Management Dashboard
+# Wealtheon - Portfolio Management Dashboard
 
 A modern, real-time portfolio management dashboard built with Next.js and FastAPI.
 
 ## 🚀 Features
 
 - **Real-time Portfolio Tracking**: Live portfolio value and performance monitoring
+- **Anonymous Community Rankings**: Compare performance with other investors privately
 - **Top Holdings & Movers**: Track your best performing assets
 - **Performance Charts**: Interactive charts for 1W, 1M, 1Y, and YTD periods
 - **Portfolio Health**: Comprehensive health metrics and risk analysis
@@ -14,7 +15,7 @@ A modern, real-time portfolio management dashboard built with Next.js and FastAP
 ## 📁 Project Structure
 
 ```
-EaseLi/
+Wealtheon/
 ├── frontend/                 # Next.js React application
 │   ├── src/
 │   │   ├── app/             # App router pages
