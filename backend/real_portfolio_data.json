@@ -1,0 +1,30 @@
+{
+  "date": "2025-10-01",
+  "total_value": 15000.0,
+  "cash": 15000.0,
+  "starting_value": 325850.92,
+  "total_gain_loss": -310850.92,
+  "return_pct": -95.3966678995413,
+  "positions": [
+    {
+      "ticker": "CASH",
+      "units": 15000.0,
+      "price": 1.0,
+      "position_val": 15000.0,
+      "type": "cash"
+    }
+  ],
+  "allocation": {
+    "stock": 0.0,
+    "bond": 0.0,
+    "crypto": 0.0,
+    "cash": 100.0
+  },
+  "top_holdings": [],
+  "summary": {
+    "stock_value": 0,
+    "etf_bond_value": 0,
+    "crypto_value": 0,
+    "cash_value": 15000.0
+  }
+}

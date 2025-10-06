@@ -1,8 +1,9 @@
-from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey, Enum
+from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey, Enum, Text, Boolean
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from database import Base
 import enum
+import hashlib
 
 class TransactionType(str, enum.Enum):
     BUY = "BUY"
@@ -167,6 +168,24 @@ class PortfolioChartData(Base):
         {"extend_existing": True}
     )
 
+class PortfolioValues(Base):
+    __tablename__ = "portfolio_values"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, nullable=False, index=True)
+    ticker = Column(String(20), nullable=False, index=True)
+    current_price = Column(Float, nullable=False)
+    total_value = Column(Float, nullable=False)
+    cost_basis = Column(Float, nullable=False)
+    gain_loss = Column(Float, nullable=False)
+    gain_loss_percent = Column(Float, nullable=False)
+    category = Column(String(50), nullable=True)
+    last_updated = Column(DateTime(timezone=True), server_default=func.now())
+    
+    __table_args__ = (
+        {"extend_existing": True}
+    )
+
 class TopHoldings(Base):
     __tablename__ = "top_holdings"
     
@@ -181,6 +200,24 @@ class TopHoldings(Base):
     gain_loss = Column(Float, nullable=False)
     gain_loss_percent = Column(Float, nullable=False)
     calculation_date = Column(DateTime(timezone=True), server_default=func.now())
+    
+    __table_args__ = (
+        {"extend_existing": True}
+    )
+
+class InsightsCache(Base):
+    __tablename__ = "insights_cache"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    date = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    metrics_hash = Column(String(64), nullable=False, index=True)  # SHA-256 hash of metrics
+    insights_text = Column(Text, nullable=False)
+    is_ai_generated = Column(Boolean, default=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    
+    # Relationships
+    user = relationship("User")
     
     __table_args__ = (
         {"extend_existing": True}
