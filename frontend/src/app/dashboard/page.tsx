@@ -178,14 +178,17 @@ export default function Dashboard() {
   ]
 
   useEffect(() => {
-    const name = localStorage.getItem('userName') || 'User'
-    const id = localStorage.getItem('userId') || '1'
-    setUserName(name)
-    setUserId(id)
-    
-    // Check if user needs onboarding
-    const needsOnboarding = localStorage.getItem('needsOnboarding') === 'true'
-    setShowOnboarding(needsOnboarding)
+    // Only access localStorage on the client side
+    if (typeof window !== 'undefined') {
+      const name = localStorage.getItem('userName') || 'User'
+      const id = localStorage.getItem('userId') || '1'
+      setUserName(name)
+      setUserId(id)
+      
+      // Check if user needs onboarding
+      const needsOnboarding = localStorage.getItem('needsOnboarding') === 'true'
+      setShowOnboarding(needsOnboarding)
+    }
     
     // Fetch all data with optimized loading
     const fetchAllData = async () => {
@@ -224,7 +227,7 @@ export default function Dashboard() {
 
   const fetchTopHoldingsAndMovers = async () => {
     try {
-      const userId = localStorage.getItem('userId') || '1'
+      const userId = typeof window !== 'undefined' ? localStorage.getItem('userId') || '1' : '1'
       
       // Try to fetch from API with a short timeout
       const controller = new AbortController()
@@ -532,7 +535,7 @@ export default function Dashboard() {
 
   const fetchAllHoldings = async () => {
     try {
-      const userId = localStorage.getItem('userId') || '1'
+      const userId = typeof window !== 'undefined' ? localStorage.getItem('userId') || '1' : '1'
       console.log('🔍 Fetching all holdings from backend...')
       const response = await fetch(`http://localhost:8001/portfolio?user_id=${userId}`)
       
@@ -562,9 +565,9 @@ export default function Dashboard() {
             }))
           
           // Calculate total value to verify
-          const totalValue = allPortfolioHoldings.reduce((sum, holding) => sum + holding.Total_Value, 0)
+          const totalValue = allPortfolioHoldings.reduce((sum: number, holding: any) => sum + holding.Total_Value, 0)
           console.log(`✅ Loaded ${allPortfolioHoldings.length} holdings worth $${totalValue.toLocaleString()}`)
-          console.log('Holdings:', allPortfolioHoldings.map(h => `${h.Ticker}: $${h.Total_Value.toLocaleString()}`))
+          console.log('Holdings:', allPortfolioHoldings.map((h: any) => `${h.Ticker}: $${h.Total_Value.toLocaleString()}`))
           
           setAllHoldings(allPortfolioHoldings)
           return
@@ -621,7 +624,7 @@ export default function Dashboard() {
     setError("")
     
     try {
-      const userId = localStorage.getItem('userId') || '1'
+      const userId = typeof window !== 'undefined' ? localStorage.getItem('userId') || '1' : '1'
       console.log('📊 User ID:', userId)
       
         // Try canonical API first (port 8003)
@@ -1073,7 +1076,7 @@ export default function Dashboard() {
     // Use optimized API with real data, fallback to mock data
     
     try {
-      const userId = localStorage.getItem('userId') || '1'
+      const userId = typeof window !== 'undefined' ? localStorage.getItem('userId') || '1' : '1'
       
       // Try to fetch from API with a short timeout
       const controller = new AbortController()
@@ -1195,7 +1198,7 @@ export default function Dashboard() {
     setIsDataLoading(true)
     
     try {
-      const userId = localStorage.getItem('userId') || '1'
+      const userId = typeof window !== 'undefined' ? localStorage.getItem('userId') || '1' : '1'
       
       // Map frontend periods to backend periods with 5-year limit
       const periodMapping: { [key: string]: string } = {
@@ -1360,10 +1363,12 @@ export default function Dashboard() {
   const generateMockPerformanceData = () => generateOptimizedMockData('1Year')
 
   const handleLogout = () => {
-    localStorage.removeItem('loggedIn')
-    localStorage.removeItem('userEmail')
-    localStorage.removeItem('userId')
-    localStorage.removeItem('userName')
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('loggedIn')
+      localStorage.removeItem('userEmail')
+      localStorage.removeItem('userId')
+      localStorage.removeItem('userName')
+    }
     router.push('/auth')
   }
 
@@ -1461,7 +1466,7 @@ export default function Dashboard() {
   // Fetch AI insights
   const fetchAIInsights = useCallback(async () => {
     try {
-      const userId = localStorage.getItem('userId') || '1'
+      const userId = typeof window !== 'undefined' ? localStorage.getItem('userId') || '1' : '1'
       const response = await fetch(`http://localhost:8001/portfolio/ai-insights/${userId}`)
       
       if (response.ok) {
@@ -2320,12 +2325,12 @@ export default function Dashboard() {
                     <div 
                       key={user.id}
                       className={`flex items-center justify-between p-4 rounded-lg border transition-all duration-200 ${
-                        user.isCurrentUser ? 'ring-2' : ''
+                        user.isCurrentUser ? 'ring-2 ring-opacity-50' : ''
                       }`}
                       style={{ 
                         backgroundColor: user.isCurrentUser ? `${yachtClubTheme.colors.accent}15` : 'white',
                         borderColor: user.isCurrentUser ? yachtClubTheme.colors.accent : yachtClubTheme.colors.cardBeige,
-                        ringColor: user.isCurrentUser ? yachtClubTheme.colors.accent : 'transparent'
+                        ...(user.isCurrentUser && { '--tw-ring-color': yachtClubTheme.colors.accent } as any)
                       }}
                     >
                       <div className="flex items-center space-x-4">
@@ -2440,11 +2445,15 @@ export default function Dashboard() {
           isOpen={showOnboarding}
           onClose={() => {
             setShowOnboarding(false)
-            localStorage.setItem('needsOnboarding', 'false')
+            if (typeof window !== 'undefined') {
+              localStorage.setItem('needsOnboarding', 'false')
+            }
           }}
           onComplete={() => {
             setShowOnboarding(false)
-            localStorage.setItem('needsOnboarding', 'false')
+            if (typeof window !== 'undefined') {
+              localStorage.setItem('needsOnboarding', 'false')
+            }
           }}
         />
       )}
