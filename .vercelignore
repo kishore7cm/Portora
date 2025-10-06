@@ -1,0 +1,15 @@
+backend/
+venv/
+*.py
+*.db
+*.log
+__pycache__/
+.env
+.venv
+portfolio/
+config/
+requirements.txt
+Dockerfile
+Procfile
+start_backend.sh
+start.sh

@@ -1,0 +1,16 @@
+{
+  "buildCommand": "cd frontend && npm run build",
+  "outputDirectory": "frontend/.next",
+  "framework": "nextjs",
+  "installCommand": "cd frontend && npm install",
+  "devCommand": "cd frontend && npm run dev",
+  "rootDirectory": "frontend",
+  "env": {
+    "API_URL": "https://portora-backend-a1d0.onrender.com"
+  },
+  "functions": {
+    "frontend/src/app/**": {
+      "runtime": "nodejs18.x"
+    }
+  }
+}
