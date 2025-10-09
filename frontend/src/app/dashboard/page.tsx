@@ -233,7 +233,7 @@ export default function Dashboard() {
       const controller = new AbortController()
       const timeoutId = setTimeout(() => controller.abort(), 2000) // 2 second timeout
       
-      const response = await fetch(`http://localhost:8001/portfolio?user_id=${userId}`, {
+      const response = await fetch(`/api/portfolio?user_id=${userId}`, {
         signal: controller.signal
       })
       
@@ -537,7 +537,7 @@ export default function Dashboard() {
     try {
       const userId = typeof window !== 'undefined' ? localStorage.getItem('userId') || '1' : '1'
       console.log('🔍 Fetching all holdings from backend...')
-      const response = await fetch(`http://localhost:8001/portfolio?user_id=${userId}`)
+      const response = await fetch(`/api/portfolio?user_id=${userId}`)
       
       if (response.ok) {
         const data = await response.json()
@@ -721,7 +721,7 @@ export default function Dashboard() {
       
       // Fallback to original API (port 8001)
       console.log('🔄 Falling back to original API...')
-      const response = await fetch(`http://localhost:8001/portfolio?user_id=${userId}`)
+      const response = await fetch(`/api/portfolio?user_id=${userId}`)
       console.log('📡 Original API response status:', response.status)
       
       if (response.ok) {
@@ -783,7 +783,7 @@ export default function Dashboard() {
       
       // Fallback to old API if optimized fails
       console.log('🔄 Trying fallback API...')
-      const fallbackResponse = await fetch(`http://localhost:8001/portfolio/summary-metrics/${userId}`)
+      const fallbackResponse = await fetch(`/api/portfolio/summary-metrics/${userId}`)
       console.log('📡 Fallback API response status:', fallbackResponse.status)
       
       if (fallbackResponse.ok) {
@@ -837,7 +837,7 @@ export default function Dashboard() {
       
       // Final fallback to basic portfolio endpoint
       console.log('🔄 Trying basic portfolio API...')
-      const basicResponse = await fetch(`http://localhost:8001/portfolio?user_id=${userId}`)
+      const basicResponse = await fetch(`/api/portfolio?user_id=${userId}`)
       console.log('📡 Basic API response status:', basicResponse.status)
       
       if (basicResponse.ok) {
@@ -1016,7 +1016,7 @@ export default function Dashboard() {
       const controller = new AbortController()
       const timeoutId = setTimeout(() => controller.abort(), 2000) // 2 second timeout
       
-      const response = await fetch('http://localhost:8001/sp500', {
+      const response = await fetch('/api/sp500', {
         signal: controller.signal
       })
       
@@ -1082,7 +1082,7 @@ export default function Dashboard() {
       const controller = new AbortController()
       const timeoutId = setTimeout(() => controller.abort(), 2000) // 2 second timeout
       
-      const response = await fetch(`http://localhost:8001/portfolio-health?user_id=${userId}`, {
+      const response = await fetch(`/api/portfolio-health?user_id=${userId}`, {
         signal: controller.signal
       })
       
@@ -1153,7 +1153,7 @@ export default function Dashboard() {
       const controller = new AbortController()
       const timeoutId = setTimeout(() => controller.abort(), 2000) // 2 second timeout
       
-      const response = await fetch('http://localhost:8001/historical-data/status', {
+      const response = await fetch('/api/historical-data/status', {
         signal: controller.signal
       })
       
@@ -1177,7 +1177,7 @@ export default function Dashboard() {
 
   const startDataCollection = async () => {
     try {
-      const response = await fetch('http://localhost:8001/historical-data/collect', {
+      const response = await fetch('/api/historical-data/collect', {
         method: 'POST'
       })
       const data = await response.json()
@@ -1216,7 +1216,7 @@ export default function Dashboard() {
       const controller = new AbortController()
       const timeoutId = setTimeout(() => controller.abort(), 2000) // 2 second timeout
       
-      const response = await fetch(`http://localhost:8001/portfolio/optimized-performance-chart/${userId}?period=${backendPeriod}&time_range=5Y&interval=${period === '1Week' ? 'daily' : period === '1Month' ? 'daily' : 'monthly'}`, {
+      const response = await fetch(`/api/portfolio/optimized-performance-chart/${userId}?period=${backendPeriod}&time_range=5Y&interval=${period === '1Week' ? 'daily' : period === '1Month' ? 'daily' : 'monthly'}`, {
         signal: controller.signal
       })
       
@@ -1252,7 +1252,7 @@ export default function Dashboard() {
       const formData = new FormData()
       formData.append('file', file)
       
-      const response = await fetch('http://localhost:8001/portfolio/upload-csv', {
+      const response = await fetch('/api/portfolio/upload-csv', {
         method: 'POST',
         body: formData
       })
@@ -1467,7 +1467,7 @@ export default function Dashboard() {
   const fetchAIInsights = useCallback(async () => {
     try {
       const userId = typeof window !== 'undefined' ? localStorage.getItem('userId') || '1' : '1'
-      const response = await fetch(`http://localhost:8001/portfolio/ai-insights/${userId}`)
+      const response = await fetch(`/api/portfolio/ai-insights/${userId}`)
       
       if (response.ok) {
         const data = await response.json()
