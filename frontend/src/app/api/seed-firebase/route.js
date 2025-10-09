@@ -70,7 +70,7 @@ export async function POST(request) {
     const batch = db.batch();
     
     portfolioData.forEach((item, index) => {
-      const docRef = db.collection('portfolio').doc(`portfolio_${index + 1}`);
+      const docRef = db.collection('portfolio_data').doc(`portfolio_${index + 1}`);
       batch.set(docRef, {
         ...item,
         created_at: new Date().toISOString()
@@ -82,7 +82,7 @@ export async function POST(request) {
     
     // Verify data was added
     const usersSnapshot = await db.collection('users').get();
-    const portfolioSnapshot = await db.collection('portfolio').get();
+    const portfolioSnapshot = await db.collection('portfolio_data').get();
     
     const seedResult = {
       success: true,

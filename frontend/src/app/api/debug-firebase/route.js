@@ -18,9 +18,9 @@ export async function GET(request) {
     }));
     console.log('👥 Users found:', usersData.length);
     
-    // Test 3: Check portfolio collection
-    console.log('📊 Checking portfolio collection...');
-    const portfolioSnapshot = await db.collection('portfolio').limit(10).get();
+    // Test 3: Check portfolio_data collection
+    console.log('📊 Checking portfolio_data collection...');
+    const portfolioSnapshot = await db.collection('portfolio_data').limit(10).get();
     const portfolioData = portfolioSnapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
@@ -30,7 +30,7 @@ export async function GET(request) {
     // Test 4: Check specific user portfolio
     console.log('🔍 Checking user_id=1 portfolio...');
     const userPortfolioSnapshot = await db
-      .collection('portfolio')
+      .collection('portfolio_data')
       .where('user_id', '==', '1')
       .get();
     const userPortfolioData = userPortfolioSnapshot.docs.map(doc => ({
@@ -53,7 +53,7 @@ export async function GET(request) {
             fields: Object.keys(sampleUser)
           } : null
         },
-        portfolio: {
+        portfolio_data: {
           count: portfolioData.length,
           sample: samplePortfolio ? {
             id: samplePortfolio.id,

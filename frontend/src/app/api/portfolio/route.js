@@ -9,7 +9,7 @@ export async function GET(request) {
     
     // Get portfolio data from Firebase
     const portfolioSnapshot = await db
-      .collection('portfolio')
+      .collection('portfolio_data')
       .where('user_id', '==', userId)
       .get();
     
@@ -73,7 +73,7 @@ export async function POST(request) {
     const batch = db.batch();
     
     portfolio_data.forEach(item => {
-      const docRef = db.collection('portfolio').doc();
+      const docRef = db.collection('portfolio_data').doc();
       batch.set(docRef, {
         user_id: user_id,
         ticker: item.Ticker,

@@ -9,7 +9,7 @@ export async function GET(request) {
     
     // Get portfolio data to calculate health metrics
     const portfolioSnapshot = await db
-      .collection('portfolio')
+      .collection('portfolio_data')
       .where('user_id', '==', userId)
       .get();
     

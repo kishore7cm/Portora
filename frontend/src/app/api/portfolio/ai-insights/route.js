@@ -9,7 +9,7 @@ export async function GET(request) {
     
     // Get portfolio data for AI analysis
     const portfolioSnapshot = await db
-      .collection('portfolio')
+      .collection('portfolio_data')
       .where('user_id', '==', userId)
       .get();
     
