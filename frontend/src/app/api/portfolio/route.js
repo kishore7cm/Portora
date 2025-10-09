@@ -7,11 +7,27 @@ export async function GET(request) {
     
     console.log('🔥 Fetching portfolio data for user:', userId);
     
-    // Get portfolio data from Firebase
-    const portfolioSnapshot = await db
+    // Get portfolio data from Firebase - try different user_id formats
+    let portfolioSnapshot = await db
       .collection('portfolio_data')
       .where('user_id', '==', userId)
       .get();
+    
+    // If no data found with string userId, try number
+    if (portfolioSnapshot.empty && !isNaN(userId)) {
+      portfolioSnapshot = await db
+        .collection('portfolio_data')
+        .where('user_id', '==', parseInt(userId))
+        .get();
+    }
+    
+    // If still no data, try with 'user_' prefix
+    if (portfolioSnapshot.empty) {
+      portfolioSnapshot = await db
+        .collection('portfolio_data')
+        .where('user_id', '==', `user_${userId}`)
+        .get();
+    }
     
     if (portfolioSnapshot.empty) {
       return Response.json({ 
