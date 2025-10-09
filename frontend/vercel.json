@@ -6,5 +6,10 @@
   "devCommand": "npm run dev",
   "env": {
     "API_URL": "https://portora-backend-a1d0.onrender.com"
+  },
+  "functions": {
+    "app/api/**/*.js": {
+      "runtime": "nodejs18.x"
+    }
   }
 }
