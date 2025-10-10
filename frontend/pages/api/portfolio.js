@@ -43,21 +43,32 @@ export default async function handler(req, res) {
     // Transform Firebase data to match your frontend interface
     const portfolioData = portfolioSnapshot.docs.map(doc => {
       const data = doc.data();
+      
+      // Calculate current price from total_value and shares if not provided
+      const shares = data.shares || data.quantity || data.Qty || data.qty || 0;
+      const totalValue = data.total_value || data.Total_Value || data.position_value || 0;
+      const currentPrice = shares > 0 ? totalValue / shares : (data.purchase_price || data.current_price || data.Current_Price || data.price || 0);
+      
+      // Calculate gain/loss from cost basis and current value
+      const costBasis = data.total_cost || data.cost_basis || data.Cost_Basis || totalValue;
+      const gainLoss = totalValue - costBasis;
+      const gainLossPercent = costBasis > 0 ? (gainLoss / costBasis) * 100 : 0;
+      
       return {
         id: doc.id,
         Ticker: data.symbol || data.ticker || data.Ticker,
-        Qty: data.shares || data.quantity || data.Qty || data.qty,
-        Current_Price: data.purchase_price || data.current_price || data.Current_Price || data.price,
-        Total_Value: data.total_value || data.Total_Value || data.position_value,
-        Cost_Basis: data.total_cost || data.cost_basis || data.Cost_Basis || data.total_value,
-        Gain_Loss: data.gain_loss || data.Gain_Loss || 0,
-        Gain_Loss_Percent: data.gain_loss_percent || data.Gain_Loss_Percent || 0,
+        Qty: shares,
+        Current_Price: currentPrice,
+        Total_Value: totalValue,
+        Cost_Basis: costBasis,
+        Gain_Loss: gainLoss,
+        Gain_Loss_Percent: gainLossPercent,
         Category: data.asset_type || data.category || data.Category || 'Stock',
         Asset_Class: data.asset_class || data.Asset_Class || 'Equity',
         Sector: data.sector || data.Sector || 'Technology',
-        Market_Value: data.market_value || data.Market_Value || data.total_value,
-        Unrealized_PnL: data.unrealized_pnl || data.Unrealized_PnL || 0,
-        Unrealized_PnL_Percent: data.unrealized_pnl_percent || data.Unrealized_PnL_Percent || 0,
+        Market_Value: totalValue,
+        Unrealized_PnL: gainLoss,
+        Unrealized_PnL_Percent: gainLossPercent,
         Last_Updated: data.last_updated || data.Last_Updated || new Date().toISOString()
       };
     });
