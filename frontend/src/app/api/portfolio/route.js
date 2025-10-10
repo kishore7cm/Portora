@@ -3,9 +3,25 @@ import { db } from '@/lib/firebaseAdmin';
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
-    const userId = searchParams.get('user_id') || '1';
+    let userId = searchParams.get('user_id') || '1';
     
     console.log('🔥 Fetching portfolio data for user:', userId);
+    
+    // First, try to get the actual uid from users collection if userId is '1'
+    if (userId === '1') {
+      try {
+        const usersSnapshot = await db.collection('users').limit(1).get();
+        if (!usersSnapshot.empty) {
+          const userData = usersSnapshot.docs[0].data();
+          if (userData.uid) {
+            userId = userData.uid;
+            console.log('🔄 Using actual uid from users collection:', userId);
+          }
+        }
+      } catch (error) {
+        console.log('⚠️ Could not fetch uid from users, using default:', userId);
+      }
+    }
     
     // Get portfolio data from Firebase - try different user_id formats
     let portfolioSnapshot = await db

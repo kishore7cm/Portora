@@ -27,17 +27,22 @@ export async function GET(request) {
     }));
     console.log('📊 Portfolio items found:', portfolioData.length);
     
-    // Test 4: Check specific user portfolio
-    console.log('🔍 Checking user_id=1 portfolio...');
+    // Test 4: Check specific user portfolio using uid from users collection
+    let userIdToTest = '1'; // Default
+    if (usersData.length > 0 && usersData[0].uid) {
+      userIdToTest = usersData[0].uid; // Use actual uid from users collection
+    }
+    
+    console.log(`🔍 Checking portfolio_data for user_id: ${userIdToTest} (from users.uid)...`);
     const userPortfolioSnapshot = await db
       .collection('portfolio_data')
-      .where('user_id', '==', '1')
+      .where('user_id', '==', userIdToTest)
       .get();
     const userPortfolioData = userPortfolioSnapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
     }));
-    console.log('🔍 User 1 portfolio items:', userPortfolioData.length);
+    console.log(`🔍 User ${userIdToTest} portfolio items:`, userPortfolioData.length);
     
     // Test 5: Check data structure
     const samplePortfolio = portfolioData[0];
@@ -62,14 +67,21 @@ export async function GET(request) {
         }
       },
       user_portfolio: {
-        user_id: '1',
+        user_id_tested: userIdToTest,
+        user_id_source: 'users.uid',
         count: userPortfolioData.length,
         items: userPortfolioData.map(item => ({
           id: item.id,
+          user_id: item.user_id,
           ticker: item.ticker || item.Ticker,
           quantity: item.quantity || item.Qty,
           total_value: item.total_value || item.Total_Value
         }))
+      },
+      uid_mapping: {
+        users_uid: usersData.length > 0 ? usersData[0].uid : null,
+        portfolio_user_ids: [...new Set(portfolioData.map(item => item.user_id))],
+        match_found: userPortfolioData.length > 0
       },
       environment_check: {
         firebase_admin_configured: !!process.env.FIREBASE_ADMIN_SA_JSON,
