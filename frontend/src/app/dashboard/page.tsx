@@ -166,8 +166,8 @@ export default function Dashboard() {
     
     if (holdingsFilter.source) {
       filtered = filtered.filter(holding => 
-        holding.account_name?.toLowerCase().includes(holdingsFilter.source.toLowerCase()) ||
-        holding.source?.toLowerCase().includes(holdingsFilter.source.toLowerCase())
+        (holding as any).account_name?.toLowerCase().includes(holdingsFilter.source.toLowerCase()) ||
+        (holding as any).source?.toLowerCase().includes(holdingsFilter.source.toLowerCase())
       )
     }
     
@@ -1855,19 +1855,19 @@ export default function Dashboard() {
              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                <div className="text-center">
                  <div className="text-3xl font-bold" style={{ color: yachtClubTheme.colors.primary }}>
-                   {portfolioHealth.health_score}%
+                   {(portfolioHealth as any).health_score}%
                  </div>
                  <div className="text-sm text-gray-500 dark:text-gray-400">Health Score</div>
                </div>
                <div className="text-center">
                  <div className="text-3xl font-bold" style={{ color: yachtClubTheme.colors.success }}>
-                   {portfolioHealth.diversification_score}%
+                   {(portfolioHealth as any).diversification_score}%
                  </div>
                  <div className="text-sm text-gray-500 dark:text-gray-400">Diversification</div>
                </div>
                <div className="text-center">
                  <div className="text-3xl font-bold" style={{ color: yachtClubTheme.colors.secondary }}>
-                   {portfolioHealth.positions_count}
+                   {(portfolioHealth as any).positions_count}
                  </div>
                  <div className="text-sm text-gray-500 dark:text-gray-400">Positions</div>
                </div>
