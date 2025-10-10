@@ -728,13 +728,11 @@ export default function Dashboard() {
         const data = await response.json()
         console.log('Basic Portfolio Response:', data)
         
-        if (data.portfolio && data.summary) {
-          const portfolio = data.portfolio
-          const summary = data.summary
+        if (data.data && Array.isArray(data.data)) {
+          const portfolio = data.data
           
-          console.log('📈 Processing portfolio data...')
+          console.log('📈 Processing Firebase portfolio data...')
           console.log('Portfolio holdings:', portfolio.length)
-          console.log('Summary data:', summary)
           
           // Calculate total value from individual holdings
           const totalValue = portfolio.reduce((sum: number, holding: any) => sum + (holding.Total_Value || 0), 0)
@@ -742,15 +740,14 @@ export default function Dashboard() {
           const totalGainLoss = totalValue - totalCost
           const totalGainLossPercent = totalCost > 0 ? (totalGainLoss / totalCost) * 100 : 0
           
-          console.log('💰 Calculated values:', { totalValue, totalCost, totalGainLoss, totalGainLossPercent })
+          console.log('💰 Calculated values from Firebase:', { totalValue, totalCost, totalGainLoss, totalGainLossPercent })
           
-          // Create realistic category breakdown based on your actual portfolio
-          const categoryBreakdown = {
-            'Stocks': 248700, // ~72.5% in individual stocks (AAPL, AMZN, MSFT, NVDA, TSLA, GOOGL, META)
-            'ETFs': 71350,    // ~20.8% in ETFs (BND, VCIT, VOO)
-            'Crypto': 78413,  // ~22.9% in crypto (BTC, ETH)
-            'Cash': 15000     // ~4.4% in cash
-          }
+          // Create category breakdown from actual Firebase data
+          const categoryBreakdown: { [key: string]: number } = {}
+          portfolio.forEach((holding: any) => {
+            const category = holding.Category || 'Other'
+            categoryBreakdown[category] = (categoryBreakdown[category] || 0) + (holding.Total_Value || 0)
+          })
           
           // Convert category_breakdown to SummaryData array format
           const summaryArray = Object.entries(categoryBreakdown).map(([category, value]) => ({
@@ -764,12 +761,12 @@ export default function Dashboard() {
           setPortfolioData(portfolio)
           setSummaryData(summaryArray)
           
-          // DIRECTLY SET THE PORTFOLIO SUMMARY WITH ACTUAL VALUES
+          // SET THE PORTFOLIO SUMMARY WITH FIREBASE VALUES
           setPortfolioSummary({
-            netWorth: 327625.00, // Current portfolio value (0.5% weekly return)
-            totalGainLoss: 2625.00, // Total gain since Sep 23, 2025 (0.5% per week)
-            totalGainLossPercent: 0.81, // Total return since Sep 23, 2025 (0.5% per week)
-            annualizedReturn: 1564.77, // Annualized return since Sep 23, 2025
+            netWorth: totalValue, // Use actual Firebase total value
+            totalGainLoss: totalGainLoss, // Use actual Firebase gain/loss
+            totalGainLossPercent: totalGainLossPercent, // Use actual Firebase percentage
+            annualizedReturn: totalGainLossPercent, // Use actual return percentage
             volatility: 18.2, // Realistic volatility for your portfolio
             sharpeRatio: 1.85, // Realistic Sharpe ratio for your portfolio
             maxDrawdown: 8.5 // Realistic max drawdown for your portfolio
