@@ -1876,173 +1876,37 @@ export default function Dashboard() {
                 </ResponsiveContainer>
               </div>
 
-         {/* All Holdings with Filters */}
-         <div className="bg-white p-6 rounded-2xl shadow-lg border min-h-[400px]" style={{ 
-           borderColor: yachtClubTheme.colors.cardBeige,
-           boxShadow: `0 4px 6px -1px ${yachtClubTheme.colors.cardBeige}40, 0 2px 4px -1px ${yachtClubTheme.colors.cardBeige}20`
-         }}>
-           <div className="flex justify-between items-center mb-4">
-             <div>
-               <h3 className="text-lg font-medium" style={{ color: yachtClubTheme.colors.primary }}>
-                 All Holdings ({filteredHoldings.length})
-               </h3>
-               <p className="text-sm text-gray-500 dark:text-gray-400">
-                 Complete portfolio from Firebase
-               </p>
-             </div>
-           </div>
-           
-           {/* Filters */}
-           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-             <div>
-               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                 Source (Fidelity, Public, Robinhood)
-               </label>
-               <input
-                 type="text"
-                 placeholder="Filter by source..."
-                 value={holdingsFilter.source}
-                 onChange={(e) => setHoldingsFilter(prev => ({ ...prev, source: e.target.value }))}
-                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-               />
-             </div>
-             <div>
-               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                 Ticker Symbol
-               </label>
-               <input
-                 type="text"
-                 placeholder="Filter by ticker..."
-                 value={holdingsFilter.ticker}
-                 onChange={(e) => setHoldingsFilter(prev => ({ ...prev, ticker: e.target.value }))}
-                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-               />
-             </div>
-             <div>
-               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                 Category
-               </label>
-               <select
-                 value={holdingsFilter.category}
-                 onChange={(e) => setHoldingsFilter(prev => ({ ...prev, category: e.target.value }))}
-                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-               >
-                 <option value="">All Categories</option>
-                 <option value="ETF">ETF</option>
-                 <option value="Stock">Stock</option>
-                 <option value="Bond">Bond</option>
-                 <option value="Crypto">Crypto</option>
-                 <option value="Cash">Cash</option>
-                 <option value="International">International</option>
-                 <option value="Other">Other</option>
-               </select>
-             </div>
-           </div>
-           
-           {/* Holdings Table */}
-           {filteredHoldings.length > 0 ? (
-             <div className="overflow-x-auto">
-               <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                 <thead className="bg-gray-50 dark:bg-gray-700">
-                   <tr>
-                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Ticker</th>
-                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Shares</th>
-                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Price</th>
-                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Value</th>
-                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Gain/Loss</th>
-                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Category</th>
-                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Source</th>
-                   </tr>
-                 </thead>
-                 <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                   {filteredHoldings.map((holding, index) => (
-                     <tr key={holding.id || index} className="hover:bg-gray-50 dark:hover:bg-gray-700">
-                       <td className="px-6 py-4 whitespace-nowrap">
-                         <div className="font-medium text-gray-900 dark:text-white">{holding.Ticker}</div>
-                       </td>
-                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                         {holding.Qty?.toLocaleString() || 'N/A'}
-                       </td>
-                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                         ${holding.Current_Price?.toFixed(2) || 'N/A'}
-                       </td>
-                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                         ${holding.Total_Value?.toLocaleString() || 'N/A'}
-                       </td>
-                       <td className="px-6 py-4 whitespace-nowrap">
-                         <div className={`text-sm ${(holding.Gain_Loss || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                           {(holding.Gain_Loss || 0) >= 0 ? '+' : ''}${(holding.Gain_Loss || 0).toFixed(2)} ({(holding.Gain_Loss_Percent || 0).toFixed(1)}%)
-                         </div>
-                       </td>
-                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                         {holding.Category || 'N/A'}
-                       </td>
-                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                         {holding.account_name || 'N/A'}
-                       </td>
-                     </tr>
-                   ))}
-                 </tbody>
-               </table>
-             </div>
-           ) : (
-             <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-               <div className="text-sm">
-                 {portfolioData.length === 0 ? 'Loading holdings...' : 'No holdings match your filters'}
+         {/* Portfolio Health */}
+         {portfolioHealth && (
+           <div className="bg-white p-6 rounded-2xl shadow-lg border" style={{ 
+             borderColor: yachtClubTheme.colors.cardBeige,
+             boxShadow: `0 4px 6px -1px ${yachtClubTheme.colors.cardBeige}40, 0 2px 4px -1px ${yachtClubTheme.colors.cardBeige}20`
+           }}>
+             <h3 className="text-lg font-medium mb-4" style={{ color: yachtClubTheme.colors.primary }}>Portfolio Health</h3>
+             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+               <div className="text-center">
+                 <div className="text-3xl font-bold" style={{ color: yachtClubTheme.colors.primary }}>
+                   {portfolioHealth.health_score}%
+                 </div>
+                 <div className="text-sm text-gray-500 dark:text-gray-400">Health Score</div>
+               </div>
+               <div className="text-center">
+                 <div className="text-3xl font-bold" style={{ color: yachtClubTheme.colors.success }}>
+                   {portfolioHealth.diversification_score}%
+                 </div>
+                 <div className="text-sm text-gray-500 dark:text-gray-400">Diversification</div>
+               </div>
+               <div className="text-center">
+                 <div className="text-3xl font-bold" style={{ color: yachtClubTheme.colors.secondary }}>
+                   {portfolioHealth.positions_count}
+                 </div>
+                 <div className="text-sm text-gray-500 dark:text-gray-400">Positions</div>
                </div>
              </div>
-           )}
-         </div>
+           </div>
+         )}
             </div>
 
-            {/* Portfolio Health */}
-            {portfolioHealth && (
-              <div className="bg-white p-6 rounded-2xl shadow-lg border" style={{ 
-                borderColor: yachtClubTheme.colors.cardBeige,
-                boxShadow: `0 4px 6px -1px ${yachtClubTheme.colors.cardBeige}40, 0 2px 4px -1px ${yachtClubTheme.colors.cardBeige}20`
-              }}>
-                <h3 className="text-lg font-medium mb-4" style={{ color: yachtClubTheme.colors.primary }}>Portfolio Health</h3>
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">
-                      {portfolioHealth?.score || 0}/100
-                    </div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">Health Score</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-yellow-600 dark:text-yellow-400">
-                      {portfolioHealth?.riskLevel || 'Unknown'}
-                    </div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">Risk Level</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-green-600 dark:text-green-400">
-                      {((portfolioHealth?.diversification || 0) * 100).toFixed(0)}%
-                    </div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">Diversification</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-purple-600 dark:text-purple-400">
-                      {(portfolioHealth?.volatility || 0).toFixed(1)}%
-                    </div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">Volatility</div>
-                  </div>
-                </div>
-                
-                {/* Badges */}
-                <div className="mt-6">
-                  <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-3">Achievements</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {(portfolioHealth?.badges || []).map((badge, index) => (
-                      <span key={index} className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">
-                        <Award className="h-3 w-3 mr-1" />
-                        {badge}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
 
             {/* AI Insight Card */}
             <AIInsightCard userId={1} />
