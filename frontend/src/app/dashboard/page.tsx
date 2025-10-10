@@ -20,9 +20,7 @@ import {
   BarChart2,
   Calendar,
   Database,
-  Bot,
-  Menu,
-  X
+  Bot
 } from 'lucide-react'
 import AIInsightCard from '@/components/AIInsightCard'
 
@@ -120,7 +118,7 @@ export default function Dashboard() {
   const [showOnboarding, setShowOnboarding] = useState(false)
   const [showAlerts, setShowAlerts] = useState(false)
   const [unreadAlertCount, setUnreadAlertCount] = useState(3)
-  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(true) // Always open
   
   // Data state
   const [portfolioData, setPortfolioData] = useState<PortfolioData[]>([])
@@ -1575,28 +1573,6 @@ export default function Dashboard() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
-              {/* Hamburger Menu Button */}
-              <button
-                onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="p-2 rounded-md mr-3 transition-colors duration-200"
-                style={{
-                  color: yachtClubTheme.colors.primary,
-                  backgroundColor: sidebarOpen ? `${yachtClubTheme.colors.accent}20` : 'transparent'
-                }}
-                onMouseEnter={(e) => {
-                  if (!sidebarOpen) {
-                    e.currentTarget.style.backgroundColor = `${yachtClubTheme.colors.accent}10`
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (!sidebarOpen) {
-                    e.currentTarget.style.backgroundColor = 'transparent'
-                  }
-                }}
-              >
-                {sidebarOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-              </button>
-              
               <h1 className="text-2xl font-bold" style={{ color: yachtClubTheme.colors.primary }}>
                 Wealtheon
               </h1>
@@ -1636,10 +1612,8 @@ export default function Dashboard() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex gap-6">
-          {/* Vertical Navigation Tabs - Collapsible Sidebar */}
-          <div className={`w-64 flex-shrink-0 transition-all duration-300 ease-in-out ${
-            sidebarOpen ? 'translate-x-0 opacity-100' : '-translate-x-full opacity-0 w-0'
-          }`}>
+          {/* Vertical Navigation Tabs - Permanent Sidebar */}
+          <div className="w-64 flex-shrink-0">
             <nav className="bg-white rounded-lg p-2 shadow-lg space-y-2" style={{ 
               borderColor: yachtClubTheme.colors.cardBeige,
               boxShadow: `0 10px 25px -5px ${yachtClubTheme.colors.cardBeige}60, 0 4px 6px -2px ${yachtClubTheme.colors.cardBeige}40`
@@ -1647,10 +1621,7 @@ export default function Dashboard() {
               {navigationTabs.map(({ id, label, icon: Icon, description }) => (
                 <button
                   key={id}
-                  onClick={() => {
-                    setActiveTab(id)
-                    // Keep sidebar open when tab is selected - user can close manually
-                  }}
+                  onClick={() => setActiveTab(id)}
                   className="w-full flex items-center px-4 py-3 text-sm font-medium rounded-md transition-all duration-200 text-left"
                   style={{
                     backgroundColor: activeTab === id ? yachtClubTheme.colors.primary : 'transparent',
@@ -1678,10 +1649,8 @@ export default function Dashboard() {
             </nav>
           </div>
 
-          {/* Main Content Area - Expands and compresses based on sidebar state */}
-          <div className={`flex-1 min-w-0 transition-all duration-300 ease-in-out ${
-            sidebarOpen ? 'ml-0' : 'ml-0'
-          }`}>
+          {/* Main Content Area */}
+          <div className="flex-1 min-w-0">
 
         {/* Status Message - Only show if there's an actual error that affects functionality */}
         {error && error.includes('Critical') && (
