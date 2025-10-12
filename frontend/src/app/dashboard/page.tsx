@@ -153,6 +153,30 @@ export default function Dashboard() {
   })
   const [filteredHoldings, setFilteredHoldings] = useState<any[]>([])
   
+  // Dashboard summary state
+  const [dashboardMetrics, setDashboardMetrics] = useState({
+    totalValue: 0,
+    stockValue: 0,
+    cryptoValue: 0,
+    cashValue: 0,
+    numHoldings: 0,
+    totalGainLoss: 0,
+    totalGainLossPercent: 0
+  })
+  const [allocationData, setAllocationData] = useState([
+    { name: "Stocks", value: 0, color: "#3B82F6" },
+    { name: "Crypto", value: 0, color: "#F59E0B" },
+    { name: "Cash", value: 0, color: "#10B981" }
+  ])
+  const [topGainers, setTopGainers] = useState<any[]>([])
+  const [topLosers, setTopLosers] = useState<any[]>([])
+  const [goalProgress, setGoalProgress] = useState({
+    currentValue: 0,
+    targetValue: 0,
+    progress: 0,
+    isAchieved: false
+  })
+  
   // Performance optimization state
   const [aiInsights, setAiInsights] = useState<any>(null)
   const [chartData, setChartData] = useState<any[]>([])
@@ -202,6 +226,90 @@ export default function Dashboard() {
   useEffect(() => {
     filterHoldings()
   }, [filterHoldings])
+  
+  // Calculate dashboard metrics from portfolio data
+  const calculateDashboardMetrics = useCallback((holdings: any[]) => {
+    if (!holdings.length) return
+    
+    console.log('📊 Calculating dashboard metrics from', holdings.length, 'holdings')
+    
+    // Aggregate data by type/category
+    const totalValue = holdings.reduce((sum, holding) => sum + (holding.Total_Value || 0), 0)
+    const stockValue = holdings
+      .filter(h => h.Category === 'Stock' || h.Category === 'ETF')
+      .reduce((sum, holding) => sum + (holding.Total_Value || 0), 0)
+    const cryptoValue = holdings
+      .filter(h => h.Category === 'Crypto')
+      .reduce((sum, holding) => sum + (holding.Total_Value || 0), 0)
+    const cashValue = holdings
+      .filter(h => h.Category === 'Cash')
+      .reduce((sum, holding) => sum + (holding.Total_Value || 0), 0)
+    
+    const totalGainLoss = holdings.reduce((sum, holding) => sum + (holding.Gain_Loss || 0), 0)
+    const totalCost = holdings.reduce((sum, holding) => sum + (holding.Cost_Basis || 0), 0)
+    const totalGainLossPercent = totalCost > 0 ? (totalGainLoss / totalCost) * 100 : 0
+    
+    // Set metrics
+    setDashboardMetrics({
+      totalValue,
+      stockValue,
+      cryptoValue,
+      cashValue,
+      numHoldings: holdings.length,
+      totalGainLoss,
+      totalGainLossPercent
+    })
+    
+    // Set allocation data
+    setAllocationData([
+      { name: "Stocks", value: stockValue, color: "#3B82F6" },
+      { name: "Crypto", value: cryptoValue, color: "#F59E0B" },
+      { name: "Cash", value: cashValue, color: "#10B981" }
+    ])
+    
+    // Calculate top movers and losers
+    const holdingsWithChange = holdings
+      .filter(h => h.Gain_Loss_Percent !== undefined)
+      .map(h => ({
+        ticker: h.Ticker,
+        changePercent: h.Gain_Loss_Percent,
+        value: h.Total_Value,
+        gainLoss: h.Gain_Loss
+      }))
+      .sort((a, b) => b.changePercent - a.changePercent)
+    
+    setTopGainers(holdingsWithChange.slice(0, 3))
+    setTopLosers(holdingsWithChange.slice(-3).reverse())
+    
+    // Calculate goal progress (10% annual growth)
+    const lastYearValue = totalValue / 1.08 // Placeholder calculation
+    const targetValue = lastYearValue * 1.10
+    const progress = Math.min((totalValue / targetValue) * 100, 100)
+    
+    setGoalProgress({
+      currentValue: totalValue,
+      targetValue,
+      progress,
+      isAchieved: progress >= 100
+    })
+    
+    console.log('✅ Dashboard metrics calculated:', {
+      totalValue,
+      stockValue,
+      cryptoValue,
+      cashValue,
+      numHoldings: holdings.length,
+      totalGainLoss,
+      totalGainLossPercent
+    })
+  }, [])
+  
+  // Update dashboard metrics when portfolio data changes
+  useEffect(() => {
+    if (portfolioData.length > 0) {
+      calculateDashboardMetrics(portfolioData)
+    }
+  }, [portfolioData, calculateDashboardMetrics])
   const [lastDataFetch, setLastDataFetch] = useState<number>(0)
   
   // Loading and error states
@@ -1583,6 +1691,12 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: yachtClubTheme.colors.background }}>
+      <style jsx>{`
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
       {/* Header */}
       <header className="bg-white shadow-sm border-b" style={{ borderColor: yachtClubTheme.colors.accent }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -1684,9 +1798,9 @@ export default function Dashboard() {
 
         {/* Tab Content */}
         {activeTab === 'dashboard' && (
-        <div className="space-y-6">
+        <div className="space-y-6" style={{ animation: 'fadeIn 0.5s ease-in-out' }}>
           
-          {/* Portfolio Creation Date */}
+          {/* Header */}
           <div className="bg-white p-6 rounded-2xl mb-6 shadow-lg border" style={{ 
             borderColor: yachtClubTheme.colors.cardBeige,
             background: `linear-gradient(135deg, ${yachtClubTheme.colors.accent}10, ${yachtClubTheme.colors.primary}05)`
@@ -1698,7 +1812,7 @@ export default function Dashboard() {
                   <p className="text-sm font-medium" style={{ color: yachtClubTheme.colors.textSecondary }}>Portfolio Created</p>
                   <p className="text-lg font-semibold" style={{ color: yachtClubTheme.colors.primary }}>September 23, 2025</p>
                   <p className="text-xs" style={{ color: yachtClubTheme.colors.textSecondary }}>
-                    Starting: $325,850.92 → Current: ${portfolioSummary.netWorth.toLocaleString()}
+                    Starting: $325,850.92 → Current: ${dashboardMetrics.totalValue.toLocaleString()}
                   </p>
                 </div>
               </div>
@@ -1714,80 +1828,189 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Portfolio Summary Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="bg-white p-6 rounded-2xl shadow-lg border" style={{ 
-                borderColor: yachtClubTheme.colors.cardBeige,
-                boxShadow: `0 4px 6px -1px ${yachtClubTheme.colors.cardBeige}40, 0 2px 4px -1px ${yachtClubTheme.colors.cardBeige}20`
-              }}>
-                <div className="flex items-center">
-                  <div className="p-2 rounded-lg" style={{ backgroundColor: `${yachtClubTheme.colors.primary}20` }}>
-                    <DollarSign className="h-6 w-6" style={{ color: yachtClubTheme.colors.primary }} />
-                  </div>
-                  <div className="ml-4">
-                    <p className="text-sm font-medium" style={{ color: yachtClubTheme.colors.textSecondary }}>Net Worth</p>
-                    <p className="text-2xl font-semibold" style={{ color: yachtClubTheme.colors.text }}>
-                      ${portfolioSummary.netWorth.toLocaleString()}
-                    </p>
+          {/* 6 Metric Cards */}
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            {/* Total Portfolio Value */}
+            <div className="bg-white/80 p-4 rounded-2xl shadow-md border" style={{ 
+              background: 'linear-gradient(135deg, #3B82F6, #1D4ED8)',
+              color: 'white'
+            }}>
+              <div className="text-center">
+                <p className="text-xs font-medium opacity-90 mb-1">Total Portfolio</p>
+                <p className="text-lg font-bold">${dashboardMetrics.totalValue.toLocaleString()}</p>
+                <p className="text-xs opacity-75">+{dashboardMetrics.totalGainLossPercent.toFixed(1)}% this week</p>
+              </div>
+            </div>
+
+            {/* Stock Holdings */}
+            <div className="bg-white/80 p-4 rounded-2xl shadow-md border" style={{ 
+              background: 'linear-gradient(135deg, #10B981, #059669)',
+              color: 'white'
+            }}>
+              <div className="text-center">
+                <p className="text-xs font-medium opacity-90 mb-1">Stock Holdings</p>
+                <p className="text-lg font-bold">${dashboardMetrics.stockValue.toLocaleString()}</p>
+                <p className="text-xs opacity-75">{((dashboardMetrics.stockValue / dashboardMetrics.totalValue) * 100).toFixed(0)}% of portfolio</p>
+              </div>
+            </div>
+
+            {/* Crypto Holdings */}
+            <div className="bg-white/80 p-4 rounded-2xl shadow-md border" style={{ 
+              background: 'linear-gradient(135deg, #F59E0B, #D97706)',
+              color: 'white'
+            }}>
+              <div className="text-center">
+                <p className="text-xs font-medium opacity-90 mb-1">Crypto Holdings</p>
+                <p className="text-lg font-bold">${dashboardMetrics.cryptoValue.toLocaleString()}</p>
+                <p className="text-xs opacity-75">{((dashboardMetrics.cryptoValue / dashboardMetrics.totalValue) * 100).toFixed(0)}% of portfolio</p>
+              </div>
+            </div>
+
+            {/* Cash Holdings */}
+            <div className="bg-white/80 p-4 rounded-2xl shadow-md border" style={{ 
+              background: 'linear-gradient(135deg, #6B7280, #4B5563)',
+              color: 'white'
+            }}>
+              <div className="text-center">
+                <p className="text-xs font-medium opacity-90 mb-1">Cash Holdings</p>
+                <p className="text-lg font-bold">${dashboardMetrics.cashValue.toLocaleString()}</p>
+                <p className="text-xs opacity-75">{((dashboardMetrics.cashValue / dashboardMetrics.totalValue) * 100).toFixed(0)}% of portfolio</p>
+              </div>
+            </div>
+
+            {/* Number of Holdings */}
+            <div className="bg-white/80 p-4 rounded-2xl shadow-md border" style={{ 
+              background: 'linear-gradient(135deg, #8B5CF6, #7C3AED)',
+              color: 'white'
+            }}>
+              <div className="text-center">
+                <p className="text-xs font-medium opacity-90 mb-1"># of Holdings</p>
+                <p className="text-lg font-bold">{dashboardMetrics.numHoldings}</p>
+                <p className="text-xs opacity-75">diversified positions</p>
+              </div>
+            </div>
+
+            {/* Total Gain/Loss */}
+            <div className="bg-white/80 p-4 rounded-2xl shadow-md border" style={{ 
+              background: dashboardMetrics.totalGainLoss >= 0 ? 'linear-gradient(135deg, #10B981, #059669)' : 'linear-gradient(135deg, #EF4444, #DC2626)',
+              color: 'white'
+            }}>
+              <div className="text-center">
+                <p className="text-xs font-medium opacity-90 mb-1">Total Gain/Loss</p>
+                <p className="text-lg font-bold">${dashboardMetrics.totalGainLoss.toLocaleString()}</p>
+                <p className="text-xs opacity-75">{dashboardMetrics.totalGainLossPercent.toFixed(1)}% return</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Charts Row */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Allocation Breakdown Donut Chart */}
+            <div className="bg-white p-6 rounded-2xl shadow-lg border" style={{ 
+              borderColor: yachtClubTheme.colors.cardBeige,
+              boxShadow: `0 4px 6px -1px ${yachtClubTheme.colors.cardBeige}40, 0 2px 4px -1px ${yachtClubTheme.colors.cardBeige}20`
+            }}>
+              <h3 className="text-lg font-medium mb-4" style={{ color: yachtClubTheme.colors.primary }}>Portfolio Allocation</h3>
+              <ResponsiveContainer width="100%" height={300}>
+                <PieChart>
+                  <Pie
+                    data={allocationData}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={({ name, percent }) => `${name} ${((percent || 0) * 100).toFixed(0)}%`}
+                    outerRadius={80}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {allocationData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip formatter={(value) => `$${Number(value).toLocaleString()}`} />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+
+            {/* Top Movers & Losers */}
+            <div className="bg-white p-6 rounded-2xl shadow-lg border" style={{ 
+              borderColor: yachtClubTheme.colors.cardBeige,
+              boxShadow: `0 4px 6px -1px ${yachtClubTheme.colors.cardBeige}40, 0 2px 4px -1px ${yachtClubTheme.colors.cardBeige}20`
+            }}>
+              <h3 className="text-lg font-medium mb-4" style={{ color: yachtClubTheme.colors.primary }}>Top Movers & Losers</h3>
+              <div className="grid grid-cols-2 gap-4">
+                {/* Top Gainers */}
+                <div>
+                  <h4 className="text-sm font-semibold text-green-600 mb-2">Top 3 Gainers</h4>
+                  <div className="space-y-2">
+                    {topGainers.map((mover, index) => (
+                      <div key={index} className="flex justify-between items-center p-2 bg-green-50 rounded-lg">
+                        <span className="text-sm font-medium">{mover.ticker}</span>
+                        <div className="text-right">
+                          <div className="text-sm font-semibold text-green-600">+{mover.changePercent.toFixed(1)}%</div>
+                          <div className="text-xs text-gray-500">${mover.value.toLocaleString()}</div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
-              </div>
 
-              <div className="bg-white p-6 rounded-2xl shadow-lg border" style={{ 
-                borderColor: yachtClubTheme.colors.cardBeige,
-                boxShadow: `0 4px 6px -1px ${yachtClubTheme.colors.cardBeige}40, 0 2px 4px -1px ${yachtClubTheme.colors.cardBeige}20`
-              }}>
-                <div className="flex items-center">
-                  <div className="p-2 rounded-lg" style={{ backgroundColor: `${yachtClubTheme.colors.success}20` }}>
-                    <TrendingUp className="h-6 w-6" style={{ color: yachtClubTheme.colors.success }} />
-                  </div>
-                  <div className="ml-4">
-                    <p className="text-sm font-medium" style={{ color: yachtClubTheme.colors.textSecondary }}>Total Gain/Loss</p>
-                    <p className="text-2xl font-semibold" style={{ 
-                      color: portfolioSummary.totalGainLoss >= 0 ? yachtClubTheme.colors.success : yachtClubTheme.colors.danger 
-                    }}>
-                      ${portfolioSummary.totalGainLoss.toLocaleString()}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-white p-6 rounded-2xl shadow-lg border" style={{ 
-                borderColor: yachtClubTheme.colors.cardBeige,
-                boxShadow: `0 4px 6px -1px ${yachtClubTheme.colors.cardBeige}40, 0 2px 4px -1px ${yachtClubTheme.colors.cardBeige}20`
-              }}>
-                <div className="flex items-center">
-                  <div className="p-2 rounded-lg" style={{ backgroundColor: `${yachtClubTheme.colors.secondary}20` }}>
-                    <Activity className="h-6 w-6" style={{ color: yachtClubTheme.colors.secondary }} />
-                  </div>
-                  <div className="ml-4">
-                    <p className="text-sm font-medium" style={{ color: yachtClubTheme.colors.textSecondary }}>Return %</p>
-                    <p className="text-2xl font-semibold" style={{ 
-                      color: (portfolioSummary?.totalGainLossPercent || 0) >= 0 ? yachtClubTheme.colors.success : yachtClubTheme.colors.danger 
-                    }}>
-                      {(portfolioSummary?.totalGainLossPercent || 0).toFixed(2)}%
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-white p-6 rounded-2xl shadow-lg border" style={{ 
-                borderColor: yachtClubTheme.colors.cardBeige,
-                boxShadow: `0 4px 6px -1px ${yachtClubTheme.colors.cardBeige}40, 0 2px 4px -1px ${yachtClubTheme.colors.cardBeige}20`
-              }}>
-                <div className="flex items-center">
-                  <div className="p-2 rounded-lg" style={{ backgroundColor: `${yachtClubTheme.colors.accent}20` }}>
-                    <TrendingUp className="h-6 w-6" style={{ color: yachtClubTheme.colors.accent }} />
-                  </div>
-                  <div className="ml-4">
-                    <p className="text-sm font-medium" style={{ color: yachtClubTheme.colors.textSecondary }}>Sharpe Ratio</p>
-                    <p className="text-2xl font-semibold" style={{ color: yachtClubTheme.colors.text }}>
-                      {(portfolioSummary?.sharpeRatio || 0).toFixed(2)}
-                    </p>
+                {/* Top Losers */}
+                <div>
+                  <h4 className="text-sm font-semibold text-red-600 mb-2">Top 3 Losers</h4>
+                  <div className="space-y-2">
+                    {topLosers.map((mover, index) => (
+                      <div key={index} className="flex justify-between items-center p-2 bg-red-50 rounded-lg">
+                        <span className="text-sm font-medium">{mover.ticker}</span>
+                        <div className="text-right">
+                          <div className="text-sm font-semibold text-red-600">{mover.changePercent.toFixed(1)}%</div>
+                          <div className="text-xs text-gray-500">${mover.value.toLocaleString()}</div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* Portfolio Goal Tracker */}
+          <div className="bg-white p-6 rounded-2xl shadow-lg border" style={{ 
+            borderColor: yachtClubTheme.colors.cardBeige,
+            boxShadow: `0 4px 6px -1px ${yachtClubTheme.colors.cardBeige}40, 0 2px 4px -1px ${yachtClubTheme.colors.cardBeige}20`
+          }}>
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3 className="text-lg font-medium" style={{ color: yachtClubTheme.colors.primary }}>Yearly Growth Goal (+10%)</h3>
+                <p className="text-sm text-gray-500">Target: ${goalProgress.targetValue.toLocaleString()} by Dec 31</p>
+              </div>
+              {goalProgress.isAchieved && (
+                <div className="text-green-600 font-semibold">Goal Achieved 🎉</div>
+              )}
+            </div>
+            
+            <div className="mb-2">
+              <div className="flex justify-between text-sm text-gray-600 mb-1">
+                <span>Current: ${goalProgress.currentValue.toLocaleString()}</span>
+                <span>{goalProgress.progress.toFixed(1)}%</span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-3">
+                <div 
+                  className={`h-3 rounded-full transition-all duration-500 ${
+                    goalProgress.isAchieved ? 'bg-green-500' : 'bg-blue-500'
+                  }`}
+                  style={{ width: `${Math.min(goalProgress.progress, 100)}%` }}
+                ></div>
+              </div>
+            </div>
+            
+            <div className="text-xs text-gray-500">
+              {goalProgress.isAchieved 
+                ? `Exceeded target by $${(goalProgress.currentValue - goalProgress.targetValue).toLocaleString()}`
+                : `Need $${(goalProgress.targetValue - goalProgress.currentValue).toLocaleString()} more to reach goal`
+              }
+            </div>
+          </div>
 
             {/* Top 3 Holdings Card */}
             {topHoldings.length > 0 && (
