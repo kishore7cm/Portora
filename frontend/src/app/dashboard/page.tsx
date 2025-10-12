@@ -160,7 +160,15 @@ export default function Dashboard() {
   
   // Filter holdings based on current filter settings
   const filterHoldings = useCallback(() => {
-    if (!portfolioData.length) return
+    if (!portfolioData.length) {
+      console.log('🔍 No portfolio data available for filtering')
+      return
+    }
+    
+    console.log('🔍 Filtering holdings:', {
+      totalPortfolioData: portfolioData.length,
+      filters: holdingsFilter
+    })
     
     let filtered = portfolioData
     
@@ -169,20 +177,24 @@ export default function Dashboard() {
         (holding as any).account_name?.toLowerCase().includes(holdingsFilter.source.toLowerCase()) ||
         (holding as any).source?.toLowerCase().includes(holdingsFilter.source.toLowerCase())
       )
+      console.log('🔍 After source filter:', filtered.length)
     }
     
     if (holdingsFilter.ticker) {
       filtered = filtered.filter(holding => 
         holding.Ticker?.toLowerCase().includes(holdingsFilter.ticker.toLowerCase())
       )
+      console.log('🔍 After ticker filter:', filtered.length)
     }
     
     if (holdingsFilter.category) {
       filtered = filtered.filter(holding => 
         holding.Category?.toLowerCase().includes(holdingsFilter.category.toLowerCase())
       )
+      console.log('🔍 After category filter:', filtered.length)
     }
     
+    console.log('🔍 Final filtered holdings:', filtered.length)
     setFilteredHoldings(filtered)
   }, [portfolioData, holdingsFilter])
   
@@ -797,6 +809,7 @@ export default function Dashboard() {
             Drift: 0 // No drift data available
           }))
           
+          console.log('📊 Setting Firebase portfolio data:', portfolio.length, 'holdings')
           setPortfolioData(portfolio)
           setSummaryData(summaryArray)
           
