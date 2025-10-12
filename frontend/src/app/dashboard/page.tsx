@@ -1813,7 +1813,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: yachtClubTheme.colors.background }}>
+    <div className="min-h-screen bg-gradient-to-b from-[#FDFBF7] to-[#EDE9E3]">
       <style jsx>{`
         @keyframes fadeIn {
           from { opacity: 0; transform: translateY(10px); }
@@ -1821,14 +1821,14 @@ export default function Dashboard() {
         }
       `}</style>
       {/* Header */}
-      <header className="bg-white shadow-sm border-b" style={{ borderColor: yachtClubTheme.colors.accent }}>
+      <header className="bg-[#1C3D5A] shadow-lg border-b-2" style={{ borderColor: yachtClubTheme.colors.accent }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
-              <h1 className="text-2xl font-bold" style={{ color: yachtClubTheme.colors.primary }}>
+              <h1 className="text-2xl font-bold text-[#C9A66B]">
                 Wealtheon
               </h1>
-              <span className="ml-2 text-sm" style={{ color: yachtClubTheme.colors.textSecondary }}>
+              <span className="ml-2 text-sm text-[#EDE9E3]">
                 Portfolio Management Platform
               </span>
             </div>
@@ -1862,7 +1862,7 @@ export default function Dashboard() {
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto p-6 md:p-10 space-y-10">
         <div className="flex gap-6">
           {/* Vertical Navigation Tabs - Permanent Sidebar */}
           <div className="w-64 flex-shrink-0">
@@ -1953,126 +1953,95 @@ export default function Dashboard() {
 
 
           {/* 7 Key Metrics Section */}
-          <div className="bg-white p-6 rounded-2xl shadow-lg border" style={{ 
-            borderColor: yachtClubTheme.colors.cardBeige,
+          <div className="bg-[#EDE9E3] p-6 rounded-2xl shadow-lg border-l-4" style={{ 
+            borderColor: yachtClubTheme.colors.accent,
             boxShadow: `0 4px 6px -1px ${yachtClubTheme.colors.cardBeige}40, 0 2px 4px -1px ${yachtClubTheme.colors.cardBeige}20`
           }}>
-            <h3 className="text-xl font-semibold mb-6" style={{ color: yachtClubTheme.colors.primary }}>
-              Portfolio Analytics (7 Key Metrics)
-            </h3>
+            <h1 className="text-3xl font-semibold text-[#1C3D5A] mb-2">Portfolio Overview</h1>
+            <p className="text-[#5A6A73] mb-6">A snapshot of your financial performance</p>
             
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {/* 1. Total Portfolio Value */}
-              <div className="p-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300" style={{ 
-                backgroundColor: '#FFFFFF',
-                color: yachtClubTheme.colors.primary,
-                border: `2px solid ${yachtClubTheme.colors.primary}`
-              }}>
-                <div className="flex items-center justify-between mb-3">
-                  <h4 className="text-xs font-semibold uppercase tracking-wide" style={{ color: yachtClubTheme.colors.textSecondary }}>Total Portfolio Value</h4>
-                  <DollarSign className="h-4 w-4" style={{ color: yachtClubTheme.colors.primary }} />
-                </div>
-                <p className="text-xl font-bold mb-1" style={{ color: yachtClubTheme.colors.primary }}>${sevenMetrics.totalPortfolioValue.toLocaleString()}</p>
-                <p className="text-xs" style={{ color: yachtClubTheme.colors.textSecondary }}>Sum of all current values</p>
+              <div className="p-4 rounded-2xl bg-[#EDE9E3] border-l-4 hover:shadow-lg transition-all duration-300" style={{ borderColor: '#1C3D5A' }}>
+                <p className="text-sm text-[#5A6A73]">Total Portfolio Value</p>
+                <h2 className="text-2xl font-semibold text-[#000000] mt-1">${sevenMetrics.totalPortfolioValue.toLocaleString()}</h2>
+                <p className="text-xs text-[#5A6A73] mt-1">Sum of all current values</p>
               </div>
 
               {/* 2. Cash Allocation */}
-              <div className="p-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300" style={{ 
-                backgroundColor: '#FFFFFF',
-                color: yachtClubTheme.colors.primary,
-                border: `2px solid ${yachtClubTheme.colors.secondary}`
-              }}>
-                <div className="flex items-center justify-between mb-3">
-                  <h4 className="text-xs font-semibold uppercase tracking-wide" style={{ color: yachtClubTheme.colors.textSecondary }}>Cash Allocation</h4>
-                  <Activity className="h-4 w-4" style={{ color: yachtClubTheme.colors.secondary }} />
-                </div>
-                <p className="text-xl font-bold mb-1" style={{ color: yachtClubTheme.colors.primary }}>{sevenMetrics.cashAllocationPercent.toFixed(1)}%</p>
-                <p className="text-xs" style={{ color: yachtClubTheme.colors.textSecondary }}>Percentage in cash</p>
+              <div className="p-4 rounded-2xl bg-[#EDE9E3] border-l-4 hover:shadow-lg transition-all duration-300" style={{ borderColor: '#7A5C45' }}>
+                <p className="text-sm text-[#5A6A73]">Cash Allocation</p>
+                <h2 className="text-2xl font-semibold text-[#000000] mt-1">{sevenMetrics.cashAllocationPercent.toFixed(1)}%</h2>
+                <p className="text-xs text-[#5A6A73] mt-1">Percentage in cash</p>
               </div>
 
               {/* 3. Equity vs ETF Split */}
-              <div className="p-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300" style={{ 
-                backgroundColor: '#FFFFFF',
-                color: yachtClubTheme.colors.primary,
-                border: `2px solid ${yachtClubTheme.colors.accent}`
-              }}>
-                <div className="flex items-center justify-between mb-3">
-                  <h4 className="text-xs font-semibold uppercase tracking-wide" style={{ color: yachtClubTheme.colors.textSecondary }}>Equity vs ETF Split</h4>
-                  <TrendingUp className="h-4 w-4" style={{ color: yachtClubTheme.colors.accent }} />
-                </div>
-                <p className="text-xl font-bold mb-1" style={{ color: yachtClubTheme.colors.primary }}>{sevenMetrics.equityVsEtfSplit.toFixed(1)}%</p>
-                <p className="text-xs" style={{ color: yachtClubTheme.colors.textSecondary }}>Stocks vs ETFs ratio</p>
+              <div className="p-4 rounded-2xl bg-[#EDE9E3] border-l-4 hover:shadow-lg transition-all duration-300" style={{ borderColor: '#C9A66B' }}>
+                <p className="text-sm text-[#5A6A73]">Stocks vs ETFs</p>
+                <h2 className="text-2xl font-semibold text-[#000000] mt-1">{sevenMetrics.equityVsEtfSplit.toFixed(1)}%</h2>
+                <p className="text-xs text-[#5A6A73] mt-1">Stocks vs ETFs ratio</p>
               </div>
 
               {/* 4. Number of Holdings */}
-              <div className="p-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300" style={{ 
-                backgroundColor: '#FFFFFF',
-                color: yachtClubTheme.colors.primary,
-                border: `2px solid ${yachtClubTheme.colors.primary}`
-              }}>
-                <div className="flex items-center justify-between mb-3">
-                  <h4 className="text-xs font-semibold uppercase tracking-wide" style={{ color: yachtClubTheme.colors.textSecondary }}>Number of Holdings</h4>
-                  <BarChart2 className="h-4 w-4" style={{ color: yachtClubTheme.colors.primary }} />
-                </div>
-                <p className="text-xl font-bold mb-1" style={{ color: yachtClubTheme.colors.primary }}>{sevenMetrics.numberOfHoldings}</p>
-                <p className="text-xs" style={{ color: yachtClubTheme.colors.textSecondary }}>Unique tickers</p>
+              <div className="p-4 rounded-2xl bg-[#EDE9E3] border-l-4 hover:shadow-lg transition-all duration-300" style={{ borderColor: '#1C3D5A' }}>
+                <p className="text-sm text-[#5A6A73]">Holdings Count</p>
+                <h2 className="text-2xl font-semibold text-[#000000] mt-1">{sevenMetrics.numberOfHoldings}</h2>
+                <p className="text-xs text-[#5A6A73] mt-1">Unique tickers</p>
               </div>
 
               {/* 5. Top Sector by Value */}
-              <div className="p-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300" style={{ 
-                backgroundColor: '#FFFFFF',
-                color: yachtClubTheme.colors.primary,
-                border: `2px solid ${yachtClubTheme.colors.accent}`
-              }}>
-                <div className="flex items-center justify-between mb-3">
-                  <h4 className="text-xs font-semibold uppercase tracking-wide" style={{ color: yachtClubTheme.colors.textSecondary }}>Top Sector</h4>
-                  <Target className="h-4 w-4" style={{ color: yachtClubTheme.colors.accent }} />
-                </div>
-                <p className="text-xl font-bold mb-1" style={{ color: yachtClubTheme.colors.primary }}>{sevenMetrics.topSectorByValue}</p>
-                <p className="text-xs" style={{ color: yachtClubTheme.colors.textSecondary }}>Highest value sector</p>
+              <div className="p-4 rounded-2xl bg-[#EDE9E3] border-l-4 hover:shadow-lg transition-all duration-300" style={{ borderColor: '#C9A66B' }}>
+                <p className="text-sm text-[#5A6A73]">Top Sector</p>
+                <h2 className="text-2xl font-semibold text-[#000000] mt-1">{sevenMetrics.topSectorByValue}</h2>
+                <p className="text-xs text-[#5A6A73] mt-1">Highest value sector</p>
               </div>
 
               {/* 6. Top Performing Asset */}
-              <div className="p-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300" style={{ 
-                backgroundColor: '#FFFFFF',
-                color: yachtClubTheme.colors.accent,
-                border: `2px solid ${yachtClubTheme.colors.accent}`
-              }}>
-                <div className="flex items-center justify-between mb-3">
-                  <h4 className="text-xs font-semibold uppercase tracking-wide" style={{ color: yachtClubTheme.colors.textSecondary }}>Top Performer</h4>
-                  <TrendingUp className="h-4 w-4" style={{ color: yachtClubTheme.colors.accent }} />
-                </div>
-                <p className="text-xl font-bold mb-1" style={{ color: yachtClubTheme.colors.accent }}>{sevenMetrics.topPerformingAsset}</p>
-                <p className="text-xs" style={{ color: yachtClubTheme.colors.textSecondary }}>Best performing asset</p>
+              <div className="p-4 rounded-2xl bg-[#EDE9E3] border-l-4 hover:shadow-lg transition-all duration-300" style={{ borderColor: '#C9A66B' }}>
+                <p className="text-sm text-[#5A6A73]">Top Performer</p>
+                <h2 className="text-2xl font-semibold text-[#C9A66B] mt-1">{sevenMetrics.topPerformingAsset}</h2>
+                <p className="text-xs text-[#5A6A73] mt-1">Best performing asset</p>
               </div>
 
               {/* 7. Goal Progress */}
-              <div className="p-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300" style={{ 
-                backgroundColor: '#FFFFFF',
-                color: sevenMetrics.goalProgress >= 100 ? yachtClubTheme.colors.accent : yachtClubTheme.colors.danger,
-                border: `2px solid ${sevenMetrics.goalProgress >= 100 ? yachtClubTheme.colors.accent : yachtClubTheme.colors.danger}`
+              <div className="p-4 rounded-2xl bg-[#EDE9E3] border-l-4 hover:shadow-lg transition-all duration-300" style={{ 
+                borderColor: sevenMetrics.goalProgress >= 100 ? '#22C55E' : '#DC2626'
               }}>
-                <div className="flex items-center justify-between mb-3">
-                  <h4 className="text-xs font-semibold uppercase tracking-wide" style={{ color: yachtClubTheme.colors.textSecondary }}>Goal Progress</h4>
-                  <Target className="h-4 w-4" style={{ color: sevenMetrics.goalProgress >= 100 ? yachtClubTheme.colors.accent : yachtClubTheme.colors.danger }} />
-                </div>
-                <p className="text-xl font-bold mb-1" style={{ color: sevenMetrics.goalProgress >= 100 ? yachtClubTheme.colors.accent : yachtClubTheme.colors.danger }}>{sevenMetrics.goalProgress.toFixed(1)}%</p>
-                <p className="text-xs" style={{ color: yachtClubTheme.colors.textSecondary }}>10% annual growth target</p>
+                <p className="text-sm text-[#5A6A73]">Goal Progress</p>
+                <h2 className="text-2xl font-semibold mt-1" style={{ 
+                  color: sevenMetrics.goalProgress >= 100 ? '#22C55E' : '#DC2626'
+                }}>{sevenMetrics.goalProgress.toFixed(1)}%</h2>
+                <p className="text-xs text-[#5A6A73] mt-1">10% annual growth target</p>
               </div>
             </div>
+          </div>
+
+          {/* Goal Progress Section */}
+          <div className="p-6 bg-[#EDE9E3] rounded-2xl border border-[#C9A66B] mt-6">
+            <p className="text-[#1C3D5A] font-medium">Yearly Growth Goal (+10%)</p>
+            <div className="w-full bg-[#FDFBF7] rounded-full h-3 mt-3 overflow-hidden">
+              <div
+                className="h-3 rounded-full transition-all"
+                style={{
+                  width: `${sevenMetrics.goalProgress}%`,
+                  backgroundColor: sevenMetrics.goalProgress >= 100 ? '#22C55E' : '#C9A66B'
+                }}
+              />
+            </div>
+            <p className="text-[#5A6A73] text-sm mt-2">{sevenMetrics.goalProgress.toFixed(1)}% of annual target</p>
           </div>
 
           {/* Top 3 Holdings, Winners & Losers */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Top 3 Holdings */}
-            <div className="bg-white p-6 rounded-2xl shadow-lg border" style={{ 
-              borderColor: yachtClubTheme.colors.cardBeige,
+            <div className="bg-[#EDE9E3] p-6 rounded-2xl shadow-lg border-l-4" style={{ 
+              borderColor: yachtClubTheme.colors.accent,
               boxShadow: `0 4px 6px -1px ${yachtClubTheme.colors.cardBeige}40, 0 2px 4px -1px ${yachtClubTheme.colors.cardBeige}20`
             }}>
-              <h3 className="text-lg font-medium mb-4" style={{ color: yachtClubTheme.colors.primary }}>Top 3 Holdings</h3>
+              <h3 className="text-lg font-medium mb-4 text-[#1C3D5A]">Top 3 Holdings</h3>
               <div className="space-y-3">
                 {topHoldings.slice(0, 3).map((holding, index) => (
-                  <div key={holding.ticker} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                  <div key={holding.ticker} className="flex items-center justify-between p-3 bg-[#FDFBF7] rounded-lg">
                     <div className="flex items-center space-x-3">
                       <div className="flex-shrink-0">
                         <div 
