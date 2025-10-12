@@ -594,9 +594,9 @@ export default function Dashboard() {
         const data = await response.json()
         console.log('📊 Backend response:', data)
         
-        if (data.portfolio && Array.isArray(data.portfolio)) {
+        if (data.data && Array.isArray(data.data)) {
           // Transform the data to match our interface - show ALL holdings
-          const allPortfolioHoldings = data.portfolio
+          const allPortfolioHoldings = data.data
             .filter((holding: any) => holding.Ticker) // Only filter out entries without tickers
             .map((holding: any) => ({
               Ticker: holding.Ticker,
@@ -621,6 +621,7 @@ export default function Dashboard() {
           console.log('Holdings:', allPortfolioHoldings.map((h: any) => `${h.Ticker}: $${h.Total_Value.toLocaleString()}`))
           
           setAllHoldings(allPortfolioHoldings)
+          setPortfolioData(allPortfolioHoldings) // Also set portfolioData for filtering
           return
         }
       }
@@ -646,6 +647,7 @@ export default function Dashboard() {
       const totalMockValue = mockAllHoldings.reduce((sum, holding) => sum + holding.Total_Value, 0)
       console.log(`📊 Using ${mockAllHoldings.length} mock holdings worth $${totalMockValue.toLocaleString()}`)
       setAllHoldings(mockAllHoldings)
+      setPortfolioData(mockAllHoldings) // Also set portfolioData for filtering
       
     } catch (err) {
       console.error('❌ Error fetching all holdings:', err)
