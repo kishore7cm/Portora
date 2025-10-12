@@ -1963,89 +1963,101 @@ export default function Dashboard() {
             
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
               {/* 1. Total Portfolio Value */}
-              <div className="p-4 rounded-xl text-white shadow-lg hover:shadow-xl transition-all duration-300" style={{ 
-                background: `linear-gradient(135deg, ${yachtClubTheme.colors.primary}, ${yachtClubTheme.colors.accent})`
+              <div className="p-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300" style={{ 
+                backgroundColor: yachtClubTheme.colors.background,
+                color: yachtClubTheme.colors.primary,
+                border: `2px solid ${yachtClubTheme.colors.primary}`
               }}>
                 <div className="flex items-center justify-between mb-3">
-                  <h4 className="text-xs font-semibold opacity-90 uppercase tracking-wide">Total Portfolio Value</h4>
-                  <DollarSign className="h-4 w-4 opacity-75" />
+                  <h4 className="text-xs font-semibold uppercase tracking-wide" style={{ color: yachtClubTheme.colors.textSecondary }}>Total Portfolio Value</h4>
+                  <DollarSign className="h-4 w-4" style={{ color: yachtClubTheme.colors.primary }} />
                 </div>
-                <p className="text-xl font-bold mb-1">${sevenMetrics.totalPortfolioValue.toLocaleString()}</p>
-                <p className="text-xs opacity-75">Sum of all current values</p>
+                <p className="text-xl font-bold mb-1" style={{ color: yachtClubTheme.colors.primary }}>${sevenMetrics.totalPortfolioValue.toLocaleString()}</p>
+                <p className="text-xs" style={{ color: yachtClubTheme.colors.textSecondary }}>Sum of all current values</p>
               </div>
 
               {/* 2. Cash Allocation */}
-              <div className="p-4 rounded-xl text-white shadow-lg hover:shadow-xl transition-all duration-300" style={{ 
-                background: `linear-gradient(135deg, ${yachtClubTheme.colors.secondary}, ${yachtClubTheme.colors.accent})`
+              <div className="p-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300" style={{ 
+                backgroundColor: yachtClubTheme.colors.background,
+                color: yachtClubTheme.colors.primary,
+                border: `2px solid ${yachtClubTheme.colors.secondary}`
               }}>
                 <div className="flex items-center justify-between mb-3">
-                  <h4 className="text-xs font-semibold opacity-90 uppercase tracking-wide">Cash Allocation</h4>
-                  <Activity className="h-4 w-4 opacity-75" />
+                  <h4 className="text-xs font-semibold uppercase tracking-wide" style={{ color: yachtClubTheme.colors.textSecondary }}>Cash Allocation</h4>
+                  <Activity className="h-4 w-4" style={{ color: yachtClubTheme.colors.secondary }} />
                 </div>
-                <p className="text-xl font-bold mb-1">{sevenMetrics.cashAllocationPercent.toFixed(1)}%</p>
-                <p className="text-xs opacity-75">Percentage in cash</p>
+                <p className="text-xl font-bold mb-1" style={{ color: yachtClubTheme.colors.primary }}>{sevenMetrics.cashAllocationPercent.toFixed(1)}%</p>
+                <p className="text-xs" style={{ color: yachtClubTheme.colors.textSecondary }}>Percentage in cash</p>
               </div>
 
               {/* 3. Equity vs ETF Split */}
-              <div className="p-4 rounded-xl text-white shadow-lg hover:shadow-xl transition-all duration-300" style={{ 
-                background: `linear-gradient(135deg, ${yachtClubTheme.colors.accent}, ${yachtClubTheme.colors.primary})`
+              <div className="p-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300" style={{ 
+                backgroundColor: yachtClubTheme.colors.background,
+                color: yachtClubTheme.colors.primary,
+                border: `2px solid ${yachtClubTheme.colors.accent}`
               }}>
                 <div className="flex items-center justify-between mb-3">
-                  <h4 className="text-xs font-semibold opacity-90 uppercase tracking-wide">Equity vs ETF Split</h4>
-                  <TrendingUp className="h-4 w-4 opacity-75" />
+                  <h4 className="text-xs font-semibold uppercase tracking-wide" style={{ color: yachtClubTheme.colors.textSecondary }}>Equity vs ETF Split</h4>
+                  <TrendingUp className="h-4 w-4" style={{ color: yachtClubTheme.colors.accent }} />
                 </div>
-                <p className="text-xl font-bold mb-1">{sevenMetrics.equityVsEtfSplit.toFixed(1)}%</p>
-                <p className="text-xs opacity-75">Stocks vs ETFs ratio</p>
+                <p className="text-xl font-bold mb-1" style={{ color: yachtClubTheme.colors.primary }}>{sevenMetrics.equityVsEtfSplit.toFixed(1)}%</p>
+                <p className="text-xs" style={{ color: yachtClubTheme.colors.textSecondary }}>Stocks vs ETFs ratio</p>
               </div>
 
               {/* 4. Number of Holdings */}
-              <div className="p-4 rounded-xl text-white shadow-lg hover:shadow-xl transition-all duration-300" style={{ 
-                background: `linear-gradient(135deg, ${yachtClubTheme.colors.primary}, ${yachtClubTheme.colors.secondary})`
+              <div className="p-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300" style={{ 
+                backgroundColor: yachtClubTheme.colors.background,
+                color: yachtClubTheme.colors.primary,
+                border: `2px solid ${yachtClubTheme.colors.primary}`
               }}>
                 <div className="flex items-center justify-between mb-3">
-                  <h4 className="text-xs font-semibold opacity-90 uppercase tracking-wide">Number of Holdings</h4>
-                  <BarChart2 className="h-4 w-4 opacity-75" />
+                  <h4 className="text-xs font-semibold uppercase tracking-wide" style={{ color: yachtClubTheme.colors.textSecondary }}>Number of Holdings</h4>
+                  <BarChart2 className="h-4 w-4" style={{ color: yachtClubTheme.colors.primary }} />
                 </div>
-                <p className="text-xl font-bold mb-1">{sevenMetrics.numberOfHoldings}</p>
-                <p className="text-xs opacity-75">Unique tickers</p>
+                <p className="text-xl font-bold mb-1" style={{ color: yachtClubTheme.colors.primary }}>{sevenMetrics.numberOfHoldings}</p>
+                <p className="text-xs" style={{ color: yachtClubTheme.colors.textSecondary }}>Unique tickers</p>
               </div>
 
               {/* 5. Top Sector by Value */}
-              <div className="p-4 rounded-xl text-white shadow-lg hover:shadow-xl transition-all duration-300" style={{ 
-                background: `linear-gradient(135deg, ${yachtClubTheme.colors.accent}, ${yachtClubTheme.colors.secondary})`
+              <div className="p-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300" style={{ 
+                backgroundColor: yachtClubTheme.colors.background,
+                color: yachtClubTheme.colors.primary,
+                border: `2px solid ${yachtClubTheme.colors.accent}`
               }}>
                 <div className="flex items-center justify-between mb-3">
-                  <h4 className="text-xs font-semibold opacity-90 uppercase tracking-wide">Top Sector</h4>
-                  <Target className="h-4 w-4 opacity-75" />
+                  <h4 className="text-xs font-semibold uppercase tracking-wide" style={{ color: yachtClubTheme.colors.textSecondary }}>Top Sector</h4>
+                  <Target className="h-4 w-4" style={{ color: yachtClubTheme.colors.accent }} />
                 </div>
-                <p className="text-xl font-bold mb-1">{sevenMetrics.topSectorByValue}</p>
-                <p className="text-xs opacity-75">Highest value sector</p>
+                <p className="text-xl font-bold mb-1" style={{ color: yachtClubTheme.colors.primary }}>{sevenMetrics.topSectorByValue}</p>
+                <p className="text-xs" style={{ color: yachtClubTheme.colors.textSecondary }}>Highest value sector</p>
               </div>
 
               {/* 6. Top Performing Asset */}
-              <div className="p-4 rounded-xl text-white shadow-lg hover:shadow-xl transition-all duration-300" style={{ 
-                background: `linear-gradient(135deg, ${yachtClubTheme.colors.secondary}, ${yachtClubTheme.colors.primary})`
+              <div className="p-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300" style={{ 
+                backgroundColor: yachtClubTheme.colors.background,
+                color: yachtClubTheme.colors.accent,
+                border: `2px solid ${yachtClubTheme.colors.accent}`
               }}>
                 <div className="flex items-center justify-between mb-3">
-                  <h4 className="text-xs font-semibold opacity-90 uppercase tracking-wide">Top Performer</h4>
-                  <TrendingUp className="h-4 w-4 opacity-75" />
+                  <h4 className="text-xs font-semibold uppercase tracking-wide" style={{ color: yachtClubTheme.colors.textSecondary }}>Top Performer</h4>
+                  <TrendingUp className="h-4 w-4" style={{ color: yachtClubTheme.colors.accent }} />
                 </div>
-                <p className="text-xl font-bold mb-1">{sevenMetrics.topPerformingAsset}</p>
-                <p className="text-xs opacity-75">Best performing asset</p>
+                <p className="text-xl font-bold mb-1" style={{ color: yachtClubTheme.colors.accent }}>{sevenMetrics.topPerformingAsset}</p>
+                <p className="text-xs" style={{ color: yachtClubTheme.colors.textSecondary }}>Best performing asset</p>
               </div>
 
               {/* 7. Goal Progress */}
-              <div className="p-4 rounded-xl text-white shadow-lg hover:shadow-xl transition-all duration-300" style={{ 
-                background: sevenMetrics.goalProgress >= 100 
-                  ? `linear-gradient(135deg, ${yachtClubTheme.colors.accent}, ${yachtClubTheme.colors.primary})`
-                  : `linear-gradient(135deg, ${yachtClubTheme.colors.primary}, ${yachtClubTheme.colors.accent})`
+              <div className="p-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300" style={{ 
+                backgroundColor: yachtClubTheme.colors.background,
+                color: sevenMetrics.goalProgress >= 100 ? yachtClubTheme.colors.accent : yachtClubTheme.colors.danger,
+                border: `2px solid ${sevenMetrics.goalProgress >= 100 ? yachtClubTheme.colors.accent : yachtClubTheme.colors.danger}`
               }}>
                 <div className="flex items-center justify-between mb-3">
-                  <h4 className="text-xs font-semibold opacity-90 uppercase tracking-wide">Goal Progress</h4>
-                  <Target className="h-4 w-4 opacity-75" />
+                  <h4 className="text-xs font-semibold uppercase tracking-wide" style={{ color: yachtClubTheme.colors.textSecondary }}>Goal Progress</h4>
+                  <Target className="h-4 w-4" style={{ color: sevenMetrics.goalProgress >= 100 ? yachtClubTheme.colors.accent : yachtClubTheme.colors.danger }} />
                 </div>
-                <p className="text-xl font-bold mb-1">{sevenMetrics.goalProgress.toFixed(1)}%</p>
-                <p className="text-xs opacity-75">10% annual growth target</p>
+                <p className="text-xl font-bold mb-1" style={{ color: sevenMetrics.goalProgress >= 100 ? yachtClubTheme.colors.accent : yachtClubTheme.colors.danger }}>{sevenMetrics.goalProgress.toFixed(1)}%</p>
+                <p className="text-xs" style={{ color: yachtClubTheme.colors.textSecondary }}>10% annual growth target</p>
               </div>
             </div>
           </div>
