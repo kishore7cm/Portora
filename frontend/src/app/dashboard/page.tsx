@@ -109,6 +109,7 @@ interface PortfolioHealth {
 }
 
 export default function Dashboard() {
+  // Dashboard component - updated
   const router = useRouter()
   
   // TEST: Add alert to verify component is executing
@@ -1890,40 +1891,40 @@ export default function Dashboard() {
 
 
           {/* 7 Key Metrics Section */}
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            <YachtCard title="Total Portfolio Value" borderColor="#1C3D5A">
+          <div className="grid grid-cols-7 gap-4">
+            <YachtCard title="Total Portfolio Value" borderColor="transparent">
               <h2 className="text-2xl font-semibold text-[#000000] mt-1">${sevenMetrics.totalPortfolioValue.toLocaleString()}</h2>
               <p className="text-xs text-[#5A6A73] mt-1">Sum of all current values</p>
             </YachtCard>
 
-            <YachtCard title="Cash Allocation" borderColor="#7A5C45">
+            <YachtCard title="Cash Allocation" borderColor="transparent">
               <h2 className="text-2xl font-semibold text-[#000000] mt-1">{sevenMetrics.cashAllocationPercent.toFixed(1)}%</h2>
               <p className="text-xs text-[#5A6A73] mt-1">Percentage in cash</p>
             </YachtCard>
 
-            <YachtCard title="Stocks vs ETFs" borderColor="#C9A66B">
+            <YachtCard title="Stocks vs ETFs" borderColor="transparent">
               <h2 className="text-2xl font-semibold text-[#000000] mt-1">{sevenMetrics.equityVsEtfSplit.toFixed(1)}%</h2>
               <p className="text-xs text-[#5A6A73] mt-1">Stocks vs ETFs ratio</p>
             </YachtCard>
 
-            <YachtCard title="Holdings Count" borderColor="#1C3D5A">
+            <YachtCard title="Holdings Count" borderColor="transparent">
               <h2 className="text-2xl font-semibold text-[#000000] mt-1">{sevenMetrics.numberOfHoldings}</h2>
               <p className="text-xs text-[#5A6A73] mt-1">Unique tickers</p>
             </YachtCard>
 
-            <YachtCard title="Top Sector" borderColor="#C9A66B">
+            <YachtCard title="Top Sector" borderColor="transparent">
               <h2 className="text-2xl font-semibold text-[#000000] mt-1">{sevenMetrics.topSectorByValue}</h2>
               <p className="text-xs text-[#5A6A73] mt-1">Highest value sector</p>
             </YachtCard>
 
-            <YachtCard title="Top Performer" borderColor="#C9A66B">
+            <YachtCard title="Top Performer" borderColor="transparent">
               <h2 className="text-2xl font-semibold text-[#C9A66B] mt-1">{sevenMetrics.topPerformingAsset}</h2>
               <p className="text-xs text-[#5A6A73] mt-1">Best performing asset</p>
             </YachtCard>
 
             <YachtCard 
               title="Goal Progress" 
-              borderColor={sevenMetrics.goalProgress >= 100 ? '#22C55E' : '#DC2626'}
+              borderColor="transparent"
             >
               <h2 className="text-2xl font-semibold mt-1" style={{ 
                 color: sevenMetrics.goalProgress >= 100 ? '#22C55E' : '#DC2626'
