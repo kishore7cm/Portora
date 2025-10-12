@@ -123,9 +123,11 @@
   
   /* Yacht Club Premium Typography */
   h1, h2, h3, h4 {
-    @apply font-playfair text-primary;
+    @apply text-primary;
+    font-family: 'Playfair Display', serif;
   }
   p, span, div {
-    @apply font-inter text-textSecondary;
+    @apply text-textSecondary;
+    font-family: 'Inter', sans-serif;
   }
 }
