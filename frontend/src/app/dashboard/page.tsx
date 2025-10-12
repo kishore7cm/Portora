@@ -178,7 +178,7 @@ export default function Dashboard() {
   const [allocationData, setAllocationData] = useState([
     { name: "Stocks", value: 0, color: yachtClubTheme.colors.primary },
     { name: "Crypto", value: 0, color: yachtClubTheme.colors.accent },
-    { name: "Cash", value: 0, color: yachtClubTheme.colors.success }
+    { name: "Cash", value: 0, color: yachtClubTheme.colors.secondary }
   ])
   const [topGainers, setTopGainers] = useState<any[]>([])
   const [topLosers, setTopLosers] = useState<any[]>([])
@@ -276,7 +276,7 @@ export default function Dashboard() {
     setAllocationData([
       { name: "Stocks", value: stockValue, color: yachtClubTheme.colors.primary },
       { name: "Crypto", value: cryptoValue, color: yachtClubTheme.colors.accent },
-      { name: "Cash", value: cashValue, color: yachtClubTheme.colors.success }
+      { name: "Cash", value: cashValue, color: yachtClubTheme.colors.secondary }
     ])
     
     // Calculate top movers and losers
@@ -2012,7 +2012,7 @@ export default function Dashboard() {
 
               {/* 5. Top Sector by Value */}
               <div className="p-4 rounded-xl text-white" style={{ 
-                background: `linear-gradient(135deg, #6366F1, #4F46E5)`
+                background: `linear-gradient(135deg, ${yachtClubTheme.colors.secondary}, ${yachtClubTheme.colors.primary})`
               }}>
                 <div className="flex items-center justify-between mb-2">
                   <h4 className="text-sm font-medium opacity-90">Top Sector</h4>
@@ -2024,7 +2024,7 @@ export default function Dashboard() {
 
               {/* 6. Top Performing Asset */}
               <div className="p-4 rounded-xl text-white" style={{ 
-                background: `linear-gradient(135deg, #10B981, #059669)`
+                background: `linear-gradient(135deg, ${yachtClubTheme.colors.success}, ${yachtClubTheme.colors.accent})`
               }}>
                 <div className="flex items-center justify-between mb-2">
                   <h4 className="text-sm font-medium opacity-90">Top Performer</h4>
@@ -2037,8 +2037,8 @@ export default function Dashboard() {
               {/* 7. Goal Progress */}
               <div className="p-4 rounded-xl text-white" style={{ 
                 background: sevenMetrics.goalProgress >= 100 
-                  ? `linear-gradient(135deg, #10B981, #059669)`
-                  : `linear-gradient(135deg, #EF4444, #DC2626)`
+                  ? `linear-gradient(135deg, ${yachtClubTheme.colors.success}, ${yachtClubTheme.colors.accent})`
+                  : `linear-gradient(135deg, ${yachtClubTheme.colors.danger}, ${yachtClubTheme.colors.accent})`
               }}>
                 <div className="flex items-center justify-between mb-2">
                   <h4 className="text-sm font-medium opacity-90">Goal Progress</h4>
@@ -2050,8 +2050,8 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Top 3 Holdings & Top Losers */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Top 3 Holdings, Winners & Losers */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Top 3 Holdings */}
             <div className="bg-white p-6 rounded-2xl shadow-lg border" style={{ 
               borderColor: yachtClubTheme.colors.cardBeige,
@@ -2092,6 +2092,47 @@ export default function Dashboard() {
                         }}
                       >
                         {(holding.gain || 0) >= 0 ? '+' : ''}${(holding.gain || 0).toFixed(2)} ({(holding.gainPercent || 0).toFixed(1)}%)
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Top 3 Winners */}
+            <div className="bg-white p-6 rounded-2xl shadow-lg border" style={{ 
+              borderColor: yachtClubTheme.colors.cardBeige,
+              boxShadow: `0 4px 6px -1px ${yachtClubTheme.colors.cardBeige}40, 0 2px 4px -1px ${yachtClubTheme.colors.cardBeige}20`
+            }}>
+              <h3 className="text-lg font-medium mb-4" style={{ color: yachtClubTheme.colors.primary }}>Top 3 Winners</h3>
+              <div className="space-y-3">
+                {topGainers.slice(0, 3).map((gainer, index) => (
+                  <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                    <div className="flex items-center space-x-3">
+                      <div className="flex-shrink-0">
+                        <div 
+                          className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm"
+                          style={{ backgroundColor: yachtClubTheme.colors.success }}
+                        >
+                          {index + 1}
+                        </div>
+                      </div>
+                      <div>
+                        <div className="font-medium text-gray-900 dark:text-white">{gainer.ticker}</div>
+                        <div className="text-sm text-gray-500 dark:text-gray-400">
+                          ${gainer.value?.toLocaleString()}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div 
+                        className="text-sm font-semibold"
+                        style={{ color: yachtClubTheme.colors.success }}
+                      >
+                        +{gainer.changePercent?.toFixed(1)}%
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        +${gainer.gainLoss?.toFixed(2)}
                       </div>
                     </div>
                   </div>
