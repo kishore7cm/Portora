@@ -1903,7 +1903,7 @@ export default function Dashboard() {
                 <h3 className="text-lg font-medium" style={{ color: yachtClubTheme.colors.primary }}>Total Portfolio Value</h3>
               </div>
               <h2 className="text-2xl font-semibold text-[#000000] mt-1">${sevenMetrics.totalPortfolioValue.toLocaleString()}</h2>
-              <p className="text-xs text-[#5A6A73] mt-1">Sum of all current values</p>
+              <p className="text-sm text-[#1C3D5A] mt-1">Sum of all current values</p>
             </div>
 
             <div className="bg-white p-6 rounded-2xl shadow-lg border" style={{ 
@@ -1917,7 +1917,7 @@ export default function Dashboard() {
                 <h3 className="text-lg font-medium" style={{ color: yachtClubTheme.colors.primary }}>Cash Allocation</h3>
               </div>
               <h2 className="text-2xl font-semibold text-[#000000] mt-1">{sevenMetrics.cashAllocationPercent.toFixed(1)}%</h2>
-              <p className="text-xs text-[#5A6A73] mt-1">Percentage in cash</p>
+              <p className="text-sm text-[#1C3D5A] mt-1">Percentage in cash</p>
             </div>
 
             <div className="bg-white p-6 rounded-2xl shadow-lg border" style={{ 
@@ -1931,7 +1931,7 @@ export default function Dashboard() {
                 <h3 className="text-lg font-medium" style={{ color: yachtClubTheme.colors.primary }}>Stocks vs ETFs</h3>
               </div>
               <h2 className="text-2xl font-semibold text-[#000000] mt-1">{sevenMetrics.equityVsEtfSplit.toFixed(1)}%</h2>
-              <p className="text-xs text-[#5A6A73] mt-1">Stocks vs ETFs ratio</p>
+              <p className="text-sm text-[#1C3D5A] mt-1">Stocks vs ETFs ratio</p>
             </div>
 
             <div className="bg-white p-6 rounded-2xl shadow-lg border" style={{ 
@@ -1945,7 +1945,7 @@ export default function Dashboard() {
                 <h3 className="text-lg font-medium" style={{ color: yachtClubTheme.colors.primary }}>Holdings Count</h3>
               </div>
               <h2 className="text-2xl font-semibold text-[#000000] mt-1">{sevenMetrics.numberOfHoldings}</h2>
-              <p className="text-xs text-[#5A6A73] mt-1">Unique tickers</p>
+              <p className="text-sm text-[#1C3D5A] mt-1">Unique tickers</p>
             </div>
 
             <div className="bg-white p-6 rounded-2xl shadow-lg border" style={{ 
@@ -1959,7 +1959,7 @@ export default function Dashboard() {
                 <h3 className="text-lg font-medium" style={{ color: yachtClubTheme.colors.primary }}>Top Sector</h3>
               </div>
               <h2 className="text-2xl font-semibold text-[#000000] mt-1">{sevenMetrics.topSectorByValue}</h2>
-              <p className="text-xs text-[#5A6A73] mt-1">Highest value sector</p>
+              <p className="text-sm text-[#1C3D5A] mt-1">Highest value sector</p>
             </div>
 
             <div className="bg-white p-6 rounded-2xl shadow-lg border" style={{ 
@@ -1973,7 +1973,7 @@ export default function Dashboard() {
                 <h3 className="text-lg font-medium" style={{ color: yachtClubTheme.colors.primary }}>Top Performer</h3>
               </div>
               <h2 className="text-2xl font-semibold text-[#C9A66B] mt-1">{sevenMetrics.topPerformingAsset}</h2>
-              <p className="text-xs text-[#5A6A73] mt-1">Best performing asset</p>
+              <p className="text-sm text-[#1C3D5A] mt-1">Best performing asset</p>
             </div>
 
             <div className="bg-white p-6 rounded-2xl shadow-lg border" style={{ 
@@ -1989,7 +1989,7 @@ export default function Dashboard() {
               <h2 className="text-2xl font-semibold mt-1" style={{ 
                 color: sevenMetrics.goalProgress >= 100 ? '#22C55E' : '#DC2626'
               }}>{sevenMetrics.goalProgress.toFixed(1)}%</h2>
-              <p className="text-xs text-[#5A6A73] mt-1">10% annual growth target</p>
+              <p className="text-sm text-[#1C3D5A] mt-1">10% annual growth target</p>
             </div>
           </div>
 
@@ -2010,7 +2010,7 @@ export default function Dashboard() {
           {/* Top 3 Holdings, Winners & Losers */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Top 3 Holdings */}
-            <div className="bg-[#EDE9E3] p-6 rounded-2xl shadow-lg border-l-4" style={{ 
+            <div className="bg-[#FDFBF7] p-6 rounded-2xl shadow-lg border-l-4" style={{ 
               borderColor: yachtClubTheme.colors.accent,
               boxShadow: `0 4px 6px -1px ${yachtClubTheme.colors.cardBeige}40, 0 2px 4px -1px ${yachtClubTheme.colors.cardBeige}20`
             }}>
@@ -2057,7 +2057,7 @@ export default function Dashboard() {
             </div>
 
             {/* Top 3 Winners */}
-            <div className="bg-white p-6 rounded-2xl shadow-lg border" style={{ 
+            <div className="bg-[#FDFBF7] p-6 rounded-2xl shadow-lg border" style={{ 
               borderColor: yachtClubTheme.colors.cardBeige,
               boxShadow: `0 4px 6px -1px ${yachtClubTheme.colors.cardBeige}40, 0 2px 4px -1px ${yachtClubTheme.colors.cardBeige}20`
             }}>
@@ -2098,7 +2098,7 @@ export default function Dashboard() {
             </div>
 
             {/* Top 3 Losers */}
-            <div className="bg-white p-6 rounded-2xl shadow-lg border" style={{ 
+            <div className="bg-[#FDFBF7] p-6 rounded-2xl shadow-lg border" style={{ 
               borderColor: yachtClubTheme.colors.cardBeige,
               boxShadow: `0 4px 6px -1px ${yachtClubTheme.colors.cardBeige}40, 0 2px 4px -1px ${yachtClubTheme.colors.cardBeige}20`
             }}>
@@ -2140,7 +2140,7 @@ export default function Dashboard() {
           </div>
 
           {/* Portfolio Distribution Chart */}
-          <div className="bg-white p-6 rounded-2xl shadow-lg border" style={{ 
+          <div className="bg-[#FDFBF7] p-6 rounded-2xl shadow-lg border" style={{ 
             borderColor: yachtClubTheme.colors.cardBeige,
             boxShadow: `0 4px 6px -1px ${yachtClubTheme.colors.cardBeige}40, 0 2px 4px -1px ${yachtClubTheme.colors.cardBeige}20`
           }}>
@@ -2167,7 +2167,7 @@ export default function Dashboard() {
           </div>
 
           {/* Portfolio Goal Tracker */}
-          <div className="bg-white p-6 rounded-2xl shadow-lg border" style={{ 
+          <div className="bg-[#FDFBF7] p-6 rounded-2xl shadow-lg border" style={{ 
             borderColor: yachtClubTheme.colors.cardBeige,
             boxShadow: `0 4px 6px -1px ${yachtClubTheme.colors.cardBeige}40, 0 2px 4px -1px ${yachtClubTheme.colors.cardBeige}20`
           }}>
