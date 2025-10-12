@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react';
+import YachtLayout from '@/components/Layout/YachtLayout';
 
 export default function Home() {
   const [mounted, setMounted] = useState(false);
@@ -24,33 +25,24 @@ export default function Home() {
 
   if (!mounted) {
     return (
-      <div style={{ 
-        minHeight: '100vh', 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'center',
-        backgroundColor: '#f3f4f6'
-      }}>
-        <div style={{ textAlign: 'center' }}>
-          <h1>Loading...</h1>
+      <YachtLayout title="Loading..." subtitle="Initializing Wealtheon">
+        <div className="text-center">
+          <h1 className="text-2xl font-semibold text-primary">Loading...</h1>
         </div>
-      </div>
+      </YachtLayout>
     );
   }
 
   return (
-    <div style={{ 
-      minHeight: '100vh', 
-      display: 'flex', 
-      alignItems: 'center', 
-      justifyContent: 'center',
-      backgroundColor: '#f3f4f6'
-    }}>
-      <div style={{ textAlign: 'center' }}>
-        <h1>Wealtheon Portfolio Management</h1>
-        <p>Redirecting...</p>
-        <a href="/auth">Click here if not redirected</a>
+    <YachtLayout 
+      title="Wealtheon Portfolio Management" 
+      subtitle="Yacht Club Premium – Sophisticated Wealth Management"
+    >
+      <div className="text-center">
+        <h1 className="text-2xl font-semibold text-primary">Wealtheon Portfolio Management</h1>
+        <p className="text-textSecondary mt-2">Redirecting...</p>
+        <a href="/auth" className="text-accent hover:text-primary transition-colors">Click here if not redirected</a>
       </div>
-    </div>
+    </YachtLayout>
   );
 }
