@@ -36,6 +36,8 @@ import { DashboardSkeleton } from '@/components/LoadingSkeleton'
 import AIAdvisorSection from '@/components/AIAdvisorSection'
 import YachtClubInsightsTab from '@/components/YachtClubInsightsTab'
 import { yachtClubTheme } from '@/styles/yachtClubTheme'
+import YachtLayout from '@/components/Layout/YachtLayout'
+import { YachtCard } from '@/components/Cards/YachtCard'
 
 // Interfaces
 interface PortfolioData {
@@ -1813,56 +1815,10 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#FDFBF7] to-[#EDE9E3]">
-      <style jsx>{`
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-      `}</style>
-      {/* Header */}
-      <header className="bg-[#1C3D5A] shadow-lg border-b-2" style={{ borderColor: yachtClubTheme.colors.accent }}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <h1 className="text-2xl font-bold text-[#C9A66B]">
-                Wealtheon
-              </h1>
-              <span className="ml-2 text-sm text-[#EDE9E3]">
-                Portfolio Management Platform
-              </span>
-            </div>
-            
-            <div className="flex items-center space-x-4">
-              <ThemeToggle />
-              <button
-                onClick={() => setShowAlerts(!showAlerts)}
-                className="relative p-2 text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
-              >
-                <Bell className="h-6 w-6" />
-                {unreadAlertCount > 0 && (
-                  <span className="absolute -top-1 -right-1 h-5 w-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-                    {unreadAlertCount}
-                  </span>
-                )}
-              </button>
-              
-              <div className="flex items-center space-x-2">
-                <User className="h-5 w-5 text-gray-400" />
-                <span className="text-sm text-gray-700 dark:text-gray-300">{userName}</span>
-                <button
-                  onClick={handleLogout}
-                  className="p-2 text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
-                >
-                  <LogOut className="h-5 w-5" />
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <div className="max-w-7xl mx-auto p-6 md:p-10 space-y-10">
+    <YachtLayout 
+      title="Portfolio Overview" 
+      subtitle="Yacht Club Premium – Sophisticated Wealth Management"
+    >
         <div className="flex gap-6">
           {/* Vertical Navigation Tabs - Permanent Sidebar */}
           <div className="w-64 flex-shrink-0">
@@ -1953,72 +1909,50 @@ export default function Dashboard() {
 
 
           {/* 7 Key Metrics Section */}
-          <div className="bg-[#EDE9E3] p-6 rounded-2xl shadow-lg border-l-4" style={{ 
-            borderColor: yachtClubTheme.colors.accent,
-            boxShadow: `0 4px 6px -1px ${yachtClubTheme.colors.cardBeige}40, 0 2px 4px -1px ${yachtClubTheme.colors.cardBeige}20`
-          }}>
-            <h1 className="text-3xl font-semibold text-[#1C3D5A] mb-2">Portfolio Overview</h1>
-            <p className="text-[#5A6A73] mb-6">A snapshot of your financial performance</p>
-            
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {/* 1. Total Portfolio Value */}
-              <div className="p-4 rounded-2xl bg-[#EDE9E3] border-l-4 hover:shadow-lg transition-all duration-300" style={{ borderColor: '#1C3D5A' }}>
-                <p className="text-sm text-[#5A6A73]">Total Portfolio Value</p>
-                <h2 className="text-2xl font-semibold text-[#000000] mt-1">${sevenMetrics.totalPortfolioValue.toLocaleString()}</h2>
-                <p className="text-xs text-[#5A6A73] mt-1">Sum of all current values</p>
-              </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <YachtCard title="Total Portfolio Value" borderColor="#1C3D5A">
+              <h2 className="text-2xl font-semibold text-[#000000] mt-1">${sevenMetrics.totalPortfolioValue.toLocaleString()}</h2>
+              <p className="text-xs text-[#5A6A73] mt-1">Sum of all current values</p>
+            </YachtCard>
 
-              {/* 2. Cash Allocation */}
-              <div className="p-4 rounded-2xl bg-[#EDE9E3] border-l-4 hover:shadow-lg transition-all duration-300" style={{ borderColor: '#7A5C45' }}>
-                <p className="text-sm text-[#5A6A73]">Cash Allocation</p>
-                <h2 className="text-2xl font-semibold text-[#000000] mt-1">{sevenMetrics.cashAllocationPercent.toFixed(1)}%</h2>
-                <p className="text-xs text-[#5A6A73] mt-1">Percentage in cash</p>
-              </div>
+            <YachtCard title="Cash Allocation" borderColor="#7A5C45">
+              <h2 className="text-2xl font-semibold text-[#000000] mt-1">{sevenMetrics.cashAllocationPercent.toFixed(1)}%</h2>
+              <p className="text-xs text-[#5A6A73] mt-1">Percentage in cash</p>
+            </YachtCard>
 
-              {/* 3. Equity vs ETF Split */}
-              <div className="p-4 rounded-2xl bg-[#EDE9E3] border-l-4 hover:shadow-lg transition-all duration-300" style={{ borderColor: '#C9A66B' }}>
-                <p className="text-sm text-[#5A6A73]">Stocks vs ETFs</p>
-                <h2 className="text-2xl font-semibold text-[#000000] mt-1">{sevenMetrics.equityVsEtfSplit.toFixed(1)}%</h2>
-                <p className="text-xs text-[#5A6A73] mt-1">Stocks vs ETFs ratio</p>
-              </div>
+            <YachtCard title="Stocks vs ETFs" borderColor="#C9A66B">
+              <h2 className="text-2xl font-semibold text-[#000000] mt-1">{sevenMetrics.equityVsEtfSplit.toFixed(1)}%</h2>
+              <p className="text-xs text-[#5A6A73] mt-1">Stocks vs ETFs ratio</p>
+            </YachtCard>
 
-              {/* 4. Number of Holdings */}
-              <div className="p-4 rounded-2xl bg-[#EDE9E3] border-l-4 hover:shadow-lg transition-all duration-300" style={{ borderColor: '#1C3D5A' }}>
-                <p className="text-sm text-[#5A6A73]">Holdings Count</p>
-                <h2 className="text-2xl font-semibold text-[#000000] mt-1">{sevenMetrics.numberOfHoldings}</h2>
-                <p className="text-xs text-[#5A6A73] mt-1">Unique tickers</p>
-              </div>
+            <YachtCard title="Holdings Count" borderColor="#1C3D5A">
+              <h2 className="text-2xl font-semibold text-[#000000] mt-1">{sevenMetrics.numberOfHoldings}</h2>
+              <p className="text-xs text-[#5A6A73] mt-1">Unique tickers</p>
+            </YachtCard>
 
-              {/* 5. Top Sector by Value */}
-              <div className="p-4 rounded-2xl bg-[#EDE9E3] border-l-4 hover:shadow-lg transition-all duration-300" style={{ borderColor: '#C9A66B' }}>
-                <p className="text-sm text-[#5A6A73]">Top Sector</p>
-                <h2 className="text-2xl font-semibold text-[#000000] mt-1">{sevenMetrics.topSectorByValue}</h2>
-                <p className="text-xs text-[#5A6A73] mt-1">Highest value sector</p>
-              </div>
+            <YachtCard title="Top Sector" borderColor="#C9A66B">
+              <h2 className="text-2xl font-semibold text-[#000000] mt-1">{sevenMetrics.topSectorByValue}</h2>
+              <p className="text-xs text-[#5A6A73] mt-1">Highest value sector</p>
+            </YachtCard>
 
-              {/* 6. Top Performing Asset */}
-              <div className="p-4 rounded-2xl bg-[#EDE9E3] border-l-4 hover:shadow-lg transition-all duration-300" style={{ borderColor: '#C9A66B' }}>
-                <p className="text-sm text-[#5A6A73]">Top Performer</p>
-                <h2 className="text-2xl font-semibold text-[#C9A66B] mt-1">{sevenMetrics.topPerformingAsset}</h2>
-                <p className="text-xs text-[#5A6A73] mt-1">Best performing asset</p>
-              </div>
+            <YachtCard title="Top Performer" borderColor="#C9A66B">
+              <h2 className="text-2xl font-semibold text-[#C9A66B] mt-1">{sevenMetrics.topPerformingAsset}</h2>
+              <p className="text-xs text-[#5A6A73] mt-1">Best performing asset</p>
+            </YachtCard>
 
-              {/* 7. Goal Progress */}
-              <div className="p-4 rounded-2xl bg-[#EDE9E3] border-l-4 hover:shadow-lg transition-all duration-300" style={{ 
-                borderColor: sevenMetrics.goalProgress >= 100 ? '#22C55E' : '#DC2626'
-              }}>
-                <p className="text-sm text-[#5A6A73]">Goal Progress</p>
-                <h2 className="text-2xl font-semibold mt-1" style={{ 
-                  color: sevenMetrics.goalProgress >= 100 ? '#22C55E' : '#DC2626'
-                }}>{sevenMetrics.goalProgress.toFixed(1)}%</h2>
-                <p className="text-xs text-[#5A6A73] mt-1">10% annual growth target</p>
-              </div>
-            </div>
+            <YachtCard 
+              title="Goal Progress" 
+              borderColor={sevenMetrics.goalProgress >= 100 ? '#22C55E' : '#DC2626'}
+            >
+              <h2 className="text-2xl font-semibold mt-1" style={{ 
+                color: sevenMetrics.goalProgress >= 100 ? '#22C55E' : '#DC2626'
+              }}>{sevenMetrics.goalProgress.toFixed(1)}%</h2>
+              <p className="text-xs text-[#5A6A73] mt-1">10% annual growth target</p>
+            </YachtCard>
           </div>
 
           {/* Goal Progress Section */}
-          <div className="p-6 bg-[#EDE9E3] rounded-2xl border border-[#C9A66B] mt-6">
-            <p className="text-[#1C3D5A] font-medium">Yearly Growth Goal (+10%)</p>
+          <YachtCard title="Yearly Growth Goal (+10%)" borderColor="#C9A66B">
             <div className="w-full bg-[#FDFBF7] rounded-full h-3 mt-3 overflow-hidden">
               <div
                 className="h-3 rounded-full transition-all"
@@ -2029,7 +1963,7 @@ export default function Dashboard() {
               />
             </div>
             <p className="text-[#5A6A73] text-sm mt-2">{sevenMetrics.goalProgress.toFixed(1)}% of annual target</p>
-          </div>
+          </YachtCard>
 
           {/* Top 3 Holdings, Winners & Losers */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -2604,6 +2538,6 @@ export default function Dashboard() {
             onClose={() => setShowAlerts(false)}
           />
         )}
-    </div>
+    </YachtLayout>
   )
 }
