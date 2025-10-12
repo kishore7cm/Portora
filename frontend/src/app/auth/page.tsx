@@ -53,7 +53,7 @@ export default function AuthPage() {
           <h2 className="text-2xl font-semibold text-primary">
             Sign in to your account
           </h2>
-          <p className="mt-2 text-textSecondary">
+          <p className="mt-2 text-[#5A6A73]">
             Or{' '}
             <button
               onClick={handleDemoLogin}
@@ -129,7 +129,7 @@ export default function AuthPage() {
                 <div className="w-full border-t border-cardBeige" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-yachtBackground text-textSecondary">
+                <span className="px-2 bg-yachtBackground text-[#5A6A73]">
                   Demo Credentials
                 </span>
               </div>

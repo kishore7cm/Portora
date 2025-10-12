@@ -66,7 +66,7 @@ export default function TestAPI() {
           {result && (
             <div className="bg-cardBeige p-4 rounded-md">
               <h3 className="text-lg font-medium text-primary mb-2">API Response:</h3>
-              <pre className="text-sm text-textSecondary overflow-auto">
+              <pre className="text-sm text-[#5A6A73] overflow-auto">
                 {JSON.stringify(result, null, 2)}
               </pre>
             </div>
@@ -74,7 +74,7 @@ export default function TestAPI() {
         </YachtCard>
 
         <YachtCard title="Debug Info" borderColor="#C9A66B">
-          <div className="space-y-2 text-sm text-textSecondary">
+          <div className="space-y-2 text-sm text-[#5A6A73]">
             <p><strong>Frontend URL:</strong> {typeof window !== 'undefined' ? window.location.origin : 'N/A'}</p>
             <p><strong>Backend URL:</strong> http://localhost:8001</p>
             <p><strong>User ID:</strong> {typeof window !== 'undefined' ? localStorage.getItem('userId') || '1' : 'N/A'}</p>

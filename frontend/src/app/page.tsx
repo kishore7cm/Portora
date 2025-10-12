@@ -40,7 +40,7 @@ export default function Home() {
     >
       <div className="text-center">
         <h1 className="text-2xl font-semibold text-primary">Wealtheon Portfolio Management</h1>
-        <p className="text-textSecondary mt-2">Redirecting...</p>
+        <p className="text-[#5A6A73] mt-2">Redirecting...</p>
         <a href="/auth" className="text-accent hover:text-primary transition-colors">Click here if not redirected</a>
       </div>
     </YachtLayout>

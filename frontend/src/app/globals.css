@@ -127,7 +127,7 @@
     font-family: 'Playfair Display', serif;
   }
   p, span, div {
-    @apply text-textSecondary;
+    @apply text-[#5A6A73];
     font-family: 'Inter', sans-serif;
   }
 }
