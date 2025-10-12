@@ -176,9 +176,9 @@ export default function Dashboard() {
   })
   const [userData, setUserData] = useState({ last_year_value: 0 })
   const [allocationData, setAllocationData] = useState([
-    { name: "Stocks", value: 0, color: "#3B82F6" },
-    { name: "Crypto", value: 0, color: "#F59E0B" },
-    { name: "Cash", value: 0, color: "#10B981" }
+    { name: "Stocks", value: 0, color: yachtClubTheme.colors.primary },
+    { name: "Crypto", value: 0, color: yachtClubTheme.colors.accent },
+    { name: "Cash", value: 0, color: yachtClubTheme.colors.success }
   ])
   const [topGainers, setTopGainers] = useState<any[]>([])
   const [topLosers, setTopLosers] = useState<any[]>([])
@@ -274,9 +274,9 @@ export default function Dashboard() {
     
     // Set allocation data
     setAllocationData([
-      { name: "Stocks", value: stockValue, color: "#3B82F6" },
-      { name: "Crypto", value: cryptoValue, color: "#F59E0B" },
-      { name: "Cash", value: cashValue, color: "#10B981" }
+      { name: "Stocks", value: stockValue, color: yachtClubTheme.colors.primary },
+      { name: "Crypto", value: cryptoValue, color: yachtClubTheme.colors.accent },
+      { name: "Cash", value: cashValue, color: yachtClubTheme.colors.success }
     ])
     
     // Calculate top movers and losers
@@ -2063,9 +2063,14 @@ export default function Dashboard() {
                   <div key={holding.ticker} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
                     <div className="flex items-center space-x-3">
                       <div className="flex-shrink-0">
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm ${
-                          index === 0 ? 'bg-yellow-500' : index === 1 ? 'bg-gray-400' : 'bg-orange-600'
-                        }`}>
+                        <div 
+                          className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm"
+                          style={{ 
+                            backgroundColor: index === 0 ? yachtClubTheme.colors.accent : 
+                                           index === 1 ? yachtClubTheme.colors.secondary : 
+                                           yachtClubTheme.colors.primary
+                          }}
+                        >
                           {index + 1}
                         </div>
                       </div>
@@ -2080,7 +2085,12 @@ export default function Dashboard() {
                       <div className="font-medium text-gray-900 dark:text-white">
                         ${holding.value?.toLocaleString()}
                       </div>
-                      <div className={`text-sm ${(holding.gain || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      <div 
+                        className="text-sm"
+                        style={{ 
+                          color: (holding.gain || 0) >= 0 ? yachtClubTheme.colors.success : yachtClubTheme.colors.danger 
+                        }}
+                      >
                         {(holding.gain || 0) >= 0 ? '+' : ''}${(holding.gain || 0).toFixed(2)} ({(holding.gainPercent || 0).toFixed(1)}%)
                       </div>
                     </div>
@@ -2100,7 +2110,10 @@ export default function Dashboard() {
                   <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
                     <div className="flex items-center space-x-3">
                       <div className="flex-shrink-0">
-                        <div className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm bg-red-500">
+                        <div 
+                          className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm"
+                          style={{ backgroundColor: yachtClubTheme.colors.danger }}
+                        >
                           {index + 1}
                         </div>
                       </div>
@@ -2112,7 +2125,10 @@ export default function Dashboard() {
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-sm font-semibold text-red-600">
+                      <div 
+                        className="text-sm font-semibold"
+                        style={{ color: yachtClubTheme.colors.danger }}
+                      >
                         {mover.changePercent?.toFixed(1)}%
                       </div>
                       <div className="text-xs text-gray-500">
@@ -2140,7 +2156,7 @@ export default function Dashboard() {
                   labelLine={false}
                   label={({ name, percent }) => `${name} ${((percent || 0) * 100).toFixed(0)}%`}
                   outerRadius={80}
-                  fill="#8884d8"
+                  fill={yachtClubTheme.colors.primary}
                   dataKey="value"
                 >
                   {allocationData.map((entry, index) => (
@@ -2163,7 +2179,12 @@ export default function Dashboard() {
                 <p className="text-sm text-gray-500">Target: ${goalProgress.targetValue.toLocaleString()} by Dec 31</p>
               </div>
               {goalProgress.isAchieved && (
-                <div className="text-green-600 font-semibold">Goal Achieved 🎉</div>
+                <div 
+                  className="font-semibold"
+                  style={{ color: yachtClubTheme.colors.success }}
+                >
+                  Goal Achieved 🎉
+                </div>
               )}
             </div>
 
@@ -2172,12 +2193,13 @@ export default function Dashboard() {
                 <span>Current: ${goalProgress.currentValue.toLocaleString()}</span>
                 <span>{goalProgress.progress.toFixed(1)}%</span>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-3">
+              <div className="w-full rounded-full h-3" style={{ backgroundColor: yachtClubTheme.colors.cardBeige }}>
                 <div 
-                  className={`h-3 rounded-full transition-all duration-500 ${
-                    goalProgress.isAchieved ? 'bg-green-500' : 'bg-blue-500'
-                  }`}
-                  style={{ width: `${Math.min(goalProgress.progress, 100)}%` }}
+                  className="h-3 rounded-full transition-all duration-500"
+                  style={{ 
+                    width: `${Math.min(goalProgress.progress, 100)}%`,
+                    backgroundColor: goalProgress.isAchieved ? yachtClubTheme.colors.success : yachtClubTheme.colors.primary
+                  }}
                 ></div>
               </div>
             </div>
@@ -2289,11 +2311,16 @@ export default function Dashboard() {
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                             ${holding.Total_Value?.toLocaleString() || 'N/A'}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className={`text-sm ${(holding.Gain_Loss || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                              {(holding.Gain_Loss || 0) >= 0 ? '+' : ''}${(holding.Gain_Loss || 0).toFixed(2)} ({(holding.Gain_Loss_Percent || 0).toFixed(1)}%)
-                            </div>
-                          </td>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <div 
+                                  className="text-sm"
+                                  style={{ 
+                                    color: (holding.Gain_Loss || 0) >= 0 ? yachtClubTheme.colors.success : yachtClubTheme.colors.danger 
+                                  }}
+                                >
+                                  {(holding.Gain_Loss || 0) >= 0 ? '+' : ''}${(holding.Gain_Loss || 0).toFixed(2)} ({(holding.Gain_Loss_Percent || 0).toFixed(1)}%)
+                                </div>
+                              </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                             {holding.Category || 'N/A'}
                           </td>
@@ -2447,7 +2474,12 @@ export default function Dashboard() {
                         <div className="font-semibold" style={{ color: yachtClubTheme.colors.primary }}>
                           ${user.portfolioValue.toLocaleString()}
                         </div>
-                        <div className={`text-sm font-medium ${user.gainLossPercent >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        <div 
+                          className="text-sm font-medium"
+                          style={{ 
+                            color: user.gainLossPercent >= 0 ? yachtClubTheme.colors.success : yachtClubTheme.colors.danger 
+                          }}
+                        >
                           {user.gainLossPercent >= 0 ? '+' : ''}{user.gainLossPercent.toFixed(1)}% YTD
                         </div>
                         <div className="text-xs mt-1" style={{ color: yachtClubTheme.colors.textSecondary }}>
