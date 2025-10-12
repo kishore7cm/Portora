@@ -1951,80 +1951,6 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* 6 Metric Cards */}
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            {/* Total Portfolio Value */}
-            <div className="bg-white/80 p-4 rounded-2xl shadow-md border" style={{ 
-              background: 'linear-gradient(135deg, #3B82F6, #1D4ED8)',
-              color: 'white'
-            }}>
-              <div className="text-center">
-                <p className="text-xs font-medium opacity-90 mb-1">Total Portfolio</p>
-                <p className="text-lg font-bold">${dashboardMetrics.totalValue.toLocaleString()}</p>
-                <p className="text-xs opacity-75">+{dashboardMetrics.totalGainLossPercent.toFixed(1)}% this week</p>
-              </div>
-            </div>
-
-            {/* Stock Holdings */}
-            <div className="bg-white/80 p-4 rounded-2xl shadow-md border" style={{ 
-              background: 'linear-gradient(135deg, #10B981, #059669)',
-              color: 'white'
-            }}>
-              <div className="text-center">
-                <p className="text-xs font-medium opacity-90 mb-1">Stock Holdings</p>
-                <p className="text-lg font-bold">${dashboardMetrics.stockValue.toLocaleString()}</p>
-                <p className="text-xs opacity-75">{((dashboardMetrics.stockValue / dashboardMetrics.totalValue) * 100).toFixed(0)}% of portfolio</p>
-              </div>
-            </div>
-
-            {/* Crypto Holdings */}
-            <div className="bg-white/80 p-4 rounded-2xl shadow-md border" style={{ 
-              background: 'linear-gradient(135deg, #F59E0B, #D97706)',
-              color: 'white'
-            }}>
-              <div className="text-center">
-                <p className="text-xs font-medium opacity-90 mb-1">Crypto Holdings</p>
-                <p className="text-lg font-bold">${dashboardMetrics.cryptoValue.toLocaleString()}</p>
-                <p className="text-xs opacity-75">{((dashboardMetrics.cryptoValue / dashboardMetrics.totalValue) * 100).toFixed(0)}% of portfolio</p>
-              </div>
-            </div>
-
-            {/* Cash Holdings */}
-            <div className="bg-white/80 p-4 rounded-2xl shadow-md border" style={{ 
-              background: 'linear-gradient(135deg, #6B7280, #4B5563)',
-              color: 'white'
-            }}>
-              <div className="text-center">
-                <p className="text-xs font-medium opacity-90 mb-1">Cash Holdings</p>
-                <p className="text-lg font-bold">${dashboardMetrics.cashValue.toLocaleString()}</p>
-                <p className="text-xs opacity-75">{((dashboardMetrics.cashValue / dashboardMetrics.totalValue) * 100).toFixed(0)}% of portfolio</p>
-              </div>
-            </div>
-
-            {/* Number of Holdings */}
-            <div className="bg-white/80 p-4 rounded-2xl shadow-md border" style={{ 
-              background: 'linear-gradient(135deg, #8B5CF6, #7C3AED)',
-              color: 'white'
-            }}>
-              <div className="text-center">
-                <p className="text-xs font-medium opacity-90 mb-1"># of Holdings</p>
-                <p className="text-lg font-bold">{dashboardMetrics.numHoldings}</p>
-                <p className="text-xs opacity-75">diversified positions</p>
-              </div>
-            </div>
-
-            {/* Total Gain/Loss */}
-            <div className="bg-white/80 p-4 rounded-2xl shadow-md border" style={{ 
-              background: dashboardMetrics.totalGainLoss >= 0 ? 'linear-gradient(135deg, #10B981, #059669)' : 'linear-gradient(135deg, #EF4444, #DC2626)',
-              color: 'white'
-            }}>
-              <div className="text-center">
-                <p className="text-xs font-medium opacity-90 mb-1">Total Gain/Loss</p>
-                <p className="text-lg font-bold">${dashboardMetrics.totalGainLoss.toLocaleString()}</p>
-                <p className="text-xs opacity-75">{dashboardMetrics.totalGainLossPercent.toFixed(1)}% return</p>
-              </div>
-            </div>
-          </div>
 
           {/* 7 Key Metrics Section */}
           <div className="bg-white p-6 rounded-2xl shadow-lg border" style={{ 
@@ -2037,7 +1963,9 @@ export default function Dashboard() {
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {/* 1. Total Portfolio Value */}
-              <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-4 rounded-xl text-white">
+              <div className="p-4 rounded-xl text-white" style={{ 
+                background: `linear-gradient(135deg, ${yachtClubTheme.colors.primary}, ${yachtClubTheme.colors.accent})`
+              }}>
                 <div className="flex items-center justify-between mb-2">
                   <h4 className="text-sm font-medium opacity-90">Total Portfolio Value</h4>
                   <DollarSign className="h-5 w-5 opacity-75" />
@@ -2047,7 +1975,9 @@ export default function Dashboard() {
               </div>
 
               {/* 2. Cash Allocation */}
-              <div className="bg-gradient-to-br from-green-500 to-green-600 p-4 rounded-xl text-white">
+              <div className="p-4 rounded-xl text-white" style={{ 
+                background: `linear-gradient(135deg, ${yachtClubTheme.colors.success}, #059669)`
+              }}>
                 <div className="flex items-center justify-between mb-2">
                   <h4 className="text-sm font-medium opacity-90">Cash Allocation</h4>
                   <Activity className="h-5 w-5 opacity-75" />
@@ -2057,7 +1987,9 @@ export default function Dashboard() {
               </div>
 
               {/* 3. Equity vs ETF Split */}
-              <div className="bg-gradient-to-br from-purple-500 to-purple-600 p-4 rounded-xl text-white">
+              <div className="p-4 rounded-xl text-white" style={{ 
+                background: `linear-gradient(135deg, ${yachtClubTheme.colors.secondary}, #7C3AED)`
+              }}>
                 <div className="flex items-center justify-between mb-2">
                   <h4 className="text-sm font-medium opacity-90">Equity vs ETF Split</h4>
                   <TrendingUp className="h-5 w-5 opacity-75" />
@@ -2067,7 +1999,9 @@ export default function Dashboard() {
               </div>
 
               {/* 4. Number of Holdings */}
-              <div className="bg-gradient-to-br from-orange-500 to-orange-600 p-4 rounded-xl text-white">
+              <div className="p-4 rounded-xl text-white" style={{ 
+                background: `linear-gradient(135deg, ${yachtClubTheme.colors.accent}, #D97706)`
+              }}>
                 <div className="flex items-center justify-between mb-2">
                   <h4 className="text-sm font-medium opacity-90">Number of Holdings</h4>
                   <BarChart2 className="h-5 w-5 opacity-75" />
@@ -2077,7 +2011,9 @@ export default function Dashboard() {
               </div>
 
               {/* 5. Top Sector by Value */}
-              <div className="bg-gradient-to-br from-indigo-500 to-indigo-600 p-4 rounded-xl text-white">
+              <div className="p-4 rounded-xl text-white" style={{ 
+                background: `linear-gradient(135deg, #6366F1, #4F46E5)`
+              }}>
                 <div className="flex items-center justify-between mb-2">
                   <h4 className="text-sm font-medium opacity-90">Top Sector</h4>
                   <Target className="h-5 w-5 opacity-75" />
@@ -2087,7 +2023,9 @@ export default function Dashboard() {
               </div>
 
               {/* 6. Top Performing Asset */}
-              <div className="bg-gradient-to-br from-emerald-500 to-emerald-600 p-4 rounded-xl text-white">
+              <div className="p-4 rounded-xl text-white" style={{ 
+                background: `linear-gradient(135deg, #10B981, #059669)`
+              }}>
                 <div className="flex items-center justify-between mb-2">
                   <h4 className="text-sm font-medium opacity-90">Top Performer</h4>
                   <TrendingUp className="h-5 w-5 opacity-75" />
@@ -2097,7 +2035,11 @@ export default function Dashboard() {
               </div>
 
               {/* 7. Goal Progress */}
-              <div className="bg-gradient-to-br from-rose-500 to-rose-600 p-4 rounded-xl text-white">
+              <div className="p-4 rounded-xl text-white" style={{ 
+                background: sevenMetrics.goalProgress >= 100 
+                  ? `linear-gradient(135deg, #10B981, #059669)`
+                  : `linear-gradient(135deg, #EF4444, #DC2626)`
+              }}>
                 <div className="flex items-center justify-between mb-2">
                   <h4 className="text-sm font-medium opacity-90">Goal Progress</h4>
                   <Target className="h-5 w-5 opacity-75" />
@@ -2108,417 +2050,8 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Charts Row */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Allocation Breakdown Donut Chart */}
-            <div className="bg-white p-6 rounded-2xl shadow-lg border" style={{ 
-              borderColor: yachtClubTheme.colors.cardBeige,
-              boxShadow: `0 4px 6px -1px ${yachtClubTheme.colors.cardBeige}40, 0 2px 4px -1px ${yachtClubTheme.colors.cardBeige}20`
-            }}>
-              <h3 className="text-lg font-medium mb-4" style={{ color: yachtClubTheme.colors.primary }}>Portfolio Allocation</h3>
-              <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                  <Pie
-                    data={allocationData}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={({ name, percent }) => `${name} ${((percent || 0) * 100).toFixed(0)}%`}
-                    outerRadius={80}
-                    fill="#8884d8"
-                    dataKey="value"
-                  >
-                    {allocationData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip formatter={(value) => `$${Number(value).toLocaleString()}`} />
-                </PieChart>
-              </ResponsiveContainer>
             </div>
-
-            {/* Top Movers & Losers */}
-            <div className="bg-white p-6 rounded-2xl shadow-lg border" style={{ 
-              borderColor: yachtClubTheme.colors.cardBeige,
-              boxShadow: `0 4px 6px -1px ${yachtClubTheme.colors.cardBeige}40, 0 2px 4px -1px ${yachtClubTheme.colors.cardBeige}20`
-            }}>
-              <h3 className="text-lg font-medium mb-4" style={{ color: yachtClubTheme.colors.primary }}>Top Movers & Losers</h3>
-              <div className="grid grid-cols-2 gap-4">
-                {/* Top Gainers */}
-                <div>
-                  <h4 className="text-sm font-semibold text-green-600 mb-2">Top 3 Gainers</h4>
-                  <div className="space-y-2">
-                    {topGainers.map((mover, index) => (
-                      <div key={index} className="flex justify-between items-center p-2 bg-green-50 rounded-lg">
-                        <span className="text-sm font-medium">{mover.ticker}</span>
-                        <div className="text-right">
-                          <div className="text-sm font-semibold text-green-600">+{mover.changePercent.toFixed(1)}%</div>
-                          <div className="text-xs text-gray-500">${mover.value.toLocaleString()}</div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Top Losers */}
-                <div>
-                  <h4 className="text-sm font-semibold text-red-600 mb-2">Top 3 Losers</h4>
-                  <div className="space-y-2">
-                    {topLosers.map((mover, index) => (
-                      <div key={index} className="flex justify-between items-center p-2 bg-red-50 rounded-lg">
-                        <span className="text-sm font-medium">{mover.ticker}</span>
-                        <div className="text-right">
-                          <div className="text-sm font-semibold text-red-600">{mover.changePercent.toFixed(1)}%</div>
-                          <div className="text-xs text-gray-500">${mover.value.toLocaleString()}</div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Portfolio Goal Tracker */}
-          <div className="bg-white p-6 rounded-2xl shadow-lg border" style={{ 
-            borderColor: yachtClubTheme.colors.cardBeige,
-            boxShadow: `0 4px 6px -1px ${yachtClubTheme.colors.cardBeige}40, 0 2px 4px -1px ${yachtClubTheme.colors.cardBeige}20`
-          }}>
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h3 className="text-lg font-medium" style={{ color: yachtClubTheme.colors.primary }}>Yearly Growth Goal (+10%)</h3>
-                <p className="text-sm text-gray-500">Target: ${goalProgress.targetValue.toLocaleString()} by Dec 31</p>
-              </div>
-              {goalProgress.isAchieved && (
-                <div className="text-green-600 font-semibold">Goal Achieved 🎉</div>
-              )}
-            </div>
-            
-            <div className="mb-2">
-              <div className="flex justify-between text-sm text-gray-600 mb-1">
-                <span>Current: ${goalProgress.currentValue.toLocaleString()}</span>
-                <span>{goalProgress.progress.toFixed(1)}%</span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-3">
-                <div 
-                  className={`h-3 rounded-full transition-all duration-500 ${
-                    goalProgress.isAchieved ? 'bg-green-500' : 'bg-blue-500'
-                  }`}
-                  style={{ width: `${Math.min(goalProgress.progress, 100)}%` }}
-                ></div>
-              </div>
-            </div>
-            
-            <div className="text-xs text-gray-500">
-              {goalProgress.isAchieved 
-                ? `Exceeded target by $${(goalProgress.currentValue - goalProgress.targetValue).toLocaleString()}`
-                : `Need $${(goalProgress.targetValue - goalProgress.currentValue).toLocaleString()} more to reach goal`
-              }
-            </div>
-          </div>
-
-            {/* Top 3 Holdings Card */}
-            {topHoldings.length > 0 && (
-              <div className="bg-white p-6 rounded-2xl shadow-lg border mt-6" style={{ 
-                borderColor: yachtClubTheme.colors.cardBeige,
-                boxShadow: `0 4px 6px -1px ${yachtClubTheme.colors.cardBeige}40, 0 2px 4px -1px ${yachtClubTheme.colors.cardBeige}20`
-              }}>
-                <h3 className="text-lg font-medium mb-4" style={{ color: yachtClubTheme.colors.primary }}>Top 3 Holdings</h3>
-                <div className="space-y-3">
-                  {topHoldings.slice(0, 3).map((holding, index) => (
-                    <div key={holding.ticker} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                      <div className="flex items-center space-x-3">
-                        <div className="flex-shrink-0">
-                          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm ${
-                            index === 0 ? 'bg-yellow-500' : index === 1 ? 'bg-gray-400' : 'bg-orange-600'
-                          }`}>
-                            {index + 1}
-                          </div>
-                        </div>
-                        <div>
-                          <div className="font-medium text-gray-900 dark:text-white">{holding.ticker}</div>
-                          <div className="text-sm text-gray-500 dark:text-gray-400">
-                            {holding.shares?.toLocaleString()} shares @ ${holding.price?.toFixed(2)}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="font-medium text-gray-900 dark:text-white">
-                          ${holding.value?.toLocaleString()}
-                        </div>
-                        <div className={`text-sm ${(holding.gain || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                          {(holding.gain || 0) >= 0 ? '+' : ''}${(holding.gain || 0).toFixed(2)} ({(holding.gainPercent || 0).toFixed(1)}%)
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
             )}
-
-            {/* Charts Row */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Portfolio Allocation Pie Chart */}
-              <div className="bg-white p-6 rounded-2xl shadow-lg border" style={{ 
-                borderColor: yachtClubTheme.colors.cardBeige,
-                boxShadow: `0 4px 6px -1px ${yachtClubTheme.colors.cardBeige}40, 0 2px 4px -1px ${yachtClubTheme.colors.cardBeige}20`
-              }}>
-                <h3 className="text-lg font-medium mb-4" style={{ color: yachtClubTheme.colors.primary }}>Portfolio Allocation</h3>
-                <ResponsiveContainer width="100%" height={300}>
-                  <PieChart>
-                    <Pie
-                      data={summaryData.map(item => ({
-                        name: item.Category,
-                        value: item["Curr %"] || 0
-                      }))}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      label={({ name, percent }) => `${name} ${((percent || 0) * 100).toFixed(0)}%`}
-                      outerRadius={80}
-                      fill="#8884d8"
-                      dataKey="value"
-                    >
-                      {summaryData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-
-         {/* Portfolio Health */}
-         {portfolioHealth && (
-           <div className="bg-white p-6 rounded-2xl shadow-lg border" style={{ 
-             borderColor: yachtClubTheme.colors.cardBeige,
-             boxShadow: `0 4px 6px -1px ${yachtClubTheme.colors.cardBeige}40, 0 2px 4px -1px ${yachtClubTheme.colors.cardBeige}20`
-           }}>
-             <h3 className="text-lg font-medium mb-4" style={{ color: yachtClubTheme.colors.primary }}>Portfolio Health</h3>
-             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-               <div className="text-center">
-                 <div className="text-3xl font-bold" style={{ color: yachtClubTheme.colors.primary }}>
-                   {(portfolioHealth as any).health_score}%
-                 </div>
-                 <div className="text-sm text-gray-500 dark:text-gray-400">Health Score</div>
-               </div>
-               <div className="text-center">
-                 <div className="text-3xl font-bold" style={{ color: yachtClubTheme.colors.success }}>
-                   {(portfolioHealth as any).diversification_score}%
-                 </div>
-                 <div className="text-sm text-gray-500 dark:text-gray-400">Diversification</div>
-               </div>
-               <div className="text-center">
-                 <div className="text-3xl font-bold" style={{ color: yachtClubTheme.colors.secondary }}>
-                   {(portfolioHealth as any).positions_count}
-                 </div>
-                 <div className="text-sm text-gray-500 dark:text-gray-400">Positions</div>
-               </div>
-             </div>
-           </div>
-         )}
-            </div>
-
-
-            {/* AI Insight Card */}
-            <AIInsightCard userId={1} />
-
-
-            {/* Portfolio Performance Tracking */}
-            <div className="bg-white p-6 rounded-2xl shadow-lg border" style={{ 
-              borderColor: yachtClubTheme.colors.cardBeige,
-              boxShadow: `0 4px 6px -1px ${yachtClubTheme.colors.cardBeige}40, 0 2px 4px -1px ${yachtClubTheme.colors.cardBeige}20`
-            }}>
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-lg font-medium" style={{ color: yachtClubTheme.colors.primary }}>Portfolio Performance</h3>
-                <div className="flex space-x-2">
-                  <select
-                    value={performancePeriod}
-                    onChange={(e) => {
-                      const newPeriod = e.target.value
-                      console.log(`🔄 Changing period from ${performancePeriod} to ${newPeriod}`)
-                      setPerformancePeriod(newPeriod)
-                      // useEffect will handle the data fetch
-                    }}
-                    className="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                  >
-                    <option value="1Week">1 Week</option>
-                    <option value="1Month">1 Month</option>
-                    <option value="1Year">1 Year</option>
-                    <option value="YTD">Year to Date</option>
-                    <option value="3Year">3 Years</option>
-                    <option value="5Year">5 Years</option>
-                  </select>
-                  <button
-                    onClick={startDataCollection}
-                    className="px-3 py-1 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700"
-                  >
-                    Start Data Collection
-                  </button>
-                  <button
-                    onClick={() => setPerformanceData(generateMockPerformanceData())}
-                    className="px-3 py-1 bg-green-600 text-white rounded-md text-sm hover:bg-green-700"
-                  >
-                    Generate Sample Data
-                  </button>
-                  <label className="px-3 py-1 bg-purple-600 text-white rounded-md text-sm hover:bg-purple-700 cursor-pointer">
-                    Upload CSV
-                    <input
-                      type="file"
-                      accept=".csv"
-                      onChange={handleCSVUpload}
-                      className="hidden"
-                    />
-                  </label>
-                </div>
-              </div>
-
-              {/* Data Collection Status */}
-              {dataCollectionStatus && (
-                <div className="mb-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600 dark:text-gray-400">
-                      Historical Data: {dataCollectionStatus.total_records || 0} records
-                    </span>
-                    <span className={`text-xs px-2 py-1 rounded-full ${
-                      dataCollectionStatus.status === 'ready' 
-                        ? 'bg-green-100 text-green-800' 
-                        : 'bg-yellow-100 text-yellow-800'
-                    }`}>
-                      {dataCollectionStatus.status || 'Unknown'}
-                    </span>
-                  </div>
-                </div>
-              )}
-
-              {/* Performance Chart */}
-              <div className="h-80">
-                {/* 5-Year Limit Notice */}
-                {(performancePeriod === '3Year' || performancePeriod === '5Year') && (
-                  <div className="mb-4 p-3 bg-yellow-50 dark:bg-yellow-900 border border-yellow-200 dark:border-yellow-700 rounded-lg">
-                    <div className="flex items-center">
-                      <div className="w-2 h-2 bg-yellow-500 rounded-full mr-2"></div>
-                      <p className="text-sm text-yellow-800 dark:text-yellow-200">
-                        Data limited to last 5 years for performance optimization. 
-                        {performancePeriod === '5Year' ? ' Showing 3 years of data.' : ''}
-                      </p>
-                    </div>
-                  </div>
-                )}
-                
-                {performanceLoading || isDataLoading ? (
-                  <div className="flex items-center justify-center h-full">
-                    <div className="text-gray-500">Loading performance data...</div>
-                  </div>
-                ) : performanceData.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center h-full text-center">
-                    <div className="text-gray-500 mb-4">No performance data available</div>
-                    <div className="text-sm text-gray-400 mb-4">
-                      Click "Generate Sample Data" to see a demo chart, or wait for data collection to complete.
-                    </div>
-                    <button
-                      onClick={() => setPerformanceData(generateOptimizedMockData(performancePeriod))}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                    >
-                      Generate Sample Data
-                    </button>
-                  </div>
-                ) : (
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart key={performancePeriod} data={chartData.length > 0 ? chartData : performanceData}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis 
-                        dataKey="date" 
-                        tickFormatter={(value) => new Date(value).toLocaleDateString()}
-                        tick={{ fontSize: 12 }}
-                      />
-                      <YAxis 
-                        tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
-                        tick={{ fontSize: 12 }}
-                      />
-                      <Tooltip 
-                        labelFormatter={(value) => new Date(value).toLocaleDateString()}
-                        formatter={(value: any, name: string) => {
-                          if (name === 'total_value') {
-                            return [`$${value.toLocaleString()}`, 'Portfolio Value']
-                          }
-                          return [`$${value.toLocaleString()}`, name]
-                        }}
-                        contentStyle={{
-                          backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                          border: '1px solid #ccc',
-                          borderRadius: '8px',
-                          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
-                        }}
-                      />
-                      <Line 
-                        type="monotone" 
-                        dataKey="total_value" 
-                        stroke="#002147" 
-                        strokeWidth={3}
-                        dot={{ fill: '#002147', strokeWidth: 2, r: 4 }}
-                        activeDot={{ r: 6, stroke: '#C5A253', strokeWidth: 2, fill: '#002147' }}
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
-                )}
-              </div>
-
-              {/* Performance Metrics */}
-              {performanceData.length > 0 && (
-                <div className="mt-6">
-                  <h4 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Performance Summary</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div className="text-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                      <div className="text-2xl font-bold text-gray-900 dark:text-white">
-                        ${performanceData[performanceData.length - 1]?.total_value?.toLocaleString() || 0}
-                      </div>
-                      <div className="text-sm text-gray-600 dark:text-gray-400">Current Value</div>
-                    </div>
-                    <div className="text-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                      <div className="text-2xl font-bold text-green-600">
-                        {performanceData.length > 1 ? 
-                          `${(((performanceData[performanceData.length - 1]?.total_value || 0) - (performanceData[0]?.total_value || 0)) / (performanceData[0]?.total_value || 1) * 100).toFixed(2)}%` 
-                          : '0%'
-                        }
-                      </div>
-                      <div className="text-sm text-gray-600 dark:text-gray-400">Total Return</div>
-                    </div>
-                    <div className="text-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                      <div className="text-2xl font-bold text-blue-600">
-                        {performanceData.length > 1 ? 
-                          `$${((performanceData[performanceData.length - 1]?.total_value || 0) - (performanceData[0]?.total_value || 0)).toLocaleString()}` 
-                          : '$0'
-                        }
-                      </div>
-                      <div className="text-sm text-gray-600 dark:text-gray-400">Total Gain/Loss</div>
-                    </div>
-                    <div className="text-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                      <div className="text-2xl font-bold text-purple-600">
-                        {performanceData.length > 1 ? 
-                          `${(performanceData.length - 1)} days` 
-                          : '0 days'
-                        }
-                      </div>
-                      <div className="text-sm text-gray-600 dark:text-gray-400">Period</div>
-                    </div>
-                  </div>
-                  
-                  {/* Performance Details */}
-                  <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900 rounded-lg">
-                    <h5 className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-2">Performance Details</h5>
-                    <div className="text-sm text-blue-800 dark:text-blue-200">
-                      <p><strong>Period:</strong> {performancePeriod === 'YTD' ? 'Year to Date' : performancePeriod}</p>
-                      <p><strong>Data Points:</strong> {performanceData.length} days</p>
-                      <p><strong>Start Date:</strong> {performanceData[0]?.date ? new Date(performanceData[0].date).toLocaleDateString() : 'N/A'}</p>
-                      <p><strong>End Date:</strong> {performanceData[performanceData.length - 1]?.date ? new Date(performanceData[performanceData.length - 1].date).toLocaleDateString() : 'N/A'}</p>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
 
         {/* Holdings Tab - Comprehensive Firebase Data */}
         {activeTab === 'holdings' && (
