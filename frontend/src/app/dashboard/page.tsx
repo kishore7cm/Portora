@@ -2077,7 +2077,7 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* Holdings Tab - Detailed assets with virtualization */}
+        {/* Holdings Tab - Comprehensive Firebase Data */}
         {activeTab === 'holdings' && (
           <div className="space-y-6">
             <div className="bg-white p-6 rounded-2xl shadow-lg border" style={{ 
@@ -2085,97 +2085,117 @@ export default function Dashboard() {
               boxShadow: `0 4px 6px -1px ${yachtClubTheme.colors.cardBeige}40, 0 2px 4px -1px ${yachtClubTheme.colors.cardBeige}20`
             }}>
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-semibold pb-2" style={{ 
-                  color: yachtClubTheme.colors.primary,
-                  borderBottom: `2px solid ${yachtClubTheme.colors.accent}`
-                }}>Portfolio Holdings</h3>
-                <div className="flex space-x-2">
+                <div>
+                  <h3 className="text-xl font-semibold pb-2" style={{ 
+                    color: yachtClubTheme.colors.primary,
+                    borderBottom: `2px solid ${yachtClubTheme.colors.accent}`
+                  }}>All Holdings ({filteredHoldings.length})</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                    Complete portfolio from Firebase
+                  </p>
+                </div>
+              </div>
+              
+              {/* Filters */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Source (Fidelity, Public, Robinhood)
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Filter by source..."
+                    value={holdingsFilter.source}
+                    onChange={(e) => setHoldingsFilter(prev => ({ ...prev, source: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Ticker Symbol
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Filter by ticker..."
+                    value={holdingsFilter.ticker}
+                    onChange={(e) => setHoldingsFilter(prev => ({ ...prev, ticker: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Category
+                  </label>
                   <select
-                    value={filterSector}
-                    onChange={(e) => setFilterSector(e.target.value)}
-                    className="px-4 py-2 border rounded-lg text-sm font-medium transition-colors duration-200"
-                    style={{
-                      borderColor: yachtClubTheme.colors.cardBeige,
-                      backgroundColor: 'white',
-                      color: yachtClubTheme.colors.textSecondary
-                    }}
+                    value={holdingsFilter.category}
+                    onChange={(e) => setHoldingsFilter(prev => ({ ...prev, category: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
                   >
-                    <option value="all">All Categories</option>
-                    {getSectors().map(sector => (
-                      <option key={sector} value={sector}>{sector}</option>
-                    ))}
+                    <option value="">All Categories</option>
+                    <option value="ETF">ETF</option>
+                    <option value="Stock">Stock</option>
+                    <option value="Bond">Bond</option>
+                    <option value="Crypto">Crypto</option>
+                    <option value="Cash">Cash</option>
+                    <option value="International">International</option>
+                    <option value="Other">Other</option>
                   </select>
                 </div>
               </div>
               
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y" style={{ borderColor: yachtClubTheme.colors.cardBeige }}>
-                  <thead style={{ backgroundColor: `${yachtClubTheme.colors.primary}10` }}>
-                    <tr>
-                      <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider cursor-pointer" 
-                          style={{ color: yachtClubTheme.colors.primary }}
-                          onClick={() => handleSort('Ticker')}>
-                        Symbol {sortConfig?.key === 'Ticker' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
-                      </th>
-                      <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider cursor-pointer" 
-                          style={{ color: yachtClubTheme.colors.primary }}
-                          onClick={() => handleSort('Qty')}>
-                        Shares {sortConfig?.key === 'Qty' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
-                      </th>
-                      <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider cursor-pointer" 
-                          style={{ color: yachtClubTheme.colors.primary }}
-                          onClick={() => handleSort('Current_Price')}>
-                        Price {sortConfig?.key === 'Current_Price' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
-                      </th>
-                      <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider cursor-pointer" 
-                          style={{ color: yachtClubTheme.colors.primary }}
-                          onClick={() => handleSort('Total_Value')}>
-                        Value {sortConfig?.key === 'Total_Value' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
-                      </th>
-                      <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider cursor-pointer" 
-                          style={{ color: yachtClubTheme.colors.primary }}
-                          onClick={() => handleSort('Gain_Loss_Percent')}>
-                        Change % {sortConfig?.key === 'Gain_Loss_Percent' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
-                      </th>
-                      <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider" 
-                          style={{ color: yachtClubTheme.colors.primary }}>Category</th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y" style={{ borderColor: yachtClubTheme.colors.cardBeige }}>
-                    {allHoldings.map((item, index) => (
-                      <tr key={index} className="hover:bg-gray-50 dark:hover:bg-gray-700">
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium" style={{ color: '#002147' }}>
-                          {item.Ticker}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm" style={{ color: '#C0C5C1' }}>
-                          {item.Qty.toLocaleString()}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm" style={{ color: '#C0C5C1' }}>
-                          ${item.Current_Price.toFixed(2)}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm" style={{ color: '#C0C5C1' }}>
-                          ${item.Total_Value.toLocaleString()}
-                        </td>
-                        <td className={`px-6 py-4 whitespace-nowrap text-sm font-medium`} style={{ 
-                          color: item.Gain_Loss_Percent >= 0 ? '#C5A253' : '#A6292A' 
-                        }}>
-                          {item.Gain_Loss_Percent >= 0 ? '+' : ''}{item.Gain_Loss_Percent.toFixed(2)}%
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full" style={{
-                            backgroundColor: item.Category === 'Stock' ? '#002147' : 
-                                           item.Category === 'Crypto' ? '#A6292A' : 
-                                           item.Category === 'Cash' ? '#C0C5C1' : '#C5A253',
-                            color: '#FFFFFF'
-                          }}>
-                            {item.Category}
-                          </span>
-                        </td>
+              {/* Holdings Table */}
+              {filteredHoldings.length > 0 ? (
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                    <thead className="bg-gray-50 dark:bg-gray-700">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Ticker</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Shares</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Price</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Value</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Gain/Loss</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Category</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Source</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                      {filteredHoldings.map((holding, index) => (
+                        <tr key={holding.id || index} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="font-medium text-gray-900 dark:text-white">{holding.Ticker}</div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                            {holding.Qty?.toLocaleString() || 'N/A'}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                            ${holding.Current_Price?.toFixed(2) || 'N/A'}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                            ${holding.Total_Value?.toLocaleString() || 'N/A'}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className={`text-sm ${(holding.Gain_Loss || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                              {(holding.Gain_Loss || 0) >= 0 ? '+' : ''}${(holding.Gain_Loss || 0).toFixed(2)} ({(holding.Gain_Loss_Percent || 0).toFixed(1)}%)
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                            {holding.Category || 'N/A'}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                            {(holding as any).account_name || 'N/A'}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                  <div className="text-sm">
+                    {portfolioData.length === 0 ? 'Loading holdings...' : 'No holdings match your filters'}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}
