@@ -1,5 +1,6 @@
 "use client";
 import React from "react";
+import YachtFooter from "./YachtFooter";
 
 interface YachtLayoutProps {
   title: string;
@@ -16,6 +17,7 @@ export default function YachtLayout({ title, subtitle, children }: YachtLayoutPr
         <div className="h-[1px] bg-[#C9A66B] w-full mt-3" />
       </header>
       <main className="space-y-8">{children}</main>
+      <YachtFooter />
     </div>
   );
 }

@@ -1822,36 +1822,17 @@ export default function Dashboard() {
         <div className="flex gap-6">
           {/* Vertical Navigation Tabs - Permanent Sidebar */}
           <div className="w-64 flex-shrink-0">
-            <nav className="bg-white rounded-lg p-2 shadow-lg space-y-2" style={{ 
-              borderColor: yachtClubTheme.colors.cardBeige,
-              boxShadow: `0 10px 25px -5px ${yachtClubTheme.colors.cardBeige}60, 0 4px 6px -2px ${yachtClubTheme.colors.cardBeige}40`
-            }}>
+            <nav className="bg-[#F5F1EB] rounded-lg p-4 shadow-lg space-y-2">
               {navigationTabs.map(({ id, label, icon: Icon, description }) => (
                 <button
                   key={id}
                   onClick={() => setActiveTab(id)}
-                  className="w-full flex items-center px-4 py-3 text-sm font-medium rounded-md transition-all duration-200 text-left"
-                  style={{
-                    backgroundColor: activeTab === id ? yachtClubTheme.colors.primary : 'transparent',
-                    color: activeTab === id ? '#FFFFFF' : yachtClubTheme.colors.textSecondary,
-                    borderLeft: activeTab === id ? `4px solid ${yachtClubTheme.colors.accent}` : '4px solid transparent'
-                  }}
-                  onMouseEnter={(e) => {
-                    if (activeTab !== id) {
-                      e.currentTarget.style.backgroundColor = `${yachtClubTheme.colors.accent}20`
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (activeTab !== id) {
-                      e.currentTarget.style.backgroundColor = 'transparent'
-                    }
-                  }}
+                  className={`w-full flex items-center px-3 py-2 rounded-lg text-[#1C3D5A] hover:bg-[#EDE9E3] hover:text-[#C9A66B] transition-all ${
+                    activeTab === id ? "bg-[#1C3D5A] text-[#FDFBF7]" : ""
+                  }`}
                 >
-                  <Icon className="h-5 w-5 mr-3" />
-                  <div>
-                    <div className="font-medium">{label}</div>
-                    <div className="text-xs opacity-75 mt-1">{description}</div>
-                  </div>
+                  <Icon className="w-5 h-5 mr-3" />
+                  <span className="font-medium">{label}</span>
                 </button>
               ))}
             </nav>
