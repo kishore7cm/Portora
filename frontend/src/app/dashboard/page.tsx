@@ -2050,6 +2050,146 @@ export default function Dashboard() {
             </div>
           </div>
 
+          {/* Top 3 Holdings & Top Losers */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Top 3 Holdings */}
+            <div className="bg-white p-6 rounded-2xl shadow-lg border" style={{ 
+              borderColor: yachtClubTheme.colors.cardBeige,
+              boxShadow: `0 4px 6px -1px ${yachtClubTheme.colors.cardBeige}40, 0 2px 4px -1px ${yachtClubTheme.colors.cardBeige}20`
+            }}>
+              <h3 className="text-lg font-medium mb-4" style={{ color: yachtClubTheme.colors.primary }}>Top 3 Holdings</h3>
+              <div className="space-y-3">
+                {topHoldings.slice(0, 3).map((holding, index) => (
+                  <div key={holding.ticker} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                    <div className="flex items-center space-x-3">
+                      <div className="flex-shrink-0">
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm ${
+                          index === 0 ? 'bg-yellow-500' : index === 1 ? 'bg-gray-400' : 'bg-orange-600'
+                        }`}>
+                          {index + 1}
+                        </div>
+                      </div>
+                      <div>
+                        <div className="font-medium text-gray-900 dark:text-white">{holding.ticker}</div>
+                        <div className="text-sm text-gray-500 dark:text-gray-400">
+                          {holding.shares?.toLocaleString()} shares @ ${holding.price?.toFixed(2)}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="font-medium text-gray-900 dark:text-white">
+                        ${holding.value?.toLocaleString()}
+                      </div>
+                      <div className={`text-sm ${(holding.gain || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        {(holding.gain || 0) >= 0 ? '+' : ''}${(holding.gain || 0).toFixed(2)} ({(holding.gainPercent || 0).toFixed(1)}%)
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Top 3 Losers */}
+            <div className="bg-white p-6 rounded-2xl shadow-lg border" style={{ 
+              borderColor: yachtClubTheme.colors.cardBeige,
+              boxShadow: `0 4px 6px -1px ${yachtClubTheme.colors.cardBeige}40, 0 2px 4px -1px ${yachtClubTheme.colors.cardBeige}20`
+            }}>
+              <h3 className="text-lg font-medium mb-4" style={{ color: yachtClubTheme.colors.primary }}>Top 3 Losers</h3>
+              <div className="space-y-3">
+                {topLosers.slice(0, 3).map((mover, index) => (
+                  <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                    <div className="flex items-center space-x-3">
+                      <div className="flex-shrink-0">
+                        <div className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm bg-red-500">
+                          {index + 1}
+                        </div>
+                      </div>
+                      <div>
+                        <div className="font-medium text-gray-900 dark:text-white">{mover.ticker}</div>
+                        <div className="text-sm text-gray-500 dark:text-gray-400">
+                          ${mover.value?.toLocaleString()}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-sm font-semibold text-red-600">
+                        {mover.changePercent?.toFixed(1)}%
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        ${mover.gainLoss?.toFixed(2)}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Portfolio Distribution Chart */}
+          <div className="bg-white p-6 rounded-2xl shadow-lg border" style={{ 
+            borderColor: yachtClubTheme.colors.cardBeige,
+            boxShadow: `0 4px 6px -1px ${yachtClubTheme.colors.cardBeige}40, 0 2px 4px -1px ${yachtClubTheme.colors.cardBeige}20`
+          }}>
+            <h3 className="text-lg font-medium mb-4" style={{ color: yachtClubTheme.colors.primary }}>Portfolio Allocation</h3>
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={allocationData}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ name, percent }) => `${name} ${((percent || 0) * 100).toFixed(0)}%`}
+                  outerRadius={80}
+                  fill="#8884d8"
+                  dataKey="value"
+                >
+                  {allocationData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip formatter={(value) => `$${Number(value).toLocaleString()}`} />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Portfolio Goal Tracker */}
+          <div className="bg-white p-6 rounded-2xl shadow-lg border" style={{ 
+            borderColor: yachtClubTheme.colors.cardBeige,
+            boxShadow: `0 4px 6px -1px ${yachtClubTheme.colors.cardBeige}40, 0 2px 4px -1px ${yachtClubTheme.colors.cardBeige}20`
+          }}>
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3 className="text-lg font-medium" style={{ color: yachtClubTheme.colors.primary }}>Yearly Growth Goal (+10%)</h3>
+                <p className="text-sm text-gray-500">Target: ${goalProgress.targetValue.toLocaleString()} by Dec 31</p>
+              </div>
+              {goalProgress.isAchieved && (
+                <div className="text-green-600 font-semibold">Goal Achieved 🎉</div>
+              )}
+            </div>
+
+            <div className="mb-2">
+              <div className="flex justify-between text-sm text-gray-600 mb-1">
+                <span>Current: ${goalProgress.currentValue.toLocaleString()}</span>
+                <span>{goalProgress.progress.toFixed(1)}%</span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-3">
+                <div 
+                  className={`h-3 rounded-full transition-all duration-500 ${
+                    goalProgress.isAchieved ? 'bg-green-500' : 'bg-blue-500'
+                  }`}
+                  style={{ width: `${Math.min(goalProgress.progress, 100)}%` }}
+                ></div>
+              </div>
+            </div>
+
+            <div className="text-xs text-gray-500">
+              {goalProgress.isAchieved 
+                ? `Exceeded target by $${(goalProgress.currentValue - goalProgress.targetValue).toLocaleString()}`
+                : `Need $${(goalProgress.targetValue - goalProgress.currentValue).toLocaleString()} more to reach goal`
+              }
+            </div>
+          </div>
+
             </div>
             )}
 
