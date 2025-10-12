@@ -1964,7 +1964,7 @@ export default function Dashboard() {
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
               {/* 1. Total Portfolio Value */}
               <div className="p-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300" style={{ 
-                backgroundColor: yachtClubTheme.colors.background,
+                backgroundColor: '#FFFFFF',
                 color: yachtClubTheme.colors.primary,
                 border: `2px solid ${yachtClubTheme.colors.primary}`
               }}>
@@ -1978,7 +1978,7 @@ export default function Dashboard() {
 
               {/* 2. Cash Allocation */}
               <div className="p-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300" style={{ 
-                backgroundColor: yachtClubTheme.colors.background,
+                backgroundColor: '#FFFFFF',
                 color: yachtClubTheme.colors.primary,
                 border: `2px solid ${yachtClubTheme.colors.secondary}`
               }}>
@@ -1992,7 +1992,7 @@ export default function Dashboard() {
 
               {/* 3. Equity vs ETF Split */}
               <div className="p-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300" style={{ 
-                backgroundColor: yachtClubTheme.colors.background,
+                backgroundColor: '#FFFFFF',
                 color: yachtClubTheme.colors.primary,
                 border: `2px solid ${yachtClubTheme.colors.accent}`
               }}>
@@ -2006,7 +2006,7 @@ export default function Dashboard() {
 
               {/* 4. Number of Holdings */}
               <div className="p-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300" style={{ 
-                backgroundColor: yachtClubTheme.colors.background,
+                backgroundColor: '#FFFFFF',
                 color: yachtClubTheme.colors.primary,
                 border: `2px solid ${yachtClubTheme.colors.primary}`
               }}>
@@ -2020,7 +2020,7 @@ export default function Dashboard() {
 
               {/* 5. Top Sector by Value */}
               <div className="p-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300" style={{ 
-                backgroundColor: yachtClubTheme.colors.background,
+                backgroundColor: '#FFFFFF',
                 color: yachtClubTheme.colors.primary,
                 border: `2px solid ${yachtClubTheme.colors.accent}`
               }}>
@@ -2034,7 +2034,7 @@ export default function Dashboard() {
 
               {/* 6. Top Performing Asset */}
               <div className="p-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300" style={{ 
-                backgroundColor: yachtClubTheme.colors.background,
+                backgroundColor: '#FFFFFF',
                 color: yachtClubTheme.colors.accent,
                 border: `2px solid ${yachtClubTheme.colors.accent}`
               }}>
@@ -2048,7 +2048,7 @@ export default function Dashboard() {
 
               {/* 7. Goal Progress */}
               <div className="p-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300" style={{ 
-                backgroundColor: yachtClubTheme.colors.background,
+                backgroundColor: '#FFFFFF',
                 color: sevenMetrics.goalProgress >= 100 ? yachtClubTheme.colors.accent : yachtClubTheme.colors.danger,
                 border: `2px solid ${sevenMetrics.goalProgress >= 100 ? yachtClubTheme.colors.accent : yachtClubTheme.colors.danger}`
               }}>
