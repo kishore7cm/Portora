@@ -2516,6 +2516,8 @@ export default function Dashboard() {
             onClose={() => setShowAlerts(false)}
           />
         )}
-    </YachtLayout>
-  )
-}
+          </div>
+        </div>
+      </YachtLayout>
+    )
+  }
