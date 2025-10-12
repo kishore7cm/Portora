@@ -1892,45 +1892,70 @@ export default function Dashboard() {
 
           {/* 7 Key Metrics Section */}
           <div className="grid grid-cols-7 gap-4">
-            <YachtCard title="Total Portfolio Value" borderColor="transparent">
+            <div className="bg-white p-6 rounded-2xl shadow-lg border" style={{ 
+              borderColor: yachtClubTheme.colors.cardBeige,
+              boxShadow: `0 4px 6px -1px ${yachtClubTheme.colors.cardBeige}40, 0 2px 4px -1px ${yachtClubTheme.colors.cardBeige}20`
+            }}>
+              <h3 className="text-lg font-medium mb-4" style={{ color: yachtClubTheme.colors.primary }}>Total Portfolio Value</h3>
               <h2 className="text-2xl font-semibold text-[#000000] mt-1">${sevenMetrics.totalPortfolioValue.toLocaleString()}</h2>
               <p className="text-xs text-[#5A6A73] mt-1">Sum of all current values</p>
-            </YachtCard>
+            </div>
 
-            <YachtCard title="Cash Allocation" borderColor="transparent">
+            <div className="bg-white p-6 rounded-2xl shadow-lg border" style={{ 
+              borderColor: yachtClubTheme.colors.cardBeige,
+              boxShadow: `0 4px 6px -1px ${yachtClubTheme.colors.cardBeige}40, 0 2px 4px -1px ${yachtClubTheme.colors.cardBeige}20`
+            }}>
+              <h3 className="text-lg font-medium mb-4" style={{ color: yachtClubTheme.colors.primary }}>Cash Allocation</h3>
               <h2 className="text-2xl font-semibold text-[#000000] mt-1">{sevenMetrics.cashAllocationPercent.toFixed(1)}%</h2>
               <p className="text-xs text-[#5A6A73] mt-1">Percentage in cash</p>
-            </YachtCard>
+            </div>
 
-            <YachtCard title="Stocks vs ETFs" borderColor="transparent">
+            <div className="bg-white p-6 rounded-2xl shadow-lg border" style={{ 
+              borderColor: yachtClubTheme.colors.cardBeige,
+              boxShadow: `0 4px 6px -1px ${yachtClubTheme.colors.cardBeige}40, 0 2px 4px -1px ${yachtClubTheme.colors.cardBeige}20`
+            }}>
+              <h3 className="text-lg font-medium mb-4" style={{ color: yachtClubTheme.colors.primary }}>Stocks vs ETFs</h3>
               <h2 className="text-2xl font-semibold text-[#000000] mt-1">{sevenMetrics.equityVsEtfSplit.toFixed(1)}%</h2>
               <p className="text-xs text-[#5A6A73] mt-1">Stocks vs ETFs ratio</p>
-            </YachtCard>
+            </div>
 
-            <YachtCard title="Holdings Count" borderColor="transparent">
+            <div className="bg-white p-6 rounded-2xl shadow-lg border" style={{ 
+              borderColor: yachtClubTheme.colors.cardBeige,
+              boxShadow: `0 4px 6px -1px ${yachtClubTheme.colors.cardBeige}40, 0 2px 4px -1px ${yachtClubTheme.colors.cardBeige}20`
+            }}>
+              <h3 className="text-lg font-medium mb-4" style={{ color: yachtClubTheme.colors.primary }}>Holdings Count</h3>
               <h2 className="text-2xl font-semibold text-[#000000] mt-1">{sevenMetrics.numberOfHoldings}</h2>
               <p className="text-xs text-[#5A6A73] mt-1">Unique tickers</p>
-            </YachtCard>
+            </div>
 
-            <YachtCard title="Top Sector" borderColor="transparent">
+            <div className="bg-white p-6 rounded-2xl shadow-lg border" style={{ 
+              borderColor: yachtClubTheme.colors.cardBeige,
+              boxShadow: `0 4px 6px -1px ${yachtClubTheme.colors.cardBeige}40, 0 2px 4px -1px ${yachtClubTheme.colors.cardBeige}20`
+            }}>
+              <h3 className="text-lg font-medium mb-4" style={{ color: yachtClubTheme.colors.primary }}>Top Sector</h3>
               <h2 className="text-2xl font-semibold text-[#000000] mt-1">{sevenMetrics.topSectorByValue}</h2>
               <p className="text-xs text-[#5A6A73] mt-1">Highest value sector</p>
-            </YachtCard>
+            </div>
 
-            <YachtCard title="Top Performer" borderColor="transparent">
+            <div className="bg-white p-6 rounded-2xl shadow-lg border" style={{ 
+              borderColor: yachtClubTheme.colors.cardBeige,
+              boxShadow: `0 4px 6px -1px ${yachtClubTheme.colors.cardBeige}40, 0 2px 4px -1px ${yachtClubTheme.colors.cardBeige}20`
+            }}>
+              <h3 className="text-lg font-medium mb-4" style={{ color: yachtClubTheme.colors.primary }}>Top Performer</h3>
               <h2 className="text-2xl font-semibold text-[#C9A66B] mt-1">{sevenMetrics.topPerformingAsset}</h2>
               <p className="text-xs text-[#5A6A73] mt-1">Best performing asset</p>
-            </YachtCard>
+            </div>
 
-            <YachtCard 
-              title="Goal Progress" 
-              borderColor="transparent"
-            >
+            <div className="bg-white p-6 rounded-2xl shadow-lg border" style={{ 
+              borderColor: yachtClubTheme.colors.cardBeige,
+              boxShadow: `0 4px 6px -1px ${yachtClubTheme.colors.cardBeige}40, 0 2px 4px -1px ${yachtClubTheme.colors.cardBeige}20`
+            }}>
+              <h3 className="text-lg font-medium mb-4" style={{ color: yachtClubTheme.colors.primary }}>Goal Progress</h3>
               <h2 className="text-2xl font-semibold mt-1" style={{ 
                 color: sevenMetrics.goalProgress >= 100 ? '#22C55E' : '#DC2626'
               }}>{sevenMetrics.goalProgress.toFixed(1)}%</h2>
               <p className="text-xs text-[#5A6A73] mt-1">10% annual growth target</p>
-            </YachtCard>
+            </div>
           </div>
 
           {/* Goal Progress Section */}
