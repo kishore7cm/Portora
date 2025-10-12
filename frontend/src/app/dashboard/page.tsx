@@ -163,6 +163,18 @@ export default function Dashboard() {
     totalGainLoss: 0,
     totalGainLossPercent: 0
   })
+  
+  // 7 Metrics state
+  const [sevenMetrics, setSevenMetrics] = useState({
+    totalPortfolioValue: 0,
+    cashAllocationPercent: 0,
+    equityVsEtfSplit: 0,
+    numberOfHoldings: 0,
+    topSectorByValue: '',
+    topPerformingAsset: '',
+    goalProgress: 0
+  })
+  const [userData, setUserData] = useState({ last_year_value: 0 })
   const [allocationData, setAllocationData] = useState([
     { name: "Stocks", value: 0, color: "#3B82F6" },
     { name: "Crypto", value: 0, color: "#F59E0B" },
@@ -310,6 +322,117 @@ export default function Dashboard() {
       calculateDashboardMetrics(portfolioData)
     }
   }, [portfolioData, calculateDashboardMetrics])
+  
+  // Fetch user data from Firebase
+  const fetchUserData = async () => {
+    try {
+      const userId = typeof window !== 'undefined' ? localStorage.getItem('userId') || '1' : '1'
+      console.log('👤 Fetching user data for userId:', userId)
+      
+      const response = await fetch(`/api/user-data?user_id=${userId}`)
+      if (response.ok) {
+        const data = await response.json()
+        console.log('👤 User data response:', data)
+        
+        if (data.success && data.user_data) {
+          setUserData({
+            last_year_value: data.user_data.last_year_value || 300000
+          })
+          console.log('✅ User data loaded:', data.user_data)
+        }
+      } else {
+        throw new Error('Failed to fetch user data')
+      }
+    } catch (error) {
+      console.error('❌ Error fetching user data:', error)
+      // Set default value
+      setUserData({ last_year_value: 300000 })
+    }
+  }
+  
+  // Calculate 7 specific metrics from Firebase data
+  const calculateSevenMetrics = useCallback((holdings: any[]) => {
+    if (!holdings.length) return
+    
+    console.log('📊 Calculating 7 metrics from', holdings.length, 'holdings')
+    
+    // 1. Total Portfolio Value: Σ(current_value)
+    const totalPortfolioValue = holdings.reduce((sum, holding) => sum + (holding.Total_Value || 0), 0)
+    
+    // 2. % Cash Allocation: (Σ(cash) / total_value) * 100
+    const cashValue = holdings
+      .filter(h => h.Category === 'Cash')
+      .reduce((sum, holding) => sum + (holding.Total_Value || 0), 0)
+    const cashAllocationPercent = totalPortfolioValue > 0 ? (cashValue / totalPortfolioValue) * 100 : 0
+    
+    // 3. % Equity vs ETF Split: (Σ(stock) / Σ(stock + etf)) * 100
+    const stockValue = holdings
+      .filter(h => h.Category === 'Stock')
+      .reduce((sum, holding) => sum + (holding.Total_Value || 0), 0)
+    const etfValue = holdings
+      .filter(h => h.Category === 'ETF')
+      .reduce((sum, holding) => sum + (holding.Total_Value || 0), 0)
+    const equityVsEtfSplit = (stockValue + etfValue) > 0 ? (stockValue / (stockValue + etfValue)) * 100 : 0
+    
+    // 4. Number of Holdings: count(distinct ticker)
+    const uniqueTickers = new Set(holdings.map(h => h.Ticker)).size
+    const numberOfHoldings = uniqueTickers
+    
+    // 5. Top Sector by Value: group by sector → max(sum(current_value))
+    const sectorTotals: { [key: string]: number } = {}
+    holdings.forEach(holding => {
+      const sector = holding.Sector || 'Unknown'
+      sectorTotals[sector] = (sectorTotals[sector] || 0) + (holding.Total_Value || 0)
+    })
+    const topSectorByValue = Object.entries(sectorTotals)
+      .sort(([,a], [,b]) => b - a)[0]?.[0] || 'Unknown'
+    
+    // 6. Top Performing Asset: max (current_value - previous_value) / previous_value * 100
+    const performanceData = holdings
+      .filter(h => h.Cost_Basis && h.Total_Value && h.Cost_Basis > 0)
+      .map(h => ({
+        ticker: h.Ticker,
+        performance: ((h.Total_Value - h.Cost_Basis) / h.Cost_Basis) * 100
+      }))
+      .sort((a, b) => b.performance - a.performance)
+    const topPerformingAsset = performanceData[0]?.ticker || 'N/A'
+    
+    // 7. Goal Progress (10% Annual Growth): (total_value / (last_year_value * 1.10)) * 100
+    const targetValue = userData.last_year_value * 1.10
+    const goalProgress = targetValue > 0 ? Math.min((totalPortfolioValue / targetValue) * 100, 100) : 0
+    
+    setSevenMetrics({
+      totalPortfolioValue,
+      cashAllocationPercent,
+      equityVsEtfSplit,
+      numberOfHoldings,
+      topSectorByValue,
+      topPerformingAsset,
+      goalProgress
+    })
+    
+    console.log('✅ 7 metrics calculated:', {
+      totalPortfolioValue,
+      cashAllocationPercent,
+      equityVsEtfSplit,
+      numberOfHoldings,
+      topSectorByValue,
+      topPerformingAsset,
+      goalProgress
+    })
+  }, [userData.last_year_value])
+  
+  // Update 7 metrics when portfolio data or user data changes
+  useEffect(() => {
+    if (portfolioData.length > 0) {
+      calculateSevenMetrics(portfolioData)
+    }
+  }, [portfolioData, calculateSevenMetrics])
+  
+  // Fetch user data on component mount
+  useEffect(() => {
+    fetchUserData()
+  }, [])
   const [lastDataFetch, setLastDataFetch] = useState<number>(0)
   
   // Loading and error states
@@ -1899,6 +2022,88 @@ export default function Dashboard() {
                 <p className="text-xs font-medium opacity-90 mb-1">Total Gain/Loss</p>
                 <p className="text-lg font-bold">${dashboardMetrics.totalGainLoss.toLocaleString()}</p>
                 <p className="text-xs opacity-75">{dashboardMetrics.totalGainLossPercent.toFixed(1)}% return</p>
+              </div>
+            </div>
+          </div>
+
+          {/* 7 Key Metrics Section */}
+          <div className="bg-white p-6 rounded-2xl shadow-lg border" style={{ 
+            borderColor: yachtClubTheme.colors.cardBeige,
+            boxShadow: `0 4px 6px -1px ${yachtClubTheme.colors.cardBeige}40, 0 2px 4px -1px ${yachtClubTheme.colors.cardBeige}20`
+          }}>
+            <h3 className="text-xl font-semibold mb-6" style={{ color: yachtClubTheme.colors.primary }}>
+              Portfolio Analytics (7 Key Metrics)
+            </h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {/* 1. Total Portfolio Value */}
+              <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-4 rounded-xl text-white">
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="text-sm font-medium opacity-90">Total Portfolio Value</h4>
+                  <DollarSign className="h-5 w-5 opacity-75" />
+                </div>
+                <p className="text-2xl font-bold">${sevenMetrics.totalPortfolioValue.toLocaleString()}</p>
+                <p className="text-xs opacity-75 mt-1">Sum of all current values</p>
+              </div>
+
+              {/* 2. Cash Allocation */}
+              <div className="bg-gradient-to-br from-green-500 to-green-600 p-4 rounded-xl text-white">
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="text-sm font-medium opacity-90">Cash Allocation</h4>
+                  <Activity className="h-5 w-5 opacity-75" />
+                </div>
+                <p className="text-2xl font-bold">{sevenMetrics.cashAllocationPercent.toFixed(1)}%</p>
+                <p className="text-xs opacity-75 mt-1">Percentage in cash</p>
+              </div>
+
+              {/* 3. Equity vs ETF Split */}
+              <div className="bg-gradient-to-br from-purple-500 to-purple-600 p-4 rounded-xl text-white">
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="text-sm font-medium opacity-90">Equity vs ETF Split</h4>
+                  <TrendingUp className="h-5 w-5 opacity-75" />
+                </div>
+                <p className="text-2xl font-bold">{sevenMetrics.equityVsEtfSplit.toFixed(1)}%</p>
+                <p className="text-xs opacity-75 mt-1">Stocks vs ETFs ratio</p>
+              </div>
+
+              {/* 4. Number of Holdings */}
+              <div className="bg-gradient-to-br from-orange-500 to-orange-600 p-4 rounded-xl text-white">
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="text-sm font-medium opacity-90">Number of Holdings</h4>
+                  <BarChart2 className="h-5 w-5 opacity-75" />
+                </div>
+                <p className="text-2xl font-bold">{sevenMetrics.numberOfHoldings}</p>
+                <p className="text-xs opacity-75 mt-1">Unique tickers</p>
+              </div>
+
+              {/* 5. Top Sector by Value */}
+              <div className="bg-gradient-to-br from-indigo-500 to-indigo-600 p-4 rounded-xl text-white">
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="text-sm font-medium opacity-90">Top Sector</h4>
+                  <Target className="h-5 w-5 opacity-75" />
+                </div>
+                <p className="text-2xl font-bold">{sevenMetrics.topSectorByValue}</p>
+                <p className="text-xs opacity-75 mt-1">Highest value sector</p>
+              </div>
+
+              {/* 6. Top Performing Asset */}
+              <div className="bg-gradient-to-br from-emerald-500 to-emerald-600 p-4 rounded-xl text-white">
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="text-sm font-medium opacity-90">Top Performer</h4>
+                  <TrendingUp className="h-5 w-5 opacity-75" />
+                </div>
+                <p className="text-2xl font-bold">{sevenMetrics.topPerformingAsset}</p>
+                <p className="text-xs opacity-75 mt-1">Best performing asset</p>
+              </div>
+
+              {/* 7. Goal Progress */}
+              <div className="bg-gradient-to-br from-rose-500 to-rose-600 p-4 rounded-xl text-white">
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="text-sm font-medium opacity-90">Goal Progress</h4>
+                  <Target className="h-5 w-5 opacity-75" />
+                </div>
+                <p className="text-2xl font-bold">{sevenMetrics.goalProgress.toFixed(1)}%</p>
+                <p className="text-xs opacity-75 mt-1">10% annual growth target</p>
               </div>
             </div>
           </div>
