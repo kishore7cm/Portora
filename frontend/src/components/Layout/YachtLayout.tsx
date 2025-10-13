@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { Sun, Moon, User, LogIn, LogOut } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 import YachtFooter from "./YachtFooter";
 
 interface YachtLayoutProps {
@@ -11,18 +12,14 @@ interface YachtLayoutProps {
 
 export default function YachtLayout({ title, subtitle, children }: YachtLayoutProps) {
   const [isDarkMode, setIsDarkMode] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { user, logout, isAuthenticated } = useAuth();
 
   const toggleDarkMode = () => {
     setIsDarkMode(!isDarkMode);
   };
 
-  const handleLogin = () => {
-    setIsLoggedIn(true);
-  };
-
   const handleLogout = () => {
-    setIsLoggedIn(false);
+    logout();
   };
 
   return (
@@ -45,8 +42,14 @@ export default function YachtLayout({ title, subtitle, children }: YachtLayoutPr
           </button>
 
           {/* Login/Profile Button */}
-          {isLoggedIn ? (
+          {isAuthenticated ? (
             <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-2 px-3 py-2 rounded-lg bg-[#EDE9E3]">
+                <User className="w-4 h-4 text-[#1C3D5A]" />
+                <span className="text-[#1C3D5A] font-medium text-sm">
+                  {user?.displayName || user?.email}
+                </span>
+              </div>
               <button
                 onClick={handleLogout}
                 className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-[#EDE9E3] hover:bg-[#C9A66B] transition-colors"
@@ -54,13 +57,10 @@ export default function YachtLayout({ title, subtitle, children }: YachtLayoutPr
                 <LogOut className="w-4 h-4 text-[#1C3D5A]" />
                 <span className="text-[#1C3D5A] font-medium">Logout</span>
               </button>
-              <button className="p-2 rounded-lg bg-[#EDE9E3] hover:bg-[#C9A66B] transition-colors">
-                <User className="w-5 h-5 text-[#1C3D5A]" />
-              </button>
             </div>
           ) : (
             <button
-              onClick={handleLogin}
+              onClick={() => window.location.href = '/auth'}
               className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-[#1C3D5A] hover:bg-[#C9A66B] transition-colors"
             >
               <LogIn className="w-4 h-4 text-white" />

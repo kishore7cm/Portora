@@ -40,6 +40,8 @@ import YachtLayout from '@/components/Layout/YachtLayout'
 import { YachtCard } from '@/components/Cards/YachtCard'
 import { MetricCard } from '@/components/Cards/MetricCard'
 import { formatCurrency, formatPercent, formatCount, formatNumber } from '@/lib/formatters'
+import ProtectedRoute from '@/components/Auth/ProtectedRoute'
+import { useAuth } from '@/hooks/useAuth'
 
 // Interfaces
 interface PortfolioData {
@@ -113,6 +115,7 @@ interface PortfolioHealth {
 export default function Dashboard() {
   // Dashboard component - updated
   const router = useRouter()
+  const { user, logout } = useAuth()
   
   // TEST: Add alert to verify component is executing
   console.log('🎯 Dashboard component is executing!')
@@ -1818,10 +1821,11 @@ export default function Dashboard() {
   }
 
   return (
-    <YachtLayout 
-      title="Portfolio Overview" 
-      subtitle="Yacht Club Premium – Sophisticated Wealth Management"
-    >
+    <ProtectedRoute>
+      <YachtLayout 
+        title="Portfolio Overview" 
+        subtitle="Yacht Club Premium – Sophisticated Wealth Management"
+      >
         <div className="flex gap-6">
           {/* Vertical Navigation Tabs - Permanent Sidebar */}
           <div className="w-64 flex-shrink-0">
@@ -2534,5 +2538,6 @@ export default function Dashboard() {
           </div>
         </div>
       </YachtLayout>
+    </ProtectedRoute>
     )
   }
