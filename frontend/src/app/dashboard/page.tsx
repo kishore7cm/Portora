@@ -38,6 +38,8 @@ import YachtClubInsightsTab from '@/components/YachtClubInsightsTab'
 import { yachtClubTheme } from '@/styles/yachtClubTheme'
 import YachtLayout from '@/components/Layout/YachtLayout'
 import { YachtCard } from '@/components/Cards/YachtCard'
+import { MetricCard } from '@/components/Cards/MetricCard'
+import { formatCurrency, formatPercent, formatCount, formatNumber } from '@/lib/formatters'
 
 // Interfaces
 interface PortfolioData {
@@ -1892,119 +1894,71 @@ export default function Dashboard() {
 
           {/* 7 Key Metrics Section */}
           <div className="grid grid-cols-7 gap-4">
-            <div className="bg-white p-6 rounded-2xl shadow-lg border" style={{ 
-              borderColor: yachtClubTheme.colors.cardBeige,
-              boxShadow: `0 4px 6px -1px ${yachtClubTheme.colors.cardBeige}40, 0 2px 4px -1px ${yachtClubTheme.colors.cardBeige}20`
-            }}>
-              <div className="flex items-center mb-4">
-                <div className="p-2 bg-[#EDE9E3] rounded-lg mr-3">
-                  <DollarSign className="w-4 h-4" style={{ color: yachtClubTheme.colors.primary }} />
-                </div>
-                <h3 className="text-lg font-medium" style={{ color: yachtClubTheme.colors.primary }}>Total Portfolio Value</h3>
-              </div>
-              <h2 className="text-2xl font-semibold text-[#000000] mt-1">${sevenMetrics.totalPortfolioValue.toLocaleString()}</h2>
-              <p className="text-sm text-[#1C3D5A] mt-1">Sum of all current values</p>
-            </div>
+            <MetricCard
+              title="Total Portfolio Value"
+              value={formatCurrency(sevenMetrics.totalPortfolioValue)}
+              subtitle="Sum of all current values"
+              icon={<DollarSign className="w-4 h-4" style={{ color: yachtClubTheme.colors.primary }} />}
+            />
 
-            <div className="bg-white p-6 rounded-2xl shadow-lg border" style={{ 
-              borderColor: yachtClubTheme.colors.cardBeige,
-              boxShadow: `0 4px 6px -1px ${yachtClubTheme.colors.cardBeige}40, 0 2px 4px -1px ${yachtClubTheme.colors.cardBeige}20`
-            }}>
-              <div className="flex items-center mb-4">
-                <div className="p-2 bg-[#EDE9E3] rounded-lg mr-3">
-                  <Activity className="w-4 h-4" style={{ color: yachtClubTheme.colors.primary }} />
-                </div>
-                <h3 className="text-lg font-medium" style={{ color: yachtClubTheme.colors.primary }}>Cash Allocation</h3>
-              </div>
-              <h2 className="text-2xl font-semibold text-[#000000] mt-1">{sevenMetrics.cashAllocationPercent.toFixed(1)}%</h2>
-              <p className="text-sm text-[#1C3D5A] mt-1">Percentage in cash</p>
-            </div>
+            <MetricCard
+              title="Cash Allocation"
+              value={formatPercent(sevenMetrics.cashAllocationPercent, false)}
+              subtitle="Percentage in cash"
+              icon={<Activity className="w-4 h-4" style={{ color: yachtClubTheme.colors.primary }} />}
+            />
 
-            <div className="bg-white p-6 rounded-2xl shadow-lg border" style={{ 
-              borderColor: yachtClubTheme.colors.cardBeige,
-              boxShadow: `0 4px 6px -1px ${yachtClubTheme.colors.cardBeige}40, 0 2px 4px -1px ${yachtClubTheme.colors.cardBeige}20`
-            }}>
-              <div className="flex items-center mb-4">
-                <div className="p-2 bg-[#EDE9E3] rounded-lg mr-3">
-                  <BarChart2 className="w-4 h-4" style={{ color: yachtClubTheme.colors.primary }} />
-                </div>
-                <h3 className="text-lg font-medium" style={{ color: yachtClubTheme.colors.primary }}>Stocks vs ETFs</h3>
-              </div>
-              <h2 className="text-2xl font-semibold text-[#000000] mt-1">{sevenMetrics.equityVsEtfSplit.toFixed(1)}%</h2>
-              <p className="text-sm text-[#1C3D5A] mt-1">Stocks vs ETFs ratio</p>
-            </div>
+            <MetricCard
+              title="Stocks vs ETFs"
+              value={formatPercent(sevenMetrics.equityVsEtfSplit, false)}
+              subtitle="Stocks vs ETFs ratio"
+              icon={<BarChart2 className="w-4 h-4" style={{ color: yachtClubTheme.colors.primary }} />}
+            />
 
-            <div className="bg-white p-6 rounded-2xl shadow-lg border" style={{ 
-              borderColor: yachtClubTheme.colors.cardBeige,
-              boxShadow: `0 4px 6px -1px ${yachtClubTheme.colors.cardBeige}40, 0 2px 4px -1px ${yachtClubTheme.colors.cardBeige}20`
-            }}>
-              <div className="flex items-center mb-4">
-                <div className="p-2 bg-[#EDE9E3] rounded-lg mr-3">
-                  <Database className="w-4 h-4" style={{ color: yachtClubTheme.colors.primary }} />
-                </div>
-                <h3 className="text-lg font-medium" style={{ color: yachtClubTheme.colors.primary }}>Holdings Count</h3>
-              </div>
-              <h2 className="text-2xl font-semibold text-[#000000] mt-1">{sevenMetrics.numberOfHoldings}</h2>
-              <p className="text-sm text-[#1C3D5A] mt-1">Unique tickers</p>
-            </div>
+            <MetricCard
+              title="Holdings Count"
+              value={formatCount(sevenMetrics.numberOfHoldings)}
+              subtitle="Unique tickers"
+              icon={<Database className="w-4 h-4" style={{ color: yachtClubTheme.colors.primary }} />}
+            />
 
-            <div className="bg-white p-6 rounded-2xl shadow-lg border" style={{ 
-              borderColor: yachtClubTheme.colors.cardBeige,
-              boxShadow: `0 4px 6px -1px ${yachtClubTheme.colors.cardBeige}40, 0 2px 4px -1px ${yachtClubTheme.colors.cardBeige}20`
-            }}>
-              <div className="flex items-center mb-4">
-                <div className="p-2 bg-[#EDE9E3] rounded-lg mr-3">
-                  <TrendingUp className="w-4 h-4" style={{ color: yachtClubTheme.colors.primary }} />
-                </div>
-                <h3 className="text-lg font-medium" style={{ color: yachtClubTheme.colors.primary }}>Top Sector</h3>
-              </div>
-              <h2 className="text-2xl font-semibold text-[#000000] mt-1">{sevenMetrics.topSectorByValue}</h2>
-              <p className="text-sm text-[#1C3D5A] mt-1">Highest value sector</p>
-            </div>
+            <MetricCard
+              title="Top Sector"
+              value={sevenMetrics.topSectorByValue}
+              subtitle="Highest value sector"
+              icon={<TrendingUp className="w-4 h-4" style={{ color: yachtClubTheme.colors.primary }} />}
+            />
 
-            <div className="bg-white p-6 rounded-2xl shadow-lg border" style={{ 
-              borderColor: yachtClubTheme.colors.cardBeige,
-              boxShadow: `0 4px 6px -1px ${yachtClubTheme.colors.cardBeige}40, 0 2px 4px -1px ${yachtClubTheme.colors.cardBeige}20`
-            }}>
-              <div className="flex items-center mb-4">
-                <div className="p-2 bg-[#EDE9E3] rounded-lg mr-3">
-                  <Award className="w-4 h-4" style={{ color: yachtClubTheme.colors.primary }} />
-                </div>
-                <h3 className="text-lg font-medium" style={{ color: yachtClubTheme.colors.primary }}>Top Performer</h3>
-              </div>
-              <h2 className="text-2xl font-semibold text-[#C9A66B] mt-1">{sevenMetrics.topPerformingAsset}</h2>
-              <p className="text-sm text-[#1C3D5A] mt-1">Best performing asset</p>
-            </div>
+            <MetricCard
+              title="Top Performer"
+              value={sevenMetrics.topPerformingAsset}
+              subtitle="Best performing asset"
+              icon={<Award className="w-4 h-4" style={{ color: yachtClubTheme.colors.primary }} />}
+            />
 
-            <div className="bg-white p-6 rounded-2xl shadow-lg border" style={{ 
-              borderColor: yachtClubTheme.colors.cardBeige,
-              boxShadow: `0 4px 6px -1px ${yachtClubTheme.colors.cardBeige}40, 0 2px 4px -1px ${yachtClubTheme.colors.cardBeige}20`
-            }}>
-              <div className="flex items-center mb-4">
-                <div className="p-2 bg-[#EDE9E3] rounded-lg mr-3">
-                  <Target className="w-4 h-4" style={{ color: yachtClubTheme.colors.primary }} />
-                </div>
-                <h3 className="text-lg font-medium" style={{ color: yachtClubTheme.colors.primary }}>Goal Progress</h3>
-              </div>
-              <h2 className="text-2xl font-semibold mt-1" style={{ 
-                color: sevenMetrics.goalProgress >= 100 ? '#22C55E' : '#DC2626'
-              }}>{sevenMetrics.goalProgress.toFixed(1)}%</h2>
-              <p className="text-sm text-[#1C3D5A] mt-1">10% annual growth target</p>
-            </div>
+            <MetricCard
+              title="Goal Progress"
+              value={formatPercent(sevenMetrics.goalProgress, false)}
+              subtitle="10% annual growth target"
+              isPositive={sevenMetrics.goalProgress >= 100}
+              isNegative={sevenMetrics.goalProgress < 80}
+              icon={<Target className="w-4 h-4" style={{ color: yachtClubTheme.colors.primary }} />}
+            />
           </div>
 
           {/* Goal Progress Section */}
-          <YachtCard title="Yearly Growth Goal (+10%)" borderColor="#C9A66B">
-            <div className="w-full bg-[#FDFBF7] rounded-full h-3 mt-3 overflow-hidden">
+          <YachtCard title="Yearly Growth Goal (+10%)" subtitle="Progress toward 2025 target" borderColor="#C9A66B">
+            <div className="w-full bg-[#EDE9E3] rounded-full h-3 mt-3">
               <div
-                className="h-3 rounded-full transition-all"
-                style={{
-                  width: `${sevenMetrics.goalProgress}%`,
-                  backgroundColor: sevenMetrics.goalProgress >= 100 ? '#22C55E' : '#C9A66B'
-                }}
+                className={`h-3 rounded-full transition-all ${
+                  sevenMetrics.goalProgress >= 100 ? "bg-[#22C55E]" : "bg-[#C9A66B]"
+                }`}
+                style={{ width: `${sevenMetrics.goalProgress}%` }}
               />
             </div>
-            <p className="text-[#5A6A73] text-sm mt-2">{sevenMetrics.goalProgress.toFixed(1)}% of annual target</p>
+            <p className="text-sm text-[#5A6A73] mt-2">
+              {formatPercent(sevenMetrics.goalProgress, false)} of annual target
+            </p>
           </YachtCard>
 
           {/* Top 3 Holdings, Winners & Losers */}
@@ -2032,23 +1986,23 @@ export default function Dashboard() {
                         </div>
                       </div>
                       <div>
-                        <div className="font-medium text-gray-900 dark:text-white">{holding.ticker}</div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400">
-                          {holding.shares?.toLocaleString()} shares @ ${holding.price?.toFixed(2)}
+                        <div className="font-medium text-[#1C3D5A]">{holding.ticker}</div>
+                        <div className="text-sm text-[#5A6A73]">
+                          {formatCount(holding.shares || 0)} shares @ {formatCurrency(holding.price || 0)}
                         </div>
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="font-medium text-gray-900 dark:text-white">
-                        ${holding.value?.toLocaleString()}
+                      <div className="font-medium text-[#1C3D5A]">
+                        {formatCurrency(holding.value || 0)}
                       </div>
                       <div 
-                        className="text-sm"
+                        className="text-sm font-medium"
                         style={{ 
                           color: (holding.gain || 0) >= 0 ? yachtClubTheme.colors.success : yachtClubTheme.colors.danger 
                         }}
                       >
-                        {(holding.gain || 0) >= 0 ? '+' : ''}${(holding.gain || 0).toFixed(2)} ({(holding.gainPercent || 0).toFixed(1)}%)
+                        {(holding.gain || 0) >= 0 ? '+' : ''}{formatCurrency(holding.gain || 0)} ({formatPercent(holding.gainPercent || 0)})
                       </div>
                     </div>
                   </div>
@@ -2064,7 +2018,7 @@ export default function Dashboard() {
               <h3 className="text-lg font-medium mb-4" style={{ color: yachtClubTheme.colors.primary }}>Top 3 Winners</h3>
               <div className="space-y-3">
                 {topGainers.slice(0, 3).map((gainer, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                  <div key={index} className="flex items-center justify-between p-3 bg-[#FDFBF7] rounded-lg">
                     <div className="flex items-center space-x-3">
                       <div className="flex-shrink-0">
                         <div 
@@ -2075,9 +2029,9 @@ export default function Dashboard() {
                         </div>
                       </div>
                       <div>
-                        <div className="font-medium text-gray-900 dark:text-white">{gainer.ticker}</div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400">
-                          ${gainer.value?.toLocaleString()}
+                        <div className="font-medium text-[#1C3D5A]">{gainer.ticker}</div>
+                        <div className="text-sm text-[#5A6A73]">
+                          {formatCurrency(gainer.value || 0)}
                         </div>
                       </div>
                     </div>
@@ -2086,10 +2040,10 @@ export default function Dashboard() {
                         className="text-sm font-semibold"
                         style={{ color: yachtClubTheme.colors.success }}
                       >
-                        +{gainer.changePercent?.toFixed(1)}%
+                        {formatPercent(gainer.changePercent || 0)}
                       </div>
-                      <div className="text-xs text-gray-500">
-                        +${gainer.gainLoss?.toFixed(2)}
+                      <div className="text-xs text-[#5A6A73]">
+                        {formatCurrency(gainer.gainLoss || 0)}
                       </div>
                     </div>
                   </div>
@@ -2105,7 +2059,7 @@ export default function Dashboard() {
               <h3 className="text-lg font-medium mb-4" style={{ color: yachtClubTheme.colors.primary }}>Top 3 Losers</h3>
               <div className="space-y-3">
                 {topLosers.slice(0, 3).map((mover, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                  <div key={index} className="flex items-center justify-between p-3 bg-[#FDFBF7] rounded-lg">
                     <div className="flex items-center space-x-3">
                       <div className="flex-shrink-0">
                         <div 
@@ -2116,9 +2070,9 @@ export default function Dashboard() {
                         </div>
                       </div>
                       <div>
-                        <div className="font-medium text-gray-900 dark:text-white">{mover.ticker}</div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400">
-                          ${mover.value?.toLocaleString()}
+                        <div className="font-medium text-[#1C3D5A]">{mover.ticker}</div>
+                        <div className="text-sm text-[#5A6A73]">
+                          {formatCurrency(mover.value || 0)}
                         </div>
                       </div>
                     </div>
@@ -2127,10 +2081,10 @@ export default function Dashboard() {
                         className="text-sm font-semibold"
                         style={{ color: yachtClubTheme.colors.danger }}
                       >
-                        {mover.changePercent?.toFixed(1)}%
+                        {formatPercent(mover.changePercent || 0)}
                       </div>
-                      <div className="text-xs text-gray-500">
-                        ${mover.gainLoss?.toFixed(2)}
+                      <div className="text-xs text-[#5A6A73]">
+                        {formatCurrency(mover.gainLoss || 0)}
                       </div>
                     </div>
                   </div>
@@ -2174,7 +2128,7 @@ export default function Dashboard() {
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h3 className="text-lg font-medium" style={{ color: yachtClubTheme.colors.primary }}>Yearly Growth Goal (+10%)</h3>
-                <p className="text-sm text-gray-500">Target: ${goalProgress.targetValue.toLocaleString()} by Dec 31</p>
+                <p className="text-sm text-[#5A6A73]">Target: {formatCurrency(goalProgress.targetValue)} by Dec 31</p>
               </div>
               {goalProgress.isAchieved && (
                 <div 
@@ -2187,9 +2141,9 @@ export default function Dashboard() {
             </div>
 
             <div className="mb-2">
-              <div className="flex justify-between text-sm text-gray-600 mb-1">
-                <span>Current: ${goalProgress.currentValue.toLocaleString()}</span>
-                <span>{goalProgress.progress.toFixed(1)}%</span>
+              <div className="flex justify-between text-sm text-[#5A6A73] mb-1">
+                <span>Current: {formatCurrency(goalProgress.currentValue)}</span>
+                <span>{formatPercent(goalProgress.progress, false)}</span>
               </div>
               <div className="w-full rounded-full h-3" style={{ backgroundColor: yachtClubTheme.colors.cardBeige }}>
                 <div 
@@ -2202,10 +2156,10 @@ export default function Dashboard() {
               </div>
             </div>
 
-            <div className="text-xs text-gray-500">
+            <div className="text-xs text-[#5A6A73]">
               {goalProgress.isAchieved 
-                ? `Exceeded target by $${(goalProgress.currentValue - goalProgress.targetValue).toLocaleString()}`
-                : `Need $${(goalProgress.targetValue - goalProgress.currentValue).toLocaleString()} more to reach goal`
+                ? `Exceeded target by ${formatCurrency(goalProgress.currentValue - goalProgress.targetValue)}`
+                : `Need ${formatCurrency(goalProgress.targetValue - goalProgress.currentValue)} more to reach goal`
               }
             </div>
           </div>
@@ -2303,20 +2257,20 @@ export default function Dashboard() {
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                             {holding.Qty?.toLocaleString() || 'N/A'}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                            ${holding.Current_Price?.toFixed(2) || 'N/A'}
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-[#1C3D5A]">
+                            {formatCurrency(holding.Current_Price || 0)}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                            ${holding.Total_Value?.toLocaleString() || 'N/A'}
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-[#1C3D5A]">
+                            {formatCurrency(holding.Total_Value || 0)}
                           </td>
                               <td className="px-6 py-4 whitespace-nowrap">
                                 <div 
-                                  className="text-sm"
+                                  className="text-sm font-medium"
                                   style={{ 
                                     color: (holding.Gain_Loss || 0) >= 0 ? yachtClubTheme.colors.success : yachtClubTheme.colors.danger 
                                   }}
                                 >
-                                  {(holding.Gain_Loss || 0) >= 0 ? '+' : ''}${(holding.Gain_Loss || 0).toFixed(2)} ({(holding.Gain_Loss_Percent || 0).toFixed(1)}%)
+                                  {(holding.Gain_Loss || 0) >= 0 ? '+' : ''}{formatCurrency(holding.Gain_Loss || 0)} ({formatPercent(holding.Gain_Loss_Percent || 0)})
                                 </div>
                               </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
@@ -2470,7 +2424,7 @@ export default function Dashboard() {
                       </div>
                       <div className="text-right">
                         <div className="font-semibold" style={{ color: yachtClubTheme.colors.primary }}>
-                          ${user.portfolioValue.toLocaleString()}
+                          {formatCurrency(user.portfolioValue)}
                         </div>
                         <div 
                           className="text-sm font-medium"
@@ -2478,10 +2432,10 @@ export default function Dashboard() {
                             color: user.gainLossPercent >= 0 ? yachtClubTheme.colors.success : yachtClubTheme.colors.danger 
                           }}
                         >
-                          {user.gainLossPercent >= 0 ? '+' : ''}{user.gainLossPercent.toFixed(1)}% YTD
+                          {formatPercent(user.gainLossPercent)} YTD
                         </div>
                         <div className="text-xs mt-1" style={{ color: yachtClubTheme.colors.textSecondary }}>
-                          Score: {user.performanceScore}
+                          Score: {formatCount(user.performanceScore)}
                         </div>
                       </div>
                     </div>
@@ -2493,19 +2447,19 @@ export default function Dashboard() {
               <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="p-4 rounded-lg" style={{ backgroundColor: `${yachtClubTheme.colors.primary}10` }}>
                   <div className="text-2xl font-bold" style={{ color: yachtClubTheme.colors.primary }}>
-                    ${(communityData.reduce((sum, user) => sum + user.portfolioValue, 0) / 1000000).toFixed(1)}M
+                    {formatCurrency(communityData.reduce((sum, user) => sum + user.portfolioValue, 0), true)}
                   </div>
                   <div className="text-sm" style={{ color: yachtClubTheme.colors.textSecondary }}>Total Community AUM</div>
                 </div>
                 <div className="p-4 rounded-lg" style={{ backgroundColor: `${yachtClubTheme.colors.accent}10` }}>
                   <div className="text-2xl font-bold" style={{ color: yachtClubTheme.colors.accent }}>
-                    {(communityData.reduce((sum, user) => sum + user.yearToDateReturn, 0) / communityData.length).toFixed(1)}%
+                    {formatPercent(communityData.reduce((sum, user) => sum + user.yearToDateReturn, 0) / communityData.length, false)}
                   </div>
                   <div className="text-sm" style={{ color: yachtClubTheme.colors.textSecondary }}>Average YTD Return</div>
                 </div>
                 <div className="p-4 rounded-lg" style={{ backgroundColor: `${yachtClubTheme.colors.textSecondary}10` }}>
                   <div className="text-2xl font-bold" style={{ color: yachtClubTheme.colors.textSecondary }}>
-                    {communityData.length}
+                    {formatCount(communityData.length)}
                   </div>
                   <div className="text-sm" style={{ color: yachtClubTheme.colors.textSecondary }}>Active Members</div>
                 </div>
