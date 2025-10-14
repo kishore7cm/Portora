@@ -437,10 +437,36 @@ export default function Dashboard() {
     }
   }, [portfolioData, calculateSevenMetrics])
   
-  // Fetch user data on component mount
+  // Check if user has portfolio data, redirect to onboarding if not
   useEffect(() => {
+    const checkUserData = async () => {
+      if (user) {
+        try {
+          const userId = user.uid
+          const response = await fetch(`/api/portfolio?user_id=${userId}`)
+          if (response.ok) {
+            const data = await response.json()
+            if (!data.data || data.data.length === 0) {
+              // No portfolio data, redirect to onboarding
+              router.push('/onboarding')
+              return
+            }
+          } else {
+            // API error, redirect to onboarding
+            router.push('/onboarding')
+            return
+          }
+        } catch (error) {
+          // Error fetching data, redirect to onboarding
+          router.push('/onboarding')
+          return
+        }
+      }
+    }
+    
+    checkUserData()
     fetchUserData()
-  }, [])
+  }, [user, router])
   const [lastDataFetch, setLastDataFetch] = useState<number>(0)
   
   // Loading and error states

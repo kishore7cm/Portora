@@ -6,25 +6,16 @@ export default async function handler(req, res) {
   }
 
   try {
-    let userId = req.query.user_id || '1';
+    const userId = req.query.user_id;
+    
+    if (!userId) {
+      return res.status(400).json({ 
+        error: 'User ID is required',
+        message: 'Please provide a valid user_id parameter'
+      });
+    }
     
     console.log('🔥 Fetching portfolio data for user:', userId);
-    
-    // First, try to get the actual uid from users collection if userId is '1'
-    if (userId === '1') {
-      try {
-        const usersSnapshot = await db.collection('users').limit(1).get();
-        if (!usersSnapshot.empty) {
-          const userData = usersSnapshot.docs[0].data();
-          if (userData.uid) {
-            userId = userData.uid;
-            console.log('🔄 Using actual uid from users collection:', userId);
-          }
-        }
-      } catch (error) {
-        console.log('⚠️ Could not fetch uid from users, using default:', userId);
-      }
-    }
     
     // Get portfolio data from Firebase
     let portfolioSnapshot = await db
