@@ -14,13 +14,10 @@ export async function GET(request) {
     
     console.log('🔥 Fetching portfolio data for user:', userId);
     
-    // Get portfolio data from Firebase
-    let portfolioSnapshot = await db
-      .collection('portfolio_data')
-      .where('user_id', '==', userId)
-      .get();
+    // Get portfolio data from Firebase - single document per user
+    const portfolioDoc = await db.collection('portfolio_data').doc(userId).get();
     
-    if (portfolioSnapshot.empty) {
+    if (!portfolioDoc.exists) {
       return Response.json({ 
         data: [],
         message: 'No portfolio data found',
@@ -28,45 +25,52 @@ export async function GET(request) {
       });
     }
     
-    // Transform Firebase data to match your frontend interface
-    const portfolioData = portfolioSnapshot.docs.map(doc => {
-      const data = doc.data();
-      
-      // Calculate current price from total_value and shares if not provided
-      const shares = data.shares || data.quantity || data.Qty || data.qty || 0;
-      const totalValue = data.total_value || data.Total_Value || data.position_value || 0;
-      const currentPrice = shares > 0 ? totalValue / shares : (data.purchase_price || data.current_price || data.Current_Price || data.price || 0);
+    const portfolioData = portfolioDoc.data();
+    
+    if (!portfolioData.holdings || !Array.isArray(portfolioData.holdings)) {
+      return Response.json({ 
+        data: [],
+        message: 'No holdings found in portfolio',
+        user_id: userId 
+      });
+    }
+    
+    // Transform holdings array to match frontend interface
+    const transformedHoldings = portfolioData.holdings.map((holding, index) => {
+      const shares = holding.shares || holding.quantity || holding.Qty || holding.qty || 0;
+      const totalValue = holding.total_value || holding.Total_Value || holding.position_value || 0;
+      const currentPrice = shares > 0 ? totalValue / shares : (holding.purchase_price || holding.current_price || holding.Current_Price || holding.price || 0);
       
       // Calculate gain/loss from cost basis and current value
-      const costBasis = data.total_cost || data.cost_basis || data.Cost_Basis || totalValue;
+      const costBasis = holding.total_cost || holding.cost_basis || holding.Cost_Basis || totalValue;
       const gainLoss = totalValue - costBasis;
       const gainLossPercent = costBasis > 0 ? (gainLoss / costBasis) * 100 : 0;
       
       return {
-        id: doc.id,
-        Ticker: data.symbol || data.ticker || data.Ticker,
+        id: `${userId}_${index}`,
+        Ticker: holding.symbol || holding.ticker || holding.Ticker,
         Qty: shares,
         Current_Price: currentPrice,
         Total_Value: totalValue,
         Cost_Basis: costBasis,
         Gain_Loss: gainLoss,
         Gain_Loss_Percent: gainLossPercent,
-        Category: data.asset_type || data.category || data.Category || 'Stock',
-        Asset_Class: data.asset_class || data.Asset_Class || 'Equity',
-        Sector: data.sector || data.Sector || 'Technology',
+        Category: holding.asset_type || holding.category || holding.Category || 'Stock',
+        Asset_Class: holding.asset_class || holding.Asset_Class || 'Equity',
+        Sector: holding.sector || holding.Sector || 'Technology',
         Market_Value: totalValue,
         Unrealized_PnL: gainLoss,
         Unrealized_PnL_Percent: gainLossPercent,
-        Last_Updated: data.last_updated || data.Last_Updated || new Date().toISOString()
+        Last_Updated: holding.last_updated || holding.Last_Updated || new Date().toISOString()
       };
     });
     
-    console.log('✅ Portfolio data fetched successfully:', portfolioData.length, 'items');
+    console.log('✅ Portfolio data fetched successfully:', transformedHoldings.length, 'items');
     
     return Response.json({ 
-      data: portfolioData,
+      data: transformedHoldings,
       user_id: userId,
-      total_items: portfolioData.length,
+      total_items: transformedHoldings.length,
       timestamp: new Date().toISOString()
     });
     

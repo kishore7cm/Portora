@@ -56,16 +56,14 @@ export default function OnboardingPage() {
       }, { merge: true })
 
       // Create portfolio data with user's net worth as cash
-      
-      // Store user's net worth as cash in portfolio_data collection
-      // Each holding should be a separate document with user_id field
+      // Store as single document per user with holdings array
       const cashHolding = {
-        user_id: user.uid,
         symbol: 'CASH',
         ticker: 'CASH',
         asset_type: 'Cash',
         category: 'Cash',
         sector: 'Cash',
+        brokerage: 'Cash Account',
         shares: 1,
         purchase_price: userNetWorth,
         current_price: userNetWorth,
@@ -73,12 +71,16 @@ export default function OnboardingPage() {
         total_value: userNetWorth,
         gain_loss: 0,
         gain_loss_percent: 0,
-        last_updated: new Date(),
-        account_name: 'Cash Account'
+        last_updated: new Date()
       }
 
-      // Add cash holding as a document in portfolio_data collection
-      await setDoc(doc(db, 'portfolio_data', `${user.uid}_cash`), cashHolding)
+      // Store user's portfolio as single document
+      await setDoc(doc(db, 'portfolio_data', user.uid), {
+        user_id: user.uid,
+        holdings: [cashHolding],
+        totalPortfolioValue: userNetWorth,
+        lastUpdated: new Date()
+      })
 
       // Redirect to dashboard
       router.push('/dashboard')
