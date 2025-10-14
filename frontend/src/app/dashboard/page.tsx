@@ -333,9 +333,14 @@ export default function Dashboard() {
   
   // Fetch user data from Firebase
   const fetchUserData = async () => {
+    if (!user) {
+      console.log('⚠️ No authenticated user, skipping user data fetch')
+      return
+    }
+    
     try {
-      const userId = typeof window !== 'undefined' ? localStorage.getItem('userId') || '1' : '1'
-      console.log('👤 Fetching user data for userId:', userId)
+      const userId = user.uid
+      console.log('👤 Fetching user data for authenticated userId:', userId)
       
       const response = await fetch(`/api/user-data?user_id=${userId}`)
       if (response.ok) {
@@ -494,21 +499,18 @@ export default function Dashboard() {
   ]
 
   useEffect(() => {
-    // Only access localStorage on the client side
-    if (typeof window !== 'undefined') {
-      const name = localStorage.getItem('userName') || 'User'
-      const id = localStorage.getItem('userId') || '1'
-      setUserName(name)
-      setUserId(id)
-      
-      // Check if user needs onboarding
-      const needsOnboarding = localStorage.getItem('needsOnboarding') === 'true'
-      setShowOnboarding(needsOnboarding)
+    if (!user) {
+      console.log('⚠️ No authenticated user, skipping data fetch')
+      return
     }
+    
+    // Set user info from authenticated user
+    setUserName(user.displayName || user.email || 'User')
+    setUserId(user.uid)
     
     // Fetch all data with optimized loading
     const fetchAllData = async () => {
-      console.log('🎯 Starting fetchAllData...')
+      console.log('🎯 Starting fetchAllData for user:', user.uid)
       setIsDataLoading(true)
       try {
         await Promise.all([
@@ -531,7 +533,7 @@ export default function Dashboard() {
     
     console.log('🚀 Calling fetchAllData...')
     fetchAllData()
-  }, [])
+  }, [user])
 
   // Fetch performance data when period changes
   useEffect(() => {
@@ -850,9 +852,14 @@ export default function Dashboard() {
   }
 
   const fetchAllHoldings = async () => {
+    if (!user) {
+      console.log('⚠️ No authenticated user, skipping holdings fetch')
+      return
+    }
+    
     try {
-      const userId = typeof window !== 'undefined' ? localStorage.getItem('userId') || '1' : '1'
-      console.log('🔍 Fetching all holdings from backend...')
+      const userId = user.uid
+      console.log('🔍 Fetching all holdings from backend for user:', userId)
       const response = await fetch(`/api/portfolio?user_id=${userId}`)
       
       if (response.ok) {
@@ -937,13 +944,18 @@ export default function Dashboard() {
   }
 
   const fetchPortfolioData = async () => {
+    if (!user) {
+      console.log('⚠️ No authenticated user, skipping portfolio fetch')
+      return
+    }
+    
     console.log('🚀 Starting enhanced fetchPortfolioData...')
     setLoading(true)
     setError("")
     
     try {
-      const userId = typeof window !== 'undefined' ? localStorage.getItem('userId') || '1' : '1'
-      console.log('📊 User ID:', userId)
+      const userId = user.uid
+      console.log('📊 Authenticated User ID:', userId)
       
         // Try canonical API first (port 8003)
         console.log('🚀 Trying canonical API...')
@@ -1403,12 +1415,17 @@ export default function Dashboard() {
   }
 
   const fetchPortfolioHealth = async () => {
+    if (!user) {
+      console.log('⚠️ No authenticated user, skipping portfolio health fetch')
+      return
+    }
+    
     setPortfolioHealthLoading(true)
     
     // Use optimized API with real data, fallback to mock data
     
     try {
-      const userId = typeof window !== 'undefined' ? localStorage.getItem('userId') || '1' : '1'
+      const userId = user.uid
       
       // Try to fetch from API with a short timeout
       const controller = new AbortController()
@@ -1526,11 +1543,16 @@ export default function Dashboard() {
 
   // Optimized performance data fetching with 5-year limit and smart sampling
   const fetchPerformanceData = useCallback(async (period: string = performancePeriod) => {
+    if (!user) {
+      console.log('⚠️ No authenticated user, skipping performance data fetch')
+      return
+    }
+    
     setPerformanceLoading(true)
     setIsDataLoading(true)
     
     try {
-      const userId = typeof window !== 'undefined' ? localStorage.getItem('userId') || '1' : '1'
+      const userId = user.uid
       
       // Map frontend periods to backend periods with 5-year limit
       const periodMapping: { [key: string]: string } = {
@@ -1797,8 +1819,13 @@ export default function Dashboard() {
 
   // Fetch AI insights
   const fetchAIInsights = useCallback(async () => {
+    if (!user) {
+      console.log('⚠️ No authenticated user, skipping AI insights fetch')
+      return
+    }
+    
     try {
-      const userId = typeof window !== 'undefined' ? localStorage.getItem('userId') || '1' : '1'
+      const userId = user.uid
       const response = await fetch(`/api/portfolio/ai-insights/${userId}`)
       
       if (response.ok) {
