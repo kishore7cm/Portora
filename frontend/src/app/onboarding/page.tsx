@@ -40,60 +40,45 @@ export default function OnboardingPage() {
       }
 
       // Update user document with onboarding data
+      const userNetWorth = parseFloat(formData.initialInvestment) || 0
       await setDoc(doc(db, 'users', user.uid), {
         uid: user.uid,
         email: user.email,
         name: formData.name,
         createdAt: new Date(),
         lastLogin: new Date(),
-        portfolioValue: parseFloat(formData.initialInvestment) || 0,
-        lastYearValue: parseFloat(formData.initialInvestment) || 0,
+        portfolioValue: userNetWorth,
+        last_year_value: userNetWorth, // This is used for goal progress calculation
         investmentGoal: formData.investmentGoal,
         riskTolerance: formData.riskTolerance,
         investmentExperience: formData.investmentExperience,
         onboardingCompleted: true
       }, { merge: true })
 
-      // Create sample portfolio data for new user
-      const samplePortfolio = [
-        {
-          Ticker: 'AAPL',
-          Qty: Math.floor(parseFloat(formData.initialInvestment) * 0.3 / 175),
-          Current_Price: 175.00,
-          Total_Value: parseFloat(formData.initialInvestment) * 0.3,
-          Gain_Loss: 0,
-          Gain_Loss_Percent: 0,
-          Category: 'Stock',
-          Sector: 'Technology'
-        },
-        {
-          Ticker: 'VOO',
-          Qty: Math.floor(parseFloat(formData.initialInvestment) * 0.4 / 520),
-          Current_Price: 520.00,
-          Total_Value: parseFloat(formData.initialInvestment) * 0.4,
-          Gain_Loss: 0,
-          Gain_Loss_Percent: 0,
-          Category: 'ETF',
-          Sector: 'Diversified'
-        },
-        {
-          Ticker: 'Cash',
-          Qty: 1,
-          Current_Price: parseFloat(formData.initialInvestment) * 0.3,
-          Total_Value: parseFloat(formData.initialInvestment) * 0.3,
-          Gain_Loss: 0,
-          Gain_Loss_Percent: 0,
-          Category: 'Cash',
-          Sector: 'Cash'
-        }
-      ]
-
-      // Store sample portfolio data
-      await setDoc(doc(db, 'portfolio_data', user.uid), {
+      // Create portfolio data with user's net worth as cash
+      
+      // Store user's net worth as cash in portfolio_data collection
+      // Each holding should be a separate document with user_id field
+      const cashHolding = {
         user_id: user.uid,
-        data: samplePortfolio,
-        lastUpdated: new Date()
-      })
+        symbol: 'CASH',
+        ticker: 'CASH',
+        asset_type: 'Cash',
+        category: 'Cash',
+        sector: 'Cash',
+        shares: 1,
+        purchase_price: userNetWorth,
+        current_price: userNetWorth,
+        total_cost: userNetWorth,
+        total_value: userNetWorth,
+        gain_loss: 0,
+        gain_loss_percent: 0,
+        last_updated: new Date(),
+        account_name: 'Cash Account'
+      }
+
+      // Add cash holding as a document in portfolio_data collection
+      await setDoc(doc(db, 'portfolio_data', `${user.uid}_cash`), cashHolding)
 
       // Redirect to dashboard
       router.push('/dashboard')
