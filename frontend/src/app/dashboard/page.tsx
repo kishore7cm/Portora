@@ -448,21 +448,41 @@ export default function Dashboard() {
       if (user) {
         try {
           const userId = user.uid
+          
+          // First check if user has any existing data (new or old structure)
+          const checkResponse = await fetch(`/api/check-existing-data?user_id=${userId}`)
+          if (checkResponse.ok) {
+            const checkData = await checkResponse.json()
+            console.log('📊 Existing data check:', checkData.data)
+            
+            // If user has data in any structure, don't redirect to onboarding
+            if (checkData.data.new_structure.exists || 
+                checkData.data.old_structure.exists || 
+                checkData.data.legacy_data.exists) {
+              console.log('✅ User has existing data, staying on dashboard')
+              return
+            }
+          }
+          
+          // Check new structure portfolio data
           const response = await fetch(`/api/portfolio?user_id=${userId}`)
           if (response.ok) {
             const data = await response.json()
             if (!data.data || data.data.length === 0) {
               // No portfolio data, redirect to onboarding
+              console.log('⚠️ No portfolio data found, redirecting to onboarding')
               router.push('/onboarding')
               return
             }
           } else {
             // API error, redirect to onboarding
+            console.log('❌ API error, redirecting to onboarding')
             router.push('/onboarding')
             return
           }
         } catch (error) {
           // Error fetching data, redirect to onboarding
+          console.log('❌ Error checking data, redirecting to onboarding')
           router.push('/onboarding')
           return
         }
