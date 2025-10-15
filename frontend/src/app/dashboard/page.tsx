@@ -510,41 +510,12 @@ export default function Dashboard() {
     { id: 'insights', label: 'Insights', icon: Brain, description: 'AI insights and analytics' }
   ]
 
+  // Set user info when user changes
   useEffect(() => {
-    if (!user) {
-      console.log('⚠️ No authenticated user, skipping data fetch')
-      return
+    if (user) {
+      setUserName(user.displayName || user.email || 'User')
+      setUserId(user.uid)
     }
-    
-    // Set user info from authenticated user
-    setUserName(user.displayName || user.email || 'User')
-    setUserId(user.uid)
-    
-    // Fetch all data with optimized loading
-    const fetchAllData = async () => {
-      console.log('🎯 Starting fetchAllData for user:', user.uid)
-      setIsDataLoading(true)
-      try {
-        await Promise.all([
-          fetchPortfolioData(),
-          fetchSp500Data(),
-          fetchPortfolioHealth(),
-          fetchDataCollectionStatus(),
-          fetchPerformanceData(),
-          fetchTopHoldingsAndMovers(),
-          fetchAllHoldings(), // Add this to fetch all holdings
-          fetchCommunityData() // Add community data
-        ])
-        console.log('✅ All data fetched successfully')
-      } catch (err) {
-        console.error('❌ Error fetching data:', err)
-      } finally {
-        setIsDataLoading(false)
-      }
-    }
-    
-    console.log('🚀 Calling fetchAllData...')
-    fetchAllData()
   }, [user])
 
   // Fetch performance data when period changes
@@ -556,8 +527,13 @@ export default function Dashboard() {
   }, [performancePeriod])
 
   const fetchTopHoldingsAndMovers = async () => {
+    if (!user) {
+      console.log('⚠️ No authenticated user, skipping top holdings fetch')
+      return
+    }
+    
     try {
-      const userId = typeof window !== 'undefined' ? localStorage.getItem('userId') || '1' : '1'
+      const userId = user.uid
       
       // Try to fetch from API with a short timeout
       const controller = new AbortController()
@@ -626,21 +602,10 @@ export default function Dashboard() {
         throw new Error(`Backend server not responding (${response.status})`)
       }
     } catch (err) {
-      // Silently use realistic fallback data based on 7-day calculated returns from $325k
-      const mockHoldings = [
-        { ticker: 'AMZN', value: 30793.23, gainLoss: 1539.66, gainLossPercent: 5.3, shares: 139.52, price: 220.71 },
-        { ticker: 'AAPL', value: 17500.00, gainLoss: 875.00, gainLossPercent: 5.3, shares: 100.0, price: 175.00 },
-        { ticker: 'FXAIX', value: 16800.00, gainLoss: 530.00, gainLossPercent: 3.5, shares: 65.0, price: 267.60 }
-      ]
-      const mockMovers = [
-        { ticker: 'BTC', value: 7200.00, gainLoss: 880.00, gainLossPercent: 14.0, shares: 0.06, price: 129156.41 },
-        { ticker: 'ETH', value: 5800.00, gainLoss: 710.00, gainLossPercent: 14.0, shares: 0.36, price: 15998.74 },
-        { ticker: 'TSLA', value: 4200.00, gainLoss: 275.00, gainLossPercent: 7.0, shares: 6.6, price: 636.21 }
-      ]
-      console.log('🔍 Setting mock data - Holdings:', mockHoldings.length, 'Movers:', mockMovers.length)
-      setTopHoldings(mockHoldings)
-      setTopMovers(mockMovers)
-      // Using mock data for top holdings and movers
+      console.log('❌ Error fetching top holdings and movers:', err)
+      // Don't set mock data - let the empty state handle this
+      setTopHoldings([])
+      setTopMovers([])
     }
   }
 
@@ -910,48 +875,14 @@ export default function Dashboard() {
         }
       }
       
-      console.log('⚠️ Backend not responding, using mock data')
-      // Enhanced mock data that sums to ~$327k
-      const mockAllHoldings = [
-        { Ticker: 'AAPL', Qty: 100.0, Current_Price: 175.00, Total_Value: 17500.00, Gain_Loss: 875.00, Gain_Loss_Percent: 5.3, Category: 'Stock', RSI: 65, MACD: 0.5, Market: 'US', Trend: 'Bullish', Action: 'Hold', Score: 85, Sentiment: 'Positive' },
-        { Ticker: 'AMZN', Qty: 139.52, Current_Price: 220.71, Total_Value: 30793.23, Gain_Loss: 1539.66, Gain_Loss_Percent: 5.3, Category: 'Stock', RSI: 68, MACD: 0.4, Market: 'US', Trend: 'Bullish', Action: 'Hold', Score: 88, Sentiment: 'Positive' },
-        { Ticker: 'MSFT', Qty: 80.0, Current_Price: 520.00, Total_Value: 41600.00, Gain_Loss: 2080.00, Gain_Loss_Percent: 5.3, Category: 'Stock', RSI: 70, MACD: 0.6, Market: 'US', Trend: 'Bullish', Action: 'Hold', Score: 90, Sentiment: 'Positive' },
-        { Ticker: 'NVDA', Qty: 150.0, Current_Price: 180.00, Total_Value: 27000.00, Gain_Loss: 1350.00, Gain_Loss_Percent: 5.3, Category: 'Stock', RSI: 75, MACD: 0.8, Market: 'US', Trend: 'Bullish', Action: 'Hold', Score: 92, Sentiment: 'Positive' },
-        { Ticker: 'TSLA', Qty: 28.69, Current_Price: 425.85, Total_Value: 12216.95, Gain_Loss: 610.85, Gain_Loss_Percent: 5.3, Category: 'Stock', RSI: 78, MACD: 1.0, Market: 'US', Trend: 'Bullish', Action: 'Hold', Score: 95, Sentiment: 'Positive' },
-        { Ticker: 'GOOGL', Qty: 120.0, Current_Price: 165.00, Total_Value: 19800.00, Gain_Loss: 990.00, Gain_Loss_Percent: 5.3, Category: 'Stock', RSI: 72, MACD: 0.7, Market: 'US', Trend: 'Bullish', Action: 'Hold', Score: 87, Sentiment: 'Positive' },
-        { Ticker: 'META', Qty: 90.0, Current_Price: 580.00, Total_Value: 52200.00, Gain_Loss: 2610.00, Gain_Loss_Percent: 5.3, Category: 'Stock', RSI: 69, MACD: 0.5, Market: 'US', Trend: 'Bullish', Action: 'Hold', Score: 86, Sentiment: 'Positive' },
-        { Ticker: 'BND', Qty: 200.0, Current_Price: 85.00, Total_Value: 17000.00, Gain_Loss: 850.00, Gain_Loss_Percent: 5.3, Category: 'Bond', RSI: 55, MACD: 0.1, Market: 'US', Trend: 'Neutral', Action: 'Hold', Score: 75, Sentiment: 'Neutral' },
-        { Ticker: 'VCIT', Qty: 150.0, Current_Price: 85.00, Total_Value: 12750.00, Gain_Loss: 637.50, Gain_Loss_Percent: 5.3, Category: 'Bond', RSI: 52, MACD: 0.0, Market: 'US', Trend: 'Neutral', Action: 'Hold', Score: 73, Sentiment: 'Neutral' },
-        { Ticker: 'VOO', Qty: 80.0, Current_Price: 520.00, Total_Value: 41600.00, Gain_Loss: 2080.00, Gain_Loss_Percent: 5.3, Category: 'Stock', RSI: 66, MACD: 0.3, Market: 'US', Trend: 'Bullish', Action: 'Hold', Score: 82, Sentiment: 'Positive' },
-        { Ticker: 'BTC', Qty: 0.12, Current_Price: 112017.21, Total_Value: 13913.45, Gain_Loss: 1391.35, Gain_Loss_Percent: 11.1, Category: 'Crypto', RSI: 72, MACD: 0.6, Market: 'US', Trend: 'Bullish', Action: 'Hold', Score: 92, Sentiment: 'Positive' },
-        { Ticker: 'ETH', Qty: 15.0, Current_Price: 4300.00, Total_Value: 64500.00, Gain_Loss: 6450.00, Gain_Loss_Percent: 11.1, Category: 'Crypto', RSI: 75, MACD: 0.8, Market: 'US', Trend: 'Bullish', Action: 'Hold', Score: 90, Sentiment: 'Positive' },
-        { Ticker: 'Cash', Qty: 1, Current_Price: 15000.0, Total_Value: 15000.0, Gain_Loss: 0, Gain_Loss_Percent: 0, Category: 'Cash', RSI: 50, MACD: 0, Market: 'US', Trend: 'Neutral', Action: 'Hold', Score: 75, Sentiment: 'Neutral' }
-      ]
-      
-      const totalMockValue = mockAllHoldings.reduce((sum, holding) => sum + holding.Total_Value, 0)
-      console.log(`📊 Using ${mockAllHoldings.length} mock holdings worth $${totalMockValue.toLocaleString()}`)
-      setAllHoldings(mockAllHoldings)
-      setPortfolioData(mockAllHoldings) // Also set portfolioData for filtering
+      console.log('⚠️ Backend not responding, no data available')
+      setAllHoldings([])
+      setPortfolioData([])
       
     } catch (err) {
       console.error('❌ Error fetching all holdings:', err)
-      // Same fallback as above
-      const mockAllHoldings = [
-        { Ticker: 'AAPL', Qty: 100.0, Current_Price: 175.00, Total_Value: 17500.00, Gain_Loss: 875.00, Gain_Loss_Percent: 5.3, Category: 'Stock', RSI: 65, MACD: 0.5, Market: 'US', Trend: 'Bullish', Action: 'Hold', Score: 85, Sentiment: 'Positive' },
-        { Ticker: 'AMZN', Qty: 139.52, Current_Price: 220.71, Total_Value: 30793.23, Gain_Loss: 1539.66, Gain_Loss_Percent: 5.3, Category: 'Stock', RSI: 68, MACD: 0.4, Market: 'US', Trend: 'Bullish', Action: 'Hold', Score: 88, Sentiment: 'Positive' },
-        { Ticker: 'MSFT', Qty: 80.0, Current_Price: 520.00, Total_Value: 41600.00, Gain_Loss: 2080.00, Gain_Loss_Percent: 5.3, Category: 'Stock', RSI: 70, MACD: 0.6, Market: 'US', Trend: 'Bullish', Action: 'Hold', Score: 90, Sentiment: 'Positive' },
-        { Ticker: 'NVDA', Qty: 150.0, Current_Price: 180.00, Total_Value: 27000.00, Gain_Loss: 1350.00, Gain_Loss_Percent: 5.3, Category: 'Stock', RSI: 75, MACD: 0.8, Market: 'US', Trend: 'Bullish', Action: 'Hold', Score: 92, Sentiment: 'Positive' },
-        { Ticker: 'TSLA', Qty: 28.69, Current_Price: 425.85, Total_Value: 12216.95, Gain_Loss: 610.85, Gain_Loss_Percent: 5.3, Category: 'Stock', RSI: 78, MACD: 1.0, Market: 'US', Trend: 'Bullish', Action: 'Hold', Score: 95, Sentiment: 'Positive' },
-        { Ticker: 'GOOGL', Qty: 120.0, Current_Price: 165.00, Total_Value: 19800.00, Gain_Loss: 990.00, Gain_Loss_Percent: 5.3, Category: 'Stock', RSI: 72, MACD: 0.7, Market: 'US', Trend: 'Bullish', Action: 'Hold', Score: 87, Sentiment: 'Positive' },
-        { Ticker: 'META', Qty: 90.0, Current_Price: 580.00, Total_Value: 52200.00, Gain_Loss: 2610.00, Gain_Loss_Percent: 5.3, Category: 'Stock', RSI: 69, MACD: 0.5, Market: 'US', Trend: 'Bullish', Action: 'Hold', Score: 86, Sentiment: 'Positive' },
-        { Ticker: 'BND', Qty: 200.0, Current_Price: 85.00, Total_Value: 17000.00, Gain_Loss: 850.00, Gain_Loss_Percent: 5.3, Category: 'Bond', RSI: 55, MACD: 0.1, Market: 'US', Trend: 'Neutral', Action: 'Hold', Score: 75, Sentiment: 'Neutral' },
-        { Ticker: 'VCIT', Qty: 150.0, Current_Price: 85.00, Total_Value: 12750.00, Gain_Loss: 637.50, Gain_Loss_Percent: 5.3, Category: 'Bond', RSI: 52, MACD: 0.0, Market: 'US', Trend: 'Neutral', Action: 'Hold', Score: 73, Sentiment: 'Neutral' },
-        { Ticker: 'VOO', Qty: 80.0, Current_Price: 520.00, Total_Value: 41600.00, Gain_Loss: 2080.00, Gain_Loss_Percent: 5.3, Category: 'Stock', RSI: 66, MACD: 0.3, Market: 'US', Trend: 'Bullish', Action: 'Hold', Score: 82, Sentiment: 'Positive' },
-        { Ticker: 'BTC', Qty: 0.12, Current_Price: 112017.21, Total_Value: 13913.45, Gain_Loss: 1391.35, Gain_Loss_Percent: 11.1, Category: 'Crypto', RSI: 72, MACD: 0.6, Market: 'US', Trend: 'Bullish', Action: 'Hold', Score: 92, Sentiment: 'Positive' },
-        { Ticker: 'ETH', Qty: 15.0, Current_Price: 4300.00, Total_Value: 64500.00, Gain_Loss: 6450.00, Gain_Loss_Percent: 11.1, Category: 'Crypto', RSI: 75, MACD: 0.8, Market: 'US', Trend: 'Bullish', Action: 'Hold', Score: 90, Sentiment: 'Positive' },
-        { Ticker: 'Cash', Qty: 1, Current_Price: 15000.0, Total_Value: 15000.0, Gain_Loss: 0, Gain_Loss_Percent: 0, Category: 'Cash', RSI: 50, MACD: 0, Market: 'US', Trend: 'Neutral', Action: 'Hold', Score: 75, Sentiment: 'Neutral' }
-      ]
-      setAllHoldings(mockAllHoldings)
+      setAllHoldings([])
+      setPortfolioData([])
     }
   }
 
