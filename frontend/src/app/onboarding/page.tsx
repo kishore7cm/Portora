@@ -75,7 +75,8 @@ export default function OnboardingPage() {
       shares: 0,
       purchase_price: 0,
       total_value: 0,
-      asset_type: 'Stock'
+      asset_type: '',
+      brokerage: ''
     }])
   }
 
@@ -168,18 +169,20 @@ export default function OnboardingPage() {
         holdings = manualHoldings.map(holding => ({
           symbol: holding.symbol,
           ticker: holding.symbol,
-          asset_type: holding.asset_type,
-          category: holding.asset_type,
-          sector: 'Technology',
-          brokerage: 'Manual Entry',
-          shares: holding.shares,
-          purchase_price: holding.purchase_price,
-          current_price: holding.purchase_price,
-          total_cost: holding.shares * holding.purchase_price,
-          total_value: holding.total_value,
-          gain_loss: holding.total_value - (holding.shares * holding.purchase_price),
-          gain_loss_percent: (holding.shares * holding.purchase_price) > 0 ? 
-            ((holding.total_value - (holding.shares * holding.purchase_price)) / (holding.shares * holding.purchase_price)) * 100 : 0,
+          asset_type: holding.asset_type || 'Stock',
+          category: holding.asset_type || 'Stock',
+          sector: holding.asset_type === 'Crypto' ? 'Crypto' : 
+                  holding.asset_type === 'Bond' ? 'Fixed Income' : 
+                  holding.asset_type === 'ETF' ? 'ETF' : 'Technology',
+          brokerage: holding.brokerage || 'Manual Entry',
+          shares: holding.shares || 0,
+          purchase_price: holding.purchase_price || 0,
+          current_price: holding.purchase_price || 0,
+          total_cost: (holding.shares || 0) * (holding.purchase_price || 0),
+          total_value: holding.total_value || 0,
+          gain_loss: (holding.total_value || 0) - ((holding.shares || 0) * (holding.purchase_price || 0)),
+          gain_loss_percent: ((holding.shares || 0) * (holding.purchase_price || 0)) > 0 ? 
+            (((holding.total_value || 0) - ((holding.shares || 0) * (holding.purchase_price || 0))) / ((holding.shares || 0) * (holding.purchase_price || 0))) * 100 : 0,
           last_updated: new Date()
         }))
         
@@ -498,35 +501,83 @@ export default function OnboardingPage() {
                                   Remove
                                 </button>
                               </div>
-                              <div className="grid grid-cols-2 gap-3">
-                                <input
-                                  type="text"
-                                  placeholder="Symbol (e.g., AAPL)"
-                                  value={holding.symbol}
-                                  onChange={(e) => updateManualHolding(index, 'symbol', e.target.value)}
-                                  className="px-3 py-2 border border-[#E3DED5] rounded-lg focus:ring-2 focus:ring-[#C9A66B] focus:border-transparent"
-                                />
-                                <input
-                                  type="number"
-                                  placeholder="Shares"
-                                  value={holding.shares}
-                                  onChange={(e) => updateManualHolding(index, 'shares', parseFloat(e.target.value) || 0)}
-                                  className="px-3 py-2 border border-[#E3DED5] rounded-lg focus:ring-2 focus:ring-[#C9A66B] focus:border-transparent"
-                                />
-                                <input
-                                  type="number"
-                                  placeholder="Purchase Price"
-                                  value={holding.purchase_price}
-                                  onChange={(e) => updateManualHolding(index, 'purchase_price', parseFloat(e.target.value) || 0)}
-                                  className="px-3 py-2 border border-[#E3DED5] rounded-lg focus:ring-2 focus:ring-[#C9A66B] focus:border-transparent"
-                                />
-                                <input
-                                  type="number"
-                                  placeholder="Current Value"
-                                  value={holding.total_value}
-                                  onChange={(e) => updateManualHolding(index, 'total_value', parseFloat(e.target.value) || 0)}
-                                  className="px-3 py-2 border border-[#E3DED5] rounded-lg focus:ring-2 focus:ring-[#C9A66B] focus:border-transparent"
-                                />
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {/* Brokerage Name */}
+                                <div>
+                                  <label className="block text-sm font-medium text-[#1C3D5A] mb-1">Brokerage Name</label>
+                                  <input
+                                    type="text"
+                                    placeholder="e.g., Fidelity, Vanguard, Robinhood"
+                                    value={holding.brokerage || ''}
+                                    onChange={(e) => updateManualHolding(index, 'brokerage', e.target.value)}
+                                    className="w-full px-3 py-2 border border-[#E3DED5] rounded-lg focus:ring-2 focus:ring-[#C9A66B] focus:border-transparent"
+                                  />
+                                </div>
+
+                                {/* Asset Type */}
+                                <div>
+                                  <label className="block text-sm font-medium text-[#1C3D5A] mb-1">Asset Type</label>
+                                  <select
+                                    value={holding.asset_type || ''}
+                                    onChange={(e) => updateManualHolding(index, 'asset_type', e.target.value)}
+                                    className="w-full px-3 py-2 border border-[#E3DED5] rounded-lg focus:ring-2 focus:ring-[#C9A66B] focus:border-transparent"
+                                  >
+                                    <option value="">Select asset type</option>
+                                    <option value="Stock">Stock</option>
+                                    <option value="ETF">ETF</option>
+                                    <option value="Bond">Bond</option>
+                                    <option value="Crypto">Crypto</option>
+                                    <option value="Cash">Cash</option>
+                                    <option value="Other">Other</option>
+                                  </select>
+                                </div>
+
+                                {/* Ticker/Symbol */}
+                                <div>
+                                  <label className="block text-sm font-medium text-[#1C3D5A] mb-1">Ticker/Symbol</label>
+                                  <input
+                                    type="text"
+                                    placeholder="e.g., AAPL, VTI, BTC"
+                                    value={holding.symbol || ''}
+                                    onChange={(e) => updateManualHolding(index, 'symbol', e.target.value)}
+                                    className="w-full px-3 py-2 border border-[#E3DED5] rounded-lg focus:ring-2 focus:ring-[#C9A66B] focus:border-transparent"
+                                  />
+                                </div>
+
+                                {/* Current Value */}
+                                <div>
+                                  <label className="block text-sm font-medium text-[#1C3D5A] mb-1">Current Value ($)</label>
+                                  <input
+                                    type="number"
+                                    placeholder="e.g., 10000"
+                                    value={holding.total_value || ''}
+                                    onChange={(e) => updateManualHolding(index, 'total_value', parseFloat(e.target.value) || 0)}
+                                    className="w-full px-3 py-2 border border-[#E3DED5] rounded-lg focus:ring-2 focus:ring-[#C9A66B] focus:border-transparent"
+                                  />
+                                </div>
+
+                                {/* Additional Fields - Shares and Purchase Price (optional) */}
+                                <div>
+                                  <label className="block text-sm font-medium text-[#1C3D5A] mb-1">Shares/Quantity (Optional)</label>
+                                  <input
+                                    type="number"
+                                    placeholder="e.g., 100"
+                                    value={holding.shares || ''}
+                                    onChange={(e) => updateManualHolding(index, 'shares', parseFloat(e.target.value) || 0)}
+                                    className="w-full px-3 py-2 border border-[#E3DED5] rounded-lg focus:ring-2 focus:ring-[#C9A66B] focus:border-transparent"
+                                  />
+                                </div>
+
+                                <div>
+                                  <label className="block text-sm font-medium text-[#1C3D5A] mb-1">Purchase Price (Optional)</label>
+                                  <input
+                                    type="number"
+                                    placeholder="e.g., 150.00"
+                                    value={holding.purchase_price || ''}
+                                    onChange={(e) => updateManualHolding(index, 'purchase_price', parseFloat(e.target.value) || 0)}
+                                    className="w-full px-3 py-2 border border-[#E3DED5] rounded-lg focus:ring-2 focus:ring-[#C9A66B] focus:border-transparent"
+                                  />
+                                </div>
                               </div>
                             </div>
                           ))}
