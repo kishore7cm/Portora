@@ -20,8 +20,10 @@ import {
   BarChart2,
   Calendar,
   Database,
-  Bot
+  Bot,
+  Plus
 } from 'lucide-react'
+import Link from 'next/link'
 import AIInsightCard from '@/components/AIInsightCard'
 
 // Import custom components
@@ -442,56 +444,49 @@ export default function Dashboard() {
     }
   }, [portfolioData, calculateSevenMetrics])
   
-  // Check if user has portfolio data, redirect to onboarding if not
+  // Check if user has portfolio data, show empty state if not
   useEffect(() => {
     const checkUserData = async () => {
       if (user) {
         try {
           const userId = user.uid
-          
-          // First check if user has any existing data (new or old structure)
-          const checkResponse = await fetch(`/api/check-existing-data?user_id=${userId}`)
-          if (checkResponse.ok) {
-            const checkData = await checkResponse.json()
-            console.log('📊 Existing data check:', checkData.data)
-            
-            // If user has data in any structure, don't redirect to onboarding
-            if (checkData.data.new_structure.exists || 
-                checkData.data.old_structure.exists || 
-                checkData.data.legacy_data.exists) {
-              console.log('✅ User has existing data, staying on dashboard')
-              return
-            }
-          }
+          console.log('🔍 Checking portfolio data for user:', userId)
           
           // Check new structure portfolio data
           const response = await fetch(`/api/portfolio?user_id=${userId}`)
           if (response.ok) {
             const data = await response.json()
+            console.log('📊 Portfolio data response:', data)
+            
             if (!data.data || data.data.length === 0) {
-              // No portfolio data, redirect to onboarding
-              console.log('⚠️ No portfolio data found, redirecting to onboarding')
-              router.push('/onboarding')
+              // No portfolio data - show empty state
+              console.log('⚠️ No portfolio data found, showing empty state')
+              setPortfolioData([])
+              setAllHoldings([])
               return
+            } else {
+              // User has data - process it
+              console.log('✅ User has portfolio data:', data.data.length, 'holdings')
+              setPortfolioData(data.data)
             }
           } else {
-            // API error, redirect to onboarding
-            console.log('❌ API error, redirecting to onboarding')
-            router.push('/onboarding')
-            return
+            // API error - show empty state
+            console.log('❌ API error, showing empty state')
+            setPortfolioData([])
+            setAllHoldings([])
           }
         } catch (error) {
-          // Error fetching data, redirect to onboarding
-          console.log('❌ Error checking data, redirecting to onboarding')
-          router.push('/onboarding')
-          return
+          // Error fetching data - show empty state
+          console.log('❌ Error checking data, showing empty state')
+          setPortfolioData([])
+          setAllHoldings([])
         }
       }
     }
     
     checkUserData()
     fetchUserData()
-  }, [user, router])
+  }, [user])
   const [lastDataFetch, setLastDataFetch] = useState<number>(0)
   
   // Loading and error states
@@ -1931,6 +1926,37 @@ export default function Dashboard() {
                 <div className="mt-2 text-sm text-yellow-700">
                   Dashboard is displaying your portfolio data with cached values. All features are working normally.
                 </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Empty State - Show when user has no portfolio data */}
+        {portfolioData.length === 0 && !loading && (
+          <div className="text-center py-20">
+            <div className="max-w-md mx-auto">
+              <div className="w-24 h-24 bg-[#F5F1EB] rounded-full flex items-center justify-center mx-auto mb-6">
+                <TrendingUp className="w-12 h-12 text-[#C9A66B]" />
+              </div>
+              <h2 className="text-2xl font-bold text-[#1C3D5A] mb-4">No Portfolio Data Found</h2>
+              <p className="text-[#5A6A73] mb-8">
+                It looks like you haven't added any portfolio holdings yet. 
+                Get started by adding your investments to see your portfolio overview.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Link 
+                  href="/holdings/manage" 
+                  className="bg-[#C9A66B] text-white px-6 py-3 rounded-lg font-semibold hover:bg-[#1C3D5A] transition-colors flex items-center justify-center"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Holdings
+                </Link>
+                <Link 
+                  href="/onboarding" 
+                  className="border-2 border-[#C9A66B] text-[#C9A66B] px-6 py-3 rounded-lg font-semibold hover:bg-[#C9A66B] hover:text-white transition-colors"
+                >
+                  Complete Setup
+                </Link>
               </div>
             </div>
           </div>
