@@ -230,6 +230,7 @@ export default function OnboardingPage() {
     
     // Update user document
     await setDoc(doc(db, 'users', user.uid), {
+      onboardingCompleted: true,
       has_portfolio_data: true,
       portfolioValue: totalPortfolioValue,
       updated_at: new Date().toISOString()

@@ -124,7 +124,7 @@ export default function Dashboard() {
   
   // Theme and UI state
   const [theme, setTheme] = useState<'light' | 'dark'>('light')
-  const [activeTab, setActiveTab] = useState('dashboard')
+  const [activeTab, setActiveTab] = useState('summary')
   const [showOnboarding, setShowOnboarding] = useState(false)
   const [showAlerts, setShowAlerts] = useState(false)
   const [unreadAlertCount, setUnreadAlertCount] = useState(3)
@@ -503,14 +503,11 @@ export default function Dashboard() {
   const [userName, setUserName] = useState('')
   const [userId, setUserId] = useState('')
 
-  // Optimized 6-tab structure for better performance
+  // Updated 3-tab structure: Summary, Holdings, Insights
   const navigationTabs = [
-    { id: 'dashboard', label: 'Dashboard', icon: Home, description: 'Net worth, allocation, performance, health snapshot' },
-    { id: 'holdings', label: 'Holdings', icon: TrendingUp, description: 'Detailed assets, filters, movers, virtualized table' },
-    { id: 'projections', label: 'Projections', icon: Target, description: 'Future growth, Monte Carlo, what-if analysis' },
-    { id: 'insights', label: 'Insights', icon: Brain, description: 'S&P 500, benchmarks, advanced analytics, AI commentary' },
-    { id: 'community', label: 'Community', icon: User, description: 'Compare performance with other investors' },
-    { id: 'settings', label: 'Settings', icon: Settings, description: 'Trading bots, connections, preferences' }
+    { id: 'summary', label: 'Summary', icon: Home, description: 'Portfolio overview and key metrics' },
+    { id: 'holdings', label: 'Holdings', icon: TrendingUp, description: 'Detailed assets and portfolio breakdown' },
+    { id: 'insights', label: 'Insights', icon: Brain, description: 'AI insights and analytics' }
   ]
 
   useEffect(() => {
@@ -1962,8 +1959,8 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* Tab Content */}
-        {activeTab === 'dashboard' && (
+        {/* Tab Content - Only show if user has portfolio data */}
+        {activeTab === 'summary' && portfolioData.length > 0 && (
         <div className="space-y-6" style={{ animation: 'fadeIn 0.5s ease-in-out' }}>
           
           {/* Header */}
@@ -2271,7 +2268,7 @@ export default function Dashboard() {
             )}
 
         {/* Holdings Tab - Comprehensive Firebase Data */}
-        {activeTab === 'holdings' && (
+        {activeTab === 'holdings' && portfolioData.length > 0 && (
           <div className="space-y-6">
             <div className="bg-white p-6 rounded-2xl shadow-lg border" style={{ 
               borderColor: yachtClubTheme.colors.cardBeige,
@@ -2399,215 +2396,12 @@ export default function Dashboard() {
         )}
 
         {/* Insights Tab - Yacht Club Premium Analysis */}
-        {activeTab === 'insights' && (
+        {activeTab === 'insights' && portfolioData.length > 0 && (
           <div className="space-y-6">
             <YachtClubInsightsTab />
           </div>
         )}
 
-        {/* Projections Tab */}
-        {activeTab === 'projections' && (
-          <div className="space-y-6">
-            <div className="bg-white p-6 rounded-2xl shadow-lg border" style={{ 
-              borderColor: yachtClubTheme.colors.cardBeige,
-              boxShadow: `0 4px 6px -1px ${yachtClubTheme.colors.cardBeige}40, 0 2px 4px -1px ${yachtClubTheme.colors.cardBeige}20`
-            }}>
-              <h3 className="text-xl font-semibold mb-4 pb-2" style={{ 
-                color: yachtClubTheme.colors.primary,
-                borderBottom: `2px solid ${yachtClubTheme.colors.accent}`
-              }}>Portfolio Projections</h3>
-              <p style={{ color: yachtClubTheme.colors.textSecondary }}>Monte Carlo simulation and forecasting coming soon...</p>
-            </div>
-          </div>
-        )}
-
-        {/* Community Tab - Compare with other investors */}
-        {activeTab === 'community' && (
-          <div className="space-y-6">
-            {/* Community Overview */}
-            <div className="bg-white p-6 rounded-2xl shadow-lg border" style={{ 
-              borderColor: yachtClubTheme.colors.cardBeige,
-              boxShadow: `0 4px 6px -1px ${yachtClubTheme.colors.cardBeige}40, 0 2px 4px -1px ${yachtClubTheme.colors.cardBeige}20`
-            }}>
-              <h3 className="text-xl font-semibold mb-4 pb-2" style={{ 
-                color: yachtClubTheme.colors.primary,
-                borderBottom: `2px solid ${yachtClubTheme.colors.accent}`
-              }}>Community Performance</h3>
-              
-              {/* Your Rank Card */}
-              <div className="mb-6 p-4 rounded-lg" style={{ backgroundColor: `${yachtClubTheme.colors.accent}10` }}>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h4 className="text-lg font-semibold" style={{ color: yachtClubTheme.colors.primary }}>Your Rank</h4>
-                    <p className="text-sm" style={{ color: yachtClubTheme.colors.textSecondary }}>Among all community members</p>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-3xl font-bold" style={{ color: yachtClubTheme.colors.accent }}>#4</div>
-                    <div className="text-sm" style={{ color: yachtClubTheme.colors.textSecondary }}>of {communityData.length} members</div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Performance Comparison Chart */}
-              <div className="mb-6">
-                <h4 className="text-lg font-semibold mb-3" style={{ color: yachtClubTheme.colors.primary }}>Performance Comparison</h4>
-                <div className="h-64">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={communityData.slice(0, 8)}>
-                      <CartesianGrid strokeDasharray="3 3" stroke={`${yachtClubTheme.colors.textSecondary}30`} />
-                      <XAxis 
-                        dataKey="anonymousName" 
-                        tick={{ fontSize: 12, fill: yachtClubTheme.colors.textSecondary }}
-                        angle={-45}
-                        textAnchor="end"
-                        height={80}
-                      />
-                      <YAxis 
-                        tick={{ fontSize: 12, fill: yachtClubTheme.colors.textSecondary }}
-                        label={{ value: 'YTD Return (%)', angle: -90, position: 'insideLeft' }}
-                      />
-                      <Tooltip 
-                        contentStyle={{
-                          backgroundColor: 'white',
-                          border: `1px solid ${yachtClubTheme.colors.cardBeige}`,
-                          borderRadius: '8px',
-                          color: yachtClubTheme.colors.primary
-                        }}
-                        formatter={(value, name) => [`${value}%`, 'YTD Return']}
-                      />
-                      <Bar 
-                        dataKey="yearToDateReturn" 
-                        fill={yachtClubTheme.colors.primary}
-                        radius={[4, 4, 0, 0]}
-                      />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
-
-              {/* Leaderboard */}
-              <div>
-                <h4 className="text-lg font-semibold mb-3" style={{ color: yachtClubTheme.colors.primary }}>Community Leaderboard</h4>
-                <div className="space-y-3">
-                  {communityData.map((user, index) => (
-                    <div 
-                      key={user.id}
-                      className={`flex items-center justify-between p-4 rounded-lg border transition-all duration-200 ${
-                        user.isCurrentUser ? 'ring-2 ring-opacity-50' : ''
-                      }`}
-                      style={{ 
-                        backgroundColor: user.isCurrentUser ? `${yachtClubTheme.colors.accent}15` : 'white',
-                        borderColor: user.isCurrentUser ? yachtClubTheme.colors.accent : yachtClubTheme.colors.cardBeige,
-                        ...(user.isCurrentUser && { '--tw-ring-color': yachtClubTheme.colors.accent } as any)
-                      }}
-                    >
-                      <div className="flex items-center space-x-4">
-                        <div className="flex items-center justify-center w-8 h-8 rounded-full font-bold text-white" style={{ 
-                          backgroundColor: index < 3 ? yachtClubTheme.colors.accent : yachtClubTheme.colors.textSecondary 
-                        }}>
-                          {user.rank}
-                        </div>
-                        <div className="text-2xl">{user.avatar}</div>
-                        <div>
-                          <div className="font-semibold" style={{ color: yachtClubTheme.colors.primary }}>
-                            {user.isCurrentUser ? 'You' : user.anonymousName}
-                          </div>
-                          <div className="text-sm" style={{ color: yachtClubTheme.colors.textSecondary }}>
-                            {user.badges.length > 0 && (
-                              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium mr-2" style={{
-                                backgroundColor: `${yachtClubTheme.colors.primary}15`,
-                                color: yachtClubTheme.colors.primary
-                              }}>
-                                {user.badges[0]}
-                              </span>
-                            )}
-                            Member since {new Date(user.joinDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="font-semibold" style={{ color: yachtClubTheme.colors.primary }}>
-                          {formatCurrency(user.portfolioValue)}
-                        </div>
-                        <div 
-                          className="text-sm font-medium"
-                          style={{ 
-                            color: user.gainLossPercent >= 0 ? yachtClubTheme.colors.success : yachtClubTheme.colors.danger 
-                          }}
-                        >
-                          {formatPercent(user.gainLossPercent)} YTD
-                        </div>
-                        <div className="text-xs mt-1" style={{ color: yachtClubTheme.colors.textSecondary }}>
-                          Score: {formatCount(user.performanceScore)}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Community Stats */}
-              <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="p-4 rounded-lg" style={{ backgroundColor: `${yachtClubTheme.colors.primary}10` }}>
-                  <div className="text-2xl font-bold" style={{ color: yachtClubTheme.colors.primary }}>
-                    {formatCurrency(communityData.reduce((sum, user) => sum + user.portfolioValue, 0), true)}
-                  </div>
-                  <div className="text-sm" style={{ color: yachtClubTheme.colors.textSecondary }}>Total Community AUM</div>
-                </div>
-                <div className="p-4 rounded-lg" style={{ backgroundColor: `${yachtClubTheme.colors.accent}10` }}>
-                  <div className="text-2xl font-bold" style={{ color: yachtClubTheme.colors.accent }}>
-                    {formatPercent(communityData.reduce((sum, user) => sum + user.yearToDateReturn, 0) / communityData.length, false)}
-                  </div>
-                  <div className="text-sm" style={{ color: yachtClubTheme.colors.textSecondary }}>Average YTD Return</div>
-                </div>
-                <div className="p-4 rounded-lg" style={{ backgroundColor: `${yachtClubTheme.colors.textSecondary}10` }}>
-                  <div className="text-2xl font-bold" style={{ color: yachtClubTheme.colors.textSecondary }}>
-                    {formatCount(communityData.length)}
-                  </div>
-                  <div className="text-sm" style={{ color: yachtClubTheme.colors.textSecondary }}>Active Members</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Settings Tab */}
-        {activeTab === 'settings' && (
-          <div className="space-y-6">
-            <div className="bg-white p-6 rounded-2xl shadow-lg border" style={{ 
-              borderColor: yachtClubTheme.colors.cardBeige,
-              boxShadow: `0 4px 6px -1px ${yachtClubTheme.colors.cardBeige}40, 0 2px 4px -1px ${yachtClubTheme.colors.cardBeige}20`
-            }}>
-              <h3 className="text-xl font-semibold mb-4 pb-2" style={{ 
-                color: yachtClubTheme.colors.primary,
-                borderBottom: `2px solid ${yachtClubTheme.colors.accent}`
-              }}>Trading Bots</h3>
-              <BotManagement />
-            </div>
-            
-            <div className="bg-white p-6 rounded-2xl shadow-lg border" style={{ 
-              borderColor: yachtClubTheme.colors.cardBeige,
-              boxShadow: `0 4px 6px -1px ${yachtClubTheme.colors.cardBeige}40, 0 2px 4px -1px ${yachtClubTheme.colors.cardBeige}20`
-            }}>
-              <h3 className="text-xl font-semibold mb-4 pb-2" style={{ 
-                color: yachtClubTheme.colors.primary,
-                borderBottom: `2px solid ${yachtClubTheme.colors.accent}`
-              }}>Connections</h3>
-              <p style={{ color: yachtClubTheme.colors.textSecondary }}>Broker connections and API settings coming soon...</p>
-            </div>
-            
-            <div className="bg-white p-6 rounded-2xl shadow-lg border" style={{ 
-              borderColor: yachtClubTheme.colors.cardBeige,
-              boxShadow: `0 4px 6px -1px ${yachtClubTheme.colors.cardBeige}40, 0 2px 4px -1px ${yachtClubTheme.colors.cardBeige}20`
-            }}>
-              <h3 className="text-xl font-semibold mb-4 pb-2" style={{ 
-                color: yachtClubTheme.colors.primary,
-                borderBottom: `2px solid ${yachtClubTheme.colors.accent}`
-              }}>Preferences</h3>
-              <p style={{ color: yachtClubTheme.colors.textSecondary }}>User preferences and settings coming soon...</p>
-            </div>
-          </div>
-        )}
 
       {/* Modals */}
       {showOnboarding && (

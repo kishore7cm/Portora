@@ -24,10 +24,32 @@ export default function LandingPage() {
   const router = useRouter()
 
   useEffect(() => {
-    if (!loading && user) {
-      // Redirect authenticated users to dashboard
-      router.push('/dashboard')
+    const checkUserAndRedirect = async () => {
+      if (!loading && user) {
+        try {
+          // Check if user has completed onboarding
+          const userResponse = await fetch(`/api/user-data?user_id=${user.uid}`)
+          if (userResponse.ok) {
+            const userData = await userResponse.json()
+            if (userData.success && userData.user_data?.onboardingCompleted) {
+              // User has completed onboarding, go to dashboard
+              router.push('/dashboard')
+            } else {
+              // User hasn't completed onboarding, redirect to onboarding
+              router.push('/onboarding')
+            }
+          } else {
+            // API error, redirect to onboarding
+            router.push('/onboarding')
+          }
+        } catch (error) {
+          // Error checking user data, redirect to onboarding
+          router.push('/onboarding')
+        }
+      }
     }
+
+    checkUserAndRedirect()
   }, [user, loading, router])
 
   if (loading) {
