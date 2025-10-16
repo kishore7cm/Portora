@@ -14,6 +14,7 @@ export async function GET(request: NextRequest) {
     }
     
     console.log('🔥 Portfolio API called for user:', userId);
+    console.log('🔥 Firebase admin available:', !!db);
     
     // Try to get real data from Firebase first
     if (db) {
