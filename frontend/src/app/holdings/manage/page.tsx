@@ -189,9 +189,9 @@ export default function ManageHoldingsPage() {
     
     setSuccess(`Successfully added ${holdings.length} holdings to your portfolio!`)
     
-    // Redirect to holdings page after a short delay
+    // Redirect to dashboard after a short delay
     setTimeout(() => {
-      router.push('/holdings')
+      router.push('/dashboard')
     }, 2000)
   }
 
