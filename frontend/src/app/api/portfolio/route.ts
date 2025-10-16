@@ -1,6 +1,7 @@
 import { db } from '../../../lib/firebaseAdmin';
+import { NextRequest } from 'next/server';
 
-export async function GET(request) {
+export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get('user_id');
@@ -27,7 +28,7 @@ export async function GET(request) {
     
     const portfolioData = portfolioDoc.data();
     
-    if (!portfolioData.holdings || !Array.isArray(portfolioData.holdings)) {
+    if (!portfolioData?.holdings || !Array.isArray(portfolioData.holdings)) {
       return Response.json({ 
         data: [],
         message: 'No holdings found in portfolio',
@@ -36,7 +37,7 @@ export async function GET(request) {
     }
     
     // Transform holdings array to match frontend interface
-    const transformedHoldings = portfolioData.holdings.map((holding, index) => {
+    const transformedHoldings = portfolioData.holdings.map((holding: any, index: number) => {
       const shares = holding.shares || holding.quantity || holding.Qty || holding.qty || 0;
       const totalValue = holding.total_value || holding.Total_Value || holding.position_value || 0;
       const currentPrice = shares > 0 ? totalValue / shares : (holding.purchase_price || holding.current_price || holding.Current_Price || holding.price || 0);
@@ -74,7 +75,7 @@ export async function GET(request) {
       timestamp: new Date().toISOString()
     });
     
-  } catch (error) {
+  } catch (error: any) {
     console.error('❌ Firebase portfolio error:', error);
     return Response.json({ 
       error: 'Failed to fetch portfolio data',

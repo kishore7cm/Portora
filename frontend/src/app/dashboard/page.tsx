@@ -291,11 +291,27 @@ export default function SimpleDashboard() {
                     console.log('🔄 Manual refresh triggered for user:', user.uid);
                     try {
                       const response = await fetch(`/api/portfolio?user_id=${user.uid}`);
+                      console.log('🔄 API response status:', response.status);
+                      
+                      if (!response.ok) {
+                        throw new Error(`API returned ${response.status}: ${response.statusText}`);
+                      }
+                      
                       const data = await response.json();
                       console.log('🔄 Manual API response:', data);
                       setPortfolioData(data.data || []);
-                    } catch (error) {
+                      
+                      if (data.data && data.data.length > 0) {
+                        setAddHoldingSuccess(`Successfully loaded ${data.data.length} holdings!`);
+                        setTimeout(() => setAddHoldingSuccess(''), 3000);
+                      } else {
+                        setAddHoldingError('No portfolio data found in Firebase');
+                        setTimeout(() => setAddHoldingError(''), 5000);
+                      }
+                    } catch (error: any) {
                       console.error('🔄 Manual refresh error:', error);
+                      setAddHoldingError(`API Error: ${error.message}`);
+                      setTimeout(() => setAddHoldingError(''), 5000);
                     }
                   }
                 }}
