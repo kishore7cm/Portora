@@ -288,29 +288,41 @@ export default function SimpleDashboard() {
               <button
                 onClick={async () => {
                   if (user) {
-                    console.log('🔄 Manual refresh triggered for user:', user.uid);
+                    console.log('🔄 Testing APIs for user:', user.uid);
+                    
+                    // Test basic API first
+                    try {
+                      const testResponse = await fetch(`/api/test?user_id=${user.uid}`);
+                      console.log('🔄 Test API status:', testResponse.status);
+                      const testData = await testResponse.json();
+                      console.log('🔄 Test API response:', testData);
+                    } catch (error) {
+                      console.error('🔄 Test API error:', error);
+                    }
+                    
+                    // Test portfolio API
                     try {
                       const response = await fetch(`/api/portfolio?user_id=${user.uid}`);
-                      console.log('🔄 API response status:', response.status);
+                      console.log('🔄 Portfolio API status:', response.status);
                       
                       if (!response.ok) {
-                        throw new Error(`API returned ${response.status}: ${response.statusText}`);
+                        throw new Error(`Portfolio API returned ${response.status}: ${response.statusText}`);
                       }
                       
                       const data = await response.json();
-                      console.log('🔄 Manual API response:', data);
+                      console.log('🔄 Portfolio API response:', data);
                       setPortfolioData(data.data || []);
                       
                       if (data.data && data.data.length > 0) {
                         setAddHoldingSuccess(`Successfully loaded ${data.data.length} holdings!`);
                         setTimeout(() => setAddHoldingSuccess(''), 3000);
                       } else {
-                        setAddHoldingError('No portfolio data found in Firebase');
+                        setAddHoldingError('No portfolio data found');
                         setTimeout(() => setAddHoldingError(''), 5000);
                       }
                     } catch (error: any) {
-                      console.error('🔄 Manual refresh error:', error);
-                      setAddHoldingError(`API Error: ${error.message}`);
+                      console.error('🔄 Portfolio API error:', error);
+                      setAddHoldingError(`Portfolio API Error: ${error.message}`);
                       setTimeout(() => setAddHoldingError(''), 5000);
                     }
                   }
@@ -318,7 +330,7 @@ export default function SimpleDashboard() {
                 className="flex items-center gap-2 bg-[#5A6A73] text-white px-4 py-2 rounded-lg font-semibold hover:bg-[#1C3D5A] transition-colors"
               >
                 <Activity className="w-4 h-4" />
-                Test API
+                Test APIs
               </button>
               <button
                 onClick={logout}

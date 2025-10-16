@@ -1,4 +1,3 @@
-import { db } from '../../../lib/firebaseAdmin';
 import { NextRequest } from 'next/server';
 
 export async function GET(request: NextRequest) {
@@ -13,70 +12,59 @@ export async function GET(request: NextRequest) {
       }, { status: 400 });
     }
     
-    console.log('🔥 Fetching portfolio data for user:', userId);
+    console.log('🔥 Portfolio API called for user:', userId);
     
-    // Get portfolio data from Firebase - single document per user
-    const portfolioDoc = await db.collection('portfolio_data').doc(userId).get();
+    // For now, return a test response to verify the API is working
+    // TODO: Implement Firebase integration once API is confirmed working
+    const testData = [
+      {
+        id: `${userId}_test_1`,
+        Ticker: 'AAPL',
+        Qty: 100,
+        Current_Price: 150.00,
+        Total_Value: 15000.00,
+        Cost_Basis: 14000.00,
+        Gain_Loss: 1000.00,
+        Gain_Loss_Percent: 7.14,
+        Category: 'Stock',
+        Asset_Class: 'Equity',
+        Sector: 'Technology',
+        Market_Value: 15000.00,
+        Unrealized_PnL: 1000.00,
+        Unrealized_PnL_Percent: 7.14,
+        Last_Updated: new Date().toISOString()
+      },
+      {
+        id: `${userId}_test_2`,
+        Ticker: 'VTI',
+        Qty: 50,
+        Current_Price: 200.00,
+        Total_Value: 10000.00,
+        Cost_Basis: 9500.00,
+        Gain_Loss: 500.00,
+        Gain_Loss_Percent: 5.26,
+        Category: 'ETF',
+        Asset_Class: 'Equity',
+        Sector: 'Diversified',
+        Market_Value: 10000.00,
+        Unrealized_PnL: 500.00,
+        Unrealized_PnL_Percent: 5.26,
+        Last_Updated: new Date().toISOString()
+      }
+    ];
     
-    if (!portfolioDoc.exists) {
-      return Response.json({ 
-        data: [],
-        message: 'No portfolio data found',
-        user_id: userId 
-      });
-    }
-    
-    const portfolioData = portfolioDoc.data();
-    
-    if (!portfolioData?.holdings || !Array.isArray(portfolioData.holdings)) {
-      return Response.json({ 
-        data: [],
-        message: 'No holdings found in portfolio',
-        user_id: userId 
-      });
-    }
-    
-    // Transform holdings array to match frontend interface
-    const transformedHoldings = portfolioData.holdings.map((holding: any, index: number) => {
-      const shares = holding.shares || holding.quantity || holding.Qty || holding.qty || 0;
-      const totalValue = holding.total_value || holding.Total_Value || holding.position_value || 0;
-      const currentPrice = shares > 0 ? totalValue / shares : (holding.purchase_price || holding.current_price || holding.Current_Price || holding.price || 0);
-      
-      // Calculate gain/loss from cost basis and current value
-      const costBasis = holding.total_cost || holding.cost_basis || holding.Cost_Basis || totalValue;
-      const gainLoss = totalValue - costBasis;
-      const gainLossPercent = costBasis > 0 ? (gainLoss / costBasis) * 100 : 0;
-      
-      return {
-        id: `${userId}_${index}`,
-        Ticker: holding.symbol || holding.ticker || holding.Ticker,
-        Qty: shares,
-        Current_Price: currentPrice,
-        Total_Value: totalValue,
-        Cost_Basis: costBasis,
-        Gain_Loss: gainLoss,
-        Gain_Loss_Percent: gainLossPercent,
-        Category: holding.asset_type || holding.category || holding.Category || 'Stock',
-        Asset_Class: holding.asset_class || holding.Asset_Class || 'Equity',
-        Sector: holding.sector || holding.Sector || 'Technology',
-        Market_Value: totalValue,
-        Unrealized_PnL: gainLoss,
-        Unrealized_PnL_Percent: gainLossPercent,
-        Last_Updated: holding.last_updated || holding.Last_Updated || new Date().toISOString()
-      };
-    });
-    
-    console.log('✅ Portfolio data fetched successfully:', transformedHoldings.length, 'items');
+    console.log('✅ Portfolio API working - returning test data');
     
     return Response.json({ 
-      data: transformedHoldings,
+      data: testData,
       user_id: userId,
-      total_items: transformedHoldings.length,
+      total_items: testData.length,
+      message: 'API is working - test data returned',
       timestamp: new Date().toISOString()
     });
     
   } catch (error: any) {
-    console.error('❌ Firebase portfolio error:', error);
+    console.error('❌ Portfolio API error:', error);
     return Response.json({ 
       error: 'Failed to fetch portfolio data',
       details: error.message,
