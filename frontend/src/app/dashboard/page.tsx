@@ -286,11 +286,23 @@ export default function SimpleDashboard() {
                 <span className="font-medium">{user?.displayName || user?.email || 'User'}</span>
               </div>
               <button
-                onClick={() => window.location.reload()}
+                onClick={async () => {
+                  if (user) {
+                    console.log('🔄 Manual refresh triggered for user:', user.uid);
+                    try {
+                      const response = await fetch(`/api/portfolio?user_id=${user.uid}`);
+                      const data = await response.json();
+                      console.log('🔄 Manual API response:', data);
+                      setPortfolioData(data.data || []);
+                    } catch (error) {
+                      console.error('🔄 Manual refresh error:', error);
+                    }
+                  }
+                }}
                 className="flex items-center gap-2 bg-[#5A6A73] text-white px-4 py-2 rounded-lg font-semibold hover:bg-[#1C3D5A] transition-colors"
               >
                 <Activity className="w-4 h-4" />
-                Refresh
+                Test API
               </button>
               <button
                 onClick={logout}
@@ -332,8 +344,13 @@ export default function SimpleDashboard() {
                     <p>Loading: {loading ? 'Yes' : 'No'}</p>
                     <p>Portfolio Data Count: {portfolioData.length}</p>
                     <p>Show Add Holdings: {showAddHoldings ? 'Yes' : 'No'}</p>
+                    <p>Active Tab: {activeTab}</p>
+                    <p>Summary Tab Condition: {activeTab === 'summary' && portfolioData.length > 0 ? 'TRUE' : 'FALSE'}</p>
                     {portfolioData.length > 0 && (
-                      <p>First Holding: {JSON.stringify(portfolioData[0], null, 2)}</p>
+                      <div>
+                        <p>First Holding: {JSON.stringify(portfolioData[0], null, 2)}</p>
+                        <p>All Holdings: {JSON.stringify(portfolioData, null, 2)}</p>
+                      </div>
                     )}
                   </div>
                 </div>
@@ -523,20 +540,25 @@ export default function SimpleDashboard() {
               )}
 
               {/* Summary Tab */}
-              {activeTab === 'summary' && portfolioData.length > 0 && (
+              {activeTab === 'summary' && (
                 <div className="space-y-6">
                   {/* Add Holdings Button */}
-                  <div className="flex justify-end">
-                    <button
-                      onClick={() => setShowAddHoldings(true)}
-                      className="bg-[#C9A66B] text-white px-4 py-2 rounded-lg font-semibold hover:bg-[#1C3D5A] transition-colors flex items-center"
-                    >
-                      <Plus className="w-4 h-4 mr-2" />
-                      Add More Holdings
-                    </button>
-                  </div>
+                  {portfolioData.length > 0 && (
+                    <div className="flex justify-end">
+                      <button
+                        onClick={() => setShowAddHoldings(true)}
+                        className="bg-[#C9A66B] text-white px-4 py-2 rounded-lg font-semibold hover:bg-[#1C3D5A] transition-colors flex items-center"
+                      >
+                        <Plus className="w-4 h-4 mr-2" />
+                        Add More Holdings
+                      </button>
+                    </div>
+                  )}
 
-                  {/* 7 Key Metrics */}
+                  {/* Show data if available, otherwise show empty state */}
+                  {portfolioData.length > 0 ? (
+                    <>
+                      {/* 7 Key Metrics */}
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div className="bg-[#FDFBF7] p-6 rounded-2xl shadow-lg border">
                       <div className="flex items-center mb-4">
@@ -619,6 +641,36 @@ export default function SimpleDashboard() {
                       </table>
                     </div>
                   </div>
+                    </>
+                  ) : (
+                    <div className="text-center py-20">
+                      <div className="max-w-md mx-auto">
+                        <div className="w-24 h-24 bg-[#F5F1EB] rounded-full flex items-center justify-center mx-auto mb-6">
+                          <TrendingUp className="w-12 h-12 text-[#C9A66B]" />
+                        </div>
+                        <h2 className="text-2xl font-bold text-[#1C3D5A] mb-4">No Portfolio Data Found</h2>
+                        <p className="text-[#5A6A73] mb-8">
+                          It looks like you haven't added any portfolio holdings yet. 
+                          Get started by adding your investments to see your portfolio overview.
+                        </p>
+                        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                          <button 
+                            onClick={() => setShowAddHoldings(true)}
+                            className="bg-[#C9A66B] text-white px-6 py-3 rounded-lg font-semibold hover:bg-[#1C3D5A] transition-colors flex items-center justify-center"
+                          >
+                            <Plus className="w-4 h-4 mr-2" />
+                            Add Holdings
+                          </button>
+                          <Link 
+                            href="/onboarding" 
+                            className="border-2 border-[#C9A66B] text-[#C9A66B] px-6 py-3 rounded-lg font-semibold hover:bg-[#C9A66B] hover:text-white transition-colors"
+                          >
+                            Complete Setup
+                          </Link>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 
