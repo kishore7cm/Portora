@@ -12,7 +12,9 @@ import {
   Plus,
   X,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
+  User,
+  LogOut
 } from 'lucide-react'
 import Link from 'next/link'
 import { yachtClubTheme } from '@/styles/yachtClubTheme'
@@ -23,7 +25,7 @@ import { doc, setDoc } from 'firebase/firestore'
 import { db } from '@/lib/firebaseClient'
 
 export default function SimpleDashboard() {
-  const { user } = useAuth()
+  const { user, logout } = useAuth()
   const router = useRouter()
   
   // State for portfolio data
@@ -59,6 +61,7 @@ export default function SimpleDashboard() {
   useEffect(() => {
     const fetchPortfolioData = async () => {
       if (!user) {
+        console.log('🔍 No user found, setting loading to false')
         setLoading(false)
         return
       }
@@ -67,21 +70,27 @@ export default function SimpleDashboard() {
         setLoading(true)
         const userId = user.uid
         console.log('🔍 Fetching portfolio data for user:', userId)
+        console.log('🔍 User object:', user)
         
         const response = await fetch(`/api/portfolio?user_id=${userId}`)
+        console.log('🔍 API response status:', response.status)
+        
         if (response.ok) {
           const data = await response.json()
           console.log('📊 Portfolio data response:', data)
           
           if (data.data && data.data.length > 0) {
             console.log('✅ User has portfolio data:', data.data.length, 'holdings')
+            console.log('📊 Holdings data:', data.data)
             setPortfolioData(data.data)
           } else {
-            console.log('⚠️ No portfolio data found')
+            console.log('⚠️ No portfolio data found in response')
             setPortfolioData([])
           }
         } else {
-          console.log('❌ API error')
+          console.log('❌ API error, status:', response.status)
+          const errorText = await response.text()
+          console.log('❌ API error response:', errorText)
           setPortfolioData([])
         }
       } catch (error) {
@@ -264,9 +273,33 @@ export default function SimpleDashboard() {
       <div className="min-h-screen bg-gradient-to-br from-[#FDFBF7] to-[#EDE9E3]">
         <div className="container mx-auto px-4 py-8">
           {/* Header */}
-          <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold text-[#1C3D5A] mb-2">Portfolio Overview</h1>
-            <p className="text-[#5A6A73]">Yacht Club Premium – Sophisticated Wealth Management</p>
+          <div className="flex justify-between items-center mb-8">
+            <div className="text-center flex-1">
+              <h1 className="text-4xl font-bold text-[#1C3D5A] mb-2">Portfolio Overview</h1>
+              <p className="text-[#5A6A73]">Yacht Club Premium – Sophisticated Wealth Management</p>
+            </div>
+            
+            {/* Profile and Logout Buttons */}
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 text-[#1C3D5A]">
+                <User className="w-5 h-5" />
+                <span className="font-medium">{user?.displayName || user?.email || 'User'}</span>
+              </div>
+              <button
+                onClick={() => window.location.reload()}
+                className="flex items-center gap-2 bg-[#5A6A73] text-white px-4 py-2 rounded-lg font-semibold hover:bg-[#1C3D5A] transition-colors"
+              >
+                <Activity className="w-4 h-4" />
+                Refresh
+              </button>
+              <button
+                onClick={logout}
+                className="flex items-center gap-2 bg-[#C9A66B] text-white px-4 py-2 rounded-lg font-semibold hover:bg-[#1C3D5A] transition-colors"
+              >
+                <LogOut className="w-4 h-4" />
+                Logout
+              </button>
+            </div>
           </div>
 
           <div className="flex gap-6">
@@ -290,6 +323,22 @@ export default function SimpleDashboard() {
 
             {/* Main Content */}
             <div className="flex-1 min-w-0">
+              {/* Debug Information */}
+              {process.env.NODE_ENV === 'development' && (
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+                  <h4 className="font-medium text-yellow-800 mb-2">Debug Information:</h4>
+                  <div className="text-sm text-yellow-700 space-y-1">
+                    <p>User: {user ? `${user.email} (${user.uid})` : 'Not logged in'}</p>
+                    <p>Loading: {loading ? 'Yes' : 'No'}</p>
+                    <p>Portfolio Data Count: {portfolioData.length}</p>
+                    <p>Show Add Holdings: {showAddHoldings ? 'Yes' : 'No'}</p>
+                    {portfolioData.length > 0 && (
+                      <p>First Holding: {JSON.stringify(portfolioData[0], null, 2)}</p>
+                    )}
+                  </div>
+                </div>
+              )}
+
               {/* Empty State */}
               {portfolioData.length === 0 && !showAddHoldings && (
                 <div className="text-center py-20">
