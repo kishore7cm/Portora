@@ -356,36 +356,6 @@ export default function SimpleDashboard() {
                 </div>
               )}
 
-              {/* Empty State */}
-              {portfolioData.length === 0 && !showAddHoldings && (
-                <div className="text-center py-20">
-                  <div className="max-w-md mx-auto">
-                    <div className="w-24 h-24 bg-[#F5F1EB] rounded-full flex items-center justify-center mx-auto mb-6">
-                      <TrendingUp className="w-12 h-12 text-[#C9A66B]" />
-                    </div>
-                    <h2 className="text-2xl font-bold text-[#1C3D5A] mb-4">No Portfolio Data Found</h2>
-                    <p className="text-[#5A6A73] mb-8">
-                      It looks like you haven't added any portfolio holdings yet. 
-                      Get started by adding your investments to see your portfolio overview.
-                    </p>
-                    <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                      <button 
-                        onClick={() => setShowAddHoldings(true)}
-                        className="bg-[#C9A66B] text-white px-6 py-3 rounded-lg font-semibold hover:bg-[#1C3D5A] transition-colors flex items-center justify-center"
-                      >
-                        <Plus className="w-4 h-4 mr-2" />
-                        Add Holdings
-                      </button>
-                      <Link 
-                        href="/onboarding" 
-                        className="border-2 border-[#C9A66B] text-[#C9A66B] px-6 py-3 rounded-lg font-semibold hover:bg-[#C9A66B] hover:text-white transition-colors"
-                      >
-                        Complete Setup
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-              )}
 
               {/* Add Holdings Form */}
               {showAddHoldings && (
