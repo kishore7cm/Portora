@@ -74,8 +74,9 @@ export default function SimpleDashboard() {
         
         // Try API first, but fallback to test data if API fails
         try {
+          console.log('🔄 Testing portfolio API endpoint...')
           const response = await fetch(`/api/portfolio?user_id=${userId}`)
-          console.log('🔍 API response status:', response.status)
+          console.log('🔍 Portfolio API response status:', response.status)
           
           if (response.ok) {
             const data = await response.json()
@@ -394,10 +395,25 @@ export default function SimpleDashboard() {
                       console.error('🔄 Test API error:', error);
                     }
                     
-                    // Test portfolio API
+                    // Test simple portfolio API
+                    try {
+                      const simpleResponse = await fetch(`/api/portfolio-simple?user_id=${user.uid}`);
+                      console.log('🔄 Simple Portfolio API status:', simpleResponse.status);
+                      
+                      if (simpleResponse.ok) {
+                        const simpleData = await simpleResponse.json();
+                        console.log('🔄 Simple Portfolio API response:', simpleData);
+                      } else {
+                        console.log('🔄 Simple Portfolio API error:', await simpleResponse.text());
+                      }
+                    } catch (error) {
+                      console.error('🔄 Simple Portfolio API error:', error);
+                    }
+                    
+                    // Test main portfolio API
                     try {
                       const response = await fetch(`/api/portfolio?user_id=${user.uid}`);
-                      console.log('🔄 Portfolio API status:', response.status);
+                      console.log('🔄 Main Portfolio API status:', response.status);
                       
                       if (!response.ok) {
                         throw new Error(`Portfolio API returned ${response.status}: ${response.statusText}`);
