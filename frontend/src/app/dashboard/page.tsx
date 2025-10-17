@@ -97,18 +97,18 @@ export default function SimpleDashboard() {
             const { db } = await import('@/lib/firebaseClient')
             const { doc, getDoc } = await import('firebase/firestore')
             
-            // Try to get user document first
-            const userDocRef = doc(db, 'users', userId)
-            const userDoc = await getDoc(userDocRef)
+            // Try to get portfolio data from portfolio_data collection
+            const portfolioDocRef = doc(db, 'portfolio_data', userId)
+            const portfolioDoc = await getDoc(portfolioDocRef)
             
-            if (userDoc.exists()) {
-              const userData = userDoc.data()
-              console.log('📊 User data found:', userData)
+            if (portfolioDoc.exists()) {
+              const portfolioData = portfolioDoc.data()
+              console.log('📊 Portfolio data found:', portfolioData)
               
-              // Check if portfolio data is in the user document
-              if (userData.portfolio_data && userData.portfolio_data.holdings) {
-                console.log('✅ Found portfolio data in user document')
-                const holdings = userData.portfolio_data.holdings
+              // Check if portfolio data has holdings
+              if (portfolioData.holdings && Array.isArray(portfolioData.holdings)) {
+                console.log('✅ Found holdings in portfolio_data collection')
+                const holdings = portfolioData.holdings
                 
                 // Transform the data to match dashboard format
                 const transformedHoldings = holdings.map((holding: any) => ({
@@ -129,7 +129,7 @@ export default function SimpleDashboard() {
               }
             }
             
-            console.log('⚠️ No portfolio data found in user document')
+            console.log('⚠️ No portfolio data found in portfolio_data collection')
           } catch (firebaseError) {
             console.log('❌ Direct Firebase connection failed:', firebaseError)
           }
