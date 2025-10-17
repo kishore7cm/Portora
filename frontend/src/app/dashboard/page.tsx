@@ -87,6 +87,9 @@ export default function SimpleDashboard() {
               setPortfolioData(data.data)
               return
             }
+          } else {
+            console.log('⚠️ API returned error status:', response.status)
+            throw new Error(`API returned ${response.status}: ${response.statusText}`)
           }
         } catch (apiError) {
           console.log('⚠️ API failed, trying direct Firebase connection:', apiError)
