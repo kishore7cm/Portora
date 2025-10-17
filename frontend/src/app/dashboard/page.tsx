@@ -94,12 +94,20 @@ export default function SimpleDashboard() {
           // Try direct Firebase connection as fallback
           try {
             console.log('🔄 Attempting direct Firebase connection...')
+            console.log('🔄 Importing Firebase modules...')
             const { db } = await import('@/lib/firebaseClient')
             const { doc, getDoc } = await import('firebase/firestore')
+            console.log('🔄 Firebase modules imported successfully')
+            console.log('🔄 Database instance:', !!db)
             
             // Try to get portfolio data from portfolio_data collection
+            console.log('🔄 Creating document reference for:', userId)
             const portfolioDocRef = doc(db, 'portfolio_data', userId)
+            console.log('🔄 Document reference created:', !!portfolioDocRef)
+            
+            console.log('🔄 Fetching document from Firebase...')
             const portfolioDoc = await getDoc(portfolioDocRef)
+            console.log('🔄 Document fetch completed, exists:', portfolioDoc.exists())
             
             if (portfolioDoc.exists()) {
               const portfolioData = portfolioDoc.data()
