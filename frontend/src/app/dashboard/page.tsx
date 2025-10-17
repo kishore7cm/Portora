@@ -64,7 +64,8 @@ export default function SimpleDashboard() {
   useEffect(() => {
     const fetchPortfolioData = async () => {
       if (!user) {
-        console.log('🔍 No user found, setting loading to false')
+        console.log('🔍 No user found, showing empty state')
+        setPortfolioData([])
         setLoading(false)
         return
       }
@@ -331,7 +332,7 @@ export default function SimpleDashboard() {
 
   // Update insights when portfolio data or investor level changes
   useEffect(() => {
-    if (portfolioData.length === 0) {
+    if (!user || portfolioData.length === 0) {
       setInsights([])
       return
     }
