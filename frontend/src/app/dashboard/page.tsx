@@ -364,7 +364,7 @@ export default function SimpleDashboard() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-gradient-to-br from-[#FDFBF7] to-[#EDE9E3]">
+      <div className="min-h-screen bg-white">
         <div className="container mx-auto px-4 py-8">
           {/* Header */}
           <div className="flex justify-between items-center mb-8">
@@ -605,61 +605,42 @@ export default function SimpleDashboard() {
                     <>
                       {/* 7 Key Metrics */}
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
-                      <div className="mb-6">
-                        <h3 className="text-sm font-medium text-[#5A6A73] mb-2">Total Portfolio Value</h3>
-                        <h2 className="text-6xl font-bold text-[#1C3D5A] tracking-tight">{formatCurrency(metrics.totalValue)}</h2>
-                        <div className="flex items-center mt-2">
-                          <span className="text-sm text-[#5A6A73]">Total value of all holdings</span>
-                        </div>
-                      </div>
+                    <div className="bg-white p-6 rounded-lg border border-gray-200">
+                      <h3 className="text-sm font-medium text-gray-600 mb-2">Total Portfolio Value</h3>
+                      <h2 className="text-4xl font-bold text-black tracking-tight">{formatCurrency(metrics.totalValue)}</h2>
+                      <p className="text-sm text-gray-500 mt-1">Total value of all holdings</p>
                     </div>
 
-                    <div className="bg-[#FDFBF7] p-6 rounded-2xl shadow-lg border">
-                      <div className="flex items-center mb-4">
-                        <div className="p-2 bg-[#EDE9E3] rounded-lg mr-3">
-                          <DollarSign className="w-5 h-5 text-[#1C3D5A]" />
-                        </div>
-                        <h3 className="text-lg font-medium text-[#1C3D5A]">Cash Allocation</h3>
-                      </div>
-                      <h2 className="text-2xl font-semibold text-[#1C3D5A]">{formatPercent(metrics.cashAllocation)}</h2>
+                    <div className="bg-white p-6 rounded-lg border border-gray-200">
+                      <h3 className="text-sm font-medium text-gray-600 mb-2">Cash Allocation</h3>
+                      <h2 className="text-3xl font-bold text-black">{formatPercent(metrics.cashAllocation)}</h2>
                     </div>
 
-                    <div className="bg-[#FDFBF7] p-6 rounded-2xl shadow-lg border">
-                      <div className="flex items-center mb-4">
-                        <div className="p-2 bg-[#EDE9E3] rounded-lg mr-3">
-                          <TrendingUp className="w-5 h-5 text-[#1C3D5A]" />
-                        </div>
-                        <h3 className="text-lg font-medium text-[#1C3D5A]">Stock Allocation</h3>
-                      </div>
-                      <h2 className="text-2xl font-semibold text-[#1C3D5A]">{formatPercent(metrics.stockAllocation)}</h2>
+                    <div className="bg-white p-6 rounded-lg border border-gray-200">
+                      <h3 className="text-sm font-medium text-gray-600 mb-2">Stock Allocation</h3>
+                      <h2 className="text-3xl font-bold text-black">{formatPercent(metrics.stockAllocation)}</h2>
                     </div>
 
-                    <div className="bg-[#FDFBF7] p-6 rounded-2xl shadow-lg border">
-                      <div className="flex items-center mb-4">
-                        <div className="p-2 bg-[#EDE9E3] rounded-lg mr-3">
-                          <Database className="w-5 h-5 text-[#1C3D5A]" />
-                        </div>
-                        <h3 className="text-lg font-medium text-[#1C3D5A]">Holdings Count</h3>
-                      </div>
-                      <h2 className="text-2xl font-semibold text-[#1C3D5A]">{formatCount(metrics.holdingsCount)}</h2>
+                    <div className="bg-white p-6 rounded-lg border border-gray-200">
+                      <h3 className="text-sm font-medium text-gray-600 mb-2">Holdings Count</h3>
+                      <h2 className="text-3xl font-bold text-black">{formatCount(metrics.holdingsCount)}</h2>
                     </div>
                   </div>
 
                   {/* Holdings Table */}
-                  <div className="bg-white p-6 rounded-2xl shadow-lg border">
-                    <h3 className="text-xl font-semibold mb-4 text-[#1C3D5A]">Your Holdings</h3>
+                  <div className="bg-white p-6 rounded-lg border border-gray-200">
+                    <h3 className="text-lg font-semibold mb-4 text-black">Your Holdings</h3>
                     <div className="overflow-x-auto">
                       <table className="w-full">
                         <thead>
-                          <tr className="border-b border-[#EDE9E3]">
-                            <th className="text-left py-3 px-4 text-[#1C3D5A] font-medium">Ticker</th>
-                            <th className="text-left py-3 px-4 text-[#1C3D5A] font-medium">Category</th>
-                            <th className="text-left py-3 px-4 text-[#1C3D5A] font-medium">Quantity</th>
-                            <th className="text-left py-3 px-4 text-[#1C3D5A] font-medium">Price</th>
-                            <th className="text-left py-3 px-4 text-[#1C3D5A] font-medium">Value</th>
-                            <th className="text-left py-3 px-4 text-[#1C3D5A] font-medium">Gain/Loss</th>
-                            <th className="text-left py-3 px-4 text-[#1C3D5A] font-medium">% Change</th>
+                          <tr className="border-b border-gray-200">
+                            <th className="text-left py-3 px-4 text-gray-600 font-medium text-sm">Ticker</th>
+                            <th className="text-left py-3 px-4 text-gray-600 font-medium text-sm">Category</th>
+                            <th className="text-left py-3 px-4 text-gray-600 font-medium text-sm">Quantity</th>
+                            <th className="text-left py-3 px-4 text-gray-600 font-medium text-sm">Price</th>
+                            <th className="text-left py-3 px-4 text-gray-600 font-medium text-sm">Value</th>
+                            <th className="text-left py-3 px-4 text-gray-600 font-medium text-sm">Gain/Loss</th>
+                            <th className="text-left py-3 px-4 text-gray-600 font-medium text-sm">% Change</th>
                           </tr>
                         </thead>
                         <tbody>
