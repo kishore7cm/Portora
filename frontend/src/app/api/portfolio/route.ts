@@ -20,7 +20,24 @@ export async function GET(request: NextRequest) {
     if (db) {
       try {
         console.log('📊 Attempting to fetch from Firebase...');
-        const portfolioDoc = await db.collection('portfolio_data').doc(userId).get();
+        console.log('📊 Looking for user ID:', userId);
+        
+        // Try to get portfolio data by user_id field first
+        let portfolioDoc = await db.collection('portfolio_data').doc(userId).get();
+        
+        if (!portfolioDoc.exists) {
+          console.log('📊 No document found with user_id, trying uid field...');
+          // Try to find by uid field in users collection
+          const userDoc = await db.collection('users').doc(userId).get();
+          if (userDoc.exists) {
+            console.log('📊 Found user document, checking for portfolio data...');
+            // Check if portfolio data exists in the same document or separate collection
+            const userData = userDoc.data();
+            if (userData?.portfolio_data) {
+              portfolioDoc = { exists: true, data: () => userData.portfolio_data };
+            }
+          }
+        }
         
         if (portfolioDoc.exists) {
           const portfolioData = portfolioDoc.data();
