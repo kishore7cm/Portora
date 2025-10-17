@@ -605,25 +605,25 @@ export default function SimpleDashboard() {
                     <>
                       {/* 7 Key Metrics */}
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div className="bg-white p-8 rounded-lg border border-gray-200">
+                    <div className="bg-white p-6 rounded-lg border border-gray-200">
                       <h3 className="text-xs font-medium text-gray-500 mb-2">Total Portfolio Value</h3>
-                      <h2 className="text-6xl font-bold text-black leading-none">{formatCurrency(metrics.totalValue)}</h2>
+                      <h2 className="text-xl font-bold text-black">{formatCurrency(metrics.totalValue)}</h2>
                       <p className="text-xs text-gray-400 mt-2">Total value of all holdings</p>
                     </div>
 
                     <div className="bg-white p-6 rounded-lg border border-gray-200">
                       <h3 className="text-xs font-medium text-gray-500 mb-2">Cash Allocation</h3>
-                      <h2 className="text-3xl font-bold text-black">{formatPercent(metrics.cashAllocation)}</h2>
+                      <h2 className="text-lg font-bold text-black">{formatPercent(metrics.cashAllocation)}</h2>
                     </div>
 
                     <div className="bg-white p-6 rounded-lg border border-gray-200">
                       <h3 className="text-xs font-medium text-gray-500 mb-2">Stock Allocation</h3>
-                      <h2 className="text-3xl font-bold text-black">{formatPercent(metrics.stockAllocation)}</h2>
+                      <h2 className="text-lg font-bold text-black">{formatPercent(metrics.stockAllocation)}</h2>
                     </div>
 
                     <div className="bg-white p-6 rounded-lg border border-gray-200">
                       <h3 className="text-xs font-medium text-gray-500 mb-2">Holdings Count</h3>
-                      <h2 className="text-3xl font-bold text-black">{formatCount(metrics.holdingsCount)}</h2>
+                      <h2 className="text-lg font-bold text-black">{formatCount(metrics.holdingsCount)}</h2>
                     </div>
                   </div>
 
