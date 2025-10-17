@@ -89,7 +89,50 @@ export default function SimpleDashboard() {
             }
           }
         } catch (apiError) {
-          console.log('⚠️ API failed, using fallback data:', apiError)
+          console.log('⚠️ API failed, trying direct Firebase connection:', apiError)
+          
+          // Try direct Firebase connection as fallback
+          try {
+            console.log('🔄 Attempting direct Firebase connection...')
+            const { db } = await import('@/lib/firebaseClient')
+            const { doc, getDoc } = await import('firebase/firestore')
+            
+            // Try to get user document first
+            const userDocRef = doc(db, 'users', userId)
+            const userDoc = await getDoc(userDocRef)
+            
+            if (userDoc.exists()) {
+              const userData = userDoc.data()
+              console.log('📊 User data found:', userData)
+              
+              // Check if portfolio data is in the user document
+              if (userData.portfolio_data && userData.portfolio_data.holdings) {
+                console.log('✅ Found portfolio data in user document')
+                const holdings = userData.portfolio_data.holdings
+                
+                // Transform the data to match dashboard format
+                const transformedHoldings = holdings.map((holding: any) => ({
+                  Ticker: holding.Ticker || holding.ticker || holding.symbol,
+                  Category: holding.Category || holding.category || holding.asset_type || 'Stock',
+                  Qty: holding.Qty || holding.qty || holding.quantity || 0,
+                  Current_Price: holding.Current_Price || holding.current_price || holding.price || 0,
+                  Total_Value: holding.Total_Value || holding.total_value || holding.value || 0,
+                  Gain_Loss: holding.Gain_Loss || holding.gain_loss || 0,
+                  Gain_Loss_Percent: holding.Gain_Loss_Percent || holding.gain_loss_percent || 0,
+                  Brokerage: holding.Brokerage || holding.brokerage || 'Unknown',
+                  last_updated: holding.last_updated || new Date().toISOString()
+                }))
+                
+                console.log('✅ Transformed holdings:', transformedHoldings)
+                setPortfolioData(transformedHoldings)
+                return
+              }
+            }
+            
+            console.log('⚠️ No portfolio data found in user document')
+          } catch (firebaseError) {
+            console.log('❌ Direct Firebase connection failed:', firebaseError)
+          }
         }
         
         // Fallback: Use test data if API is not available
