@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { 
   TrendingUp, 
@@ -330,7 +330,7 @@ export default function SimpleDashboard() {
   }
 
   // Generate insights based on investor level and portfolio data
-  const generateInsights = () => {
+  const generateInsights = useCallback(() => {
     if (portfolioData.length === 0) return []
 
     const insights = []
@@ -413,12 +413,12 @@ export default function SimpleDashboard() {
     }
 
     return insights
-  }
+  }, [portfolioData, investorLevel])
 
   // Update insights when portfolio data or investor level changes
   useEffect(() => {
     setInsights(generateInsights())
-  }, [portfolioData, investorLevel])
+  }, [generateInsights])
 
   return (
     <ProtectedRoute>
