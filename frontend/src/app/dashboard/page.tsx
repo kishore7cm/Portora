@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation"
 import { 
   TrendingUp, 
   DollarSign, 
-  Activity,
   Home,
   Database,
   Brain,
@@ -381,68 +380,6 @@ export default function SimpleDashboard() {
                 <span className="font-medium">{user?.displayName || user?.email || 'User'}</span>
               </div>
               <button
-                onClick={async () => {
-                  if (user) {
-                    console.log('🔄 Testing APIs for user:', user.uid);
-                    
-                    // Test basic API first
-                    try {
-                      const testResponse = await fetch(`/api/test?user_id=${user.uid}`);
-                      console.log('🔄 Test API status:', testResponse.status);
-                      const testData = await testResponse.json();
-                      console.log('🔄 Test API response:', testData);
-                    } catch (error) {
-                      console.error('🔄 Test API error:', error);
-                    }
-                    
-                    // Test simple portfolio API
-                    try {
-                      const simpleResponse = await fetch(`/api/portfolio-simple?user_id=${user.uid}`);
-                      console.log('🔄 Simple Portfolio API status:', simpleResponse.status);
-                      
-                      if (simpleResponse.ok) {
-                        const simpleData = await simpleResponse.json();
-                        console.log('🔄 Simple Portfolio API response:', simpleData);
-                      } else {
-                        console.log('🔄 Simple Portfolio API error:', await simpleResponse.text());
-                      }
-                    } catch (error) {
-                      console.error('🔄 Simple Portfolio API error:', error);
-                    }
-                    
-                    // Test main portfolio API
-                    try {
-                      const response = await fetch(`/api/portfolio?user_id=${user.uid}`);
-                      console.log('🔄 Main Portfolio API status:', response.status);
-                      
-                      if (!response.ok) {
-                        throw new Error(`Portfolio API returned ${response.status}: ${response.statusText}`);
-                      }
-                      
-                      const data = await response.json();
-                      console.log('🔄 Portfolio API response:', data);
-                      setPortfolioData(data.data || []);
-                      
-                      if (data.data && data.data.length > 0) {
-                        setAddHoldingSuccess(`Successfully loaded ${data.data.length} holdings!`);
-                        setTimeout(() => setAddHoldingSuccess(''), 3000);
-                      } else {
-                        setAddHoldingError('No portfolio data found');
-                        setTimeout(() => setAddHoldingError(''), 5000);
-                      }
-                    } catch (error: any) {
-                      console.error('🔄 Portfolio API error:', error);
-                      setAddHoldingError(`Portfolio API Error: ${error.message}`);
-                      setTimeout(() => setAddHoldingError(''), 5000);
-                    }
-                  }
-                }}
-                className="flex items-center gap-2 bg-[#5A6A73] text-white px-4 py-2 rounded-lg font-semibold hover:bg-[#1C3D5A] transition-colors"
-              >
-                <Activity className="w-4 h-4" />
-                Test APIs
-              </button>
-              <button
                 onClick={logout}
                 className="flex items-center gap-2 bg-[#C9A66B] text-white px-4 py-2 rounded-lg font-semibold hover:bg-[#1C3D5A] transition-colors"
               >
@@ -756,10 +693,10 @@ export default function SimpleDashboard() {
                         <div className="w-24 h-24 bg-[#F5F1EB] rounded-full flex items-center justify-center mx-auto mb-6">
                           <TrendingUp className="w-12 h-12 text-[#C9A66B]" />
                         </div>
-                        <h2 className="text-2xl font-bold text-[#1C3D5A] mb-4">No Portfolio Data Found</h2>
+                        <h2 className="text-2xl font-bold text-[#1C3D5A] mb-4">Complete Your Portfolio Setup</h2>
                         <p className="text-[#5A6A73] mb-8">
-                          It looks like you haven't added any portfolio holdings yet. 
-                          Get started by adding your investments to see your portfolio overview.
+                          To get started with portfolio tracking and insights, please add your investment holdings. 
+                          This will help us provide you with accurate analytics and performance tracking.
                         </p>
                         <div className="flex flex-col sm:flex-row gap-4 justify-center">
                           <button 
