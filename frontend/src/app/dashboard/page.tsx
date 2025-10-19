@@ -337,86 +337,91 @@ export default function SimpleDashboard() {
       return
     }
 
-    const insights = []
-    const totalValue = portfolioData.reduce((sum, holding) => sum + (holding.Total_Value || 0), 0)
-    const totalGainLoss = portfolioData.reduce((sum, holding) => sum + (holding.Gain_Loss || 0), 0)
-    const totalGainLossPercent = totalValue > 0 ? (totalGainLoss / (totalValue - totalGainLoss)) * 100 : 0
+    try {
+      const insights = []
+      const totalValue = portfolioData.reduce((sum, holding) => sum + (holding.Total_Value || 0), 0)
+      const totalGainLoss = portfolioData.reduce((sum, holding) => sum + (holding.Gain_Loss || 0), 0)
+      const totalGainLossPercent = totalValue > 0 ? (totalGainLoss / (totalValue - totalGainLoss)) * 100 : 0
 
-    // Beginner insights
-    if (investorLevel === 'beginner') {
-      insights.push({
-        type: 'education',
-        title: 'Portfolio Basics',
-        message: `Your portfolio is worth ${formatCurrency(totalValue)}. This is a great start to building wealth!`,
-        action: 'Learn about diversification'
-      })
-
-      if (portfolioData.length < 3) {
+      // Beginner insights
+      if (investorLevel === 'beginner') {
         insights.push({
-          type: 'recommendation',
-          title: 'Diversification Tip',
-          message: 'Consider adding more holdings to reduce risk. A diversified portfolio typically has 10-20 different investments.',
-          action: 'Add more holdings'
+          type: 'education',
+          title: 'Portfolio Basics',
+          message: `Your portfolio is worth $${totalValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}. This is a great start to building wealth!`,
+          action: 'Learn about diversification'
         })
+
+        if (portfolioData.length < 3) {
+          insights.push({
+            type: 'recommendation',
+            title: 'Diversification Tip',
+            message: 'Consider adding more holdings to reduce risk. A diversified portfolio typically has 10-20 different investments.',
+            action: 'Add more holdings'
+          })
+        }
+
+        if (totalGainLossPercent > 10) {
+          insights.push({
+            type: 'warning',
+            title: 'High Volatility',
+            message: 'Your portfolio has significant gains. Consider taking some profits to reduce risk.',
+            action: 'Review risk management'
+          })
+        }
       }
 
-      if (totalGainLossPercent > 10) {
+      // Intermediate insights
+      if (investorLevel === 'intermediate') {
+        const stockAllocation = portfolioData.filter(h => h.Category === 'Stock').reduce((sum, h) => sum + (h.Total_Value || 0), 0) / totalValue * 100
+        
         insights.push({
-          type: 'warning',
-          title: 'High Volatility',
-          message: 'Your portfolio has significant gains. Consider taking some profits to reduce risk.',
-          action: 'Review risk management'
+          type: 'analysis',
+          title: 'Asset Allocation Analysis',
+          message: `Your stock allocation is ${stockAllocation.toFixed(1)}%. Consider balancing with bonds (20-30%) and international exposure (10-20%).`,
+          action: 'Rebalance portfolio'
         })
+
+        if (totalGainLossPercent > 0) {
+          insights.push({
+            type: 'performance',
+            title: 'Performance Review',
+            message: `Your portfolio is up ${totalGainLossPercent >= 0 ? '+' : ''}${totalGainLossPercent.toFixed(2)}%. Consider rebalancing to maintain your target allocation.`,
+            action: 'Review allocation'
+          })
+        }
       }
+
+      // Expert insights
+      if (investorLevel === 'expert') {
+        const volatility = portfolioData.reduce((sum, holding) => {
+          const weight = (holding.Total_Value || 0) / totalValue
+          return sum + (weight * Math.abs(holding.Gain_Loss_Percent || 0))
+        }, 0)
+
+        insights.push({
+          type: 'advanced',
+          title: 'Risk-Adjusted Performance',
+          message: `Your portfolio's volatility-adjusted return is ${(totalGainLossPercent / Math.max(volatility, 1)).toFixed(2)}%. Consider optimizing your Sharpe ratio.`,
+          action: 'Optimize risk-return'
+        })
+
+        const concentration = Math.max(...portfolioData.map(h => (h.Total_Value || 0) / totalValue * 100))
+        if (concentration > 20) {
+          insights.push({
+            type: 'risk',
+            title: 'Concentration Risk',
+            message: `Your largest holding represents ${concentration.toFixed(1)}% of your portfolio. Consider reducing concentration risk.`,
+            action: 'Diversify holdings'
+          })
+        }
+      }
+
+      setInsights(insights)
+    } catch (error) {
+      console.error('Error generating insights:', error)
+      setInsights([])
     }
-
-    // Intermediate insights
-    if (investorLevel === 'intermediate') {
-      const stockAllocation = portfolioData.filter(h => h.Category === 'Stock').reduce((sum, h) => sum + (h.Total_Value || 0), 0) / totalValue * 100
-      
-      insights.push({
-        type: 'analysis',
-        title: 'Asset Allocation Analysis',
-        message: `Your stock allocation is ${stockAllocation.toFixed(1)}%. Consider balancing with bonds (20-30%) and international exposure (10-20%).`,
-        action: 'Rebalance portfolio'
-      })
-
-      if (totalGainLossPercent > 0) {
-        insights.push({
-          type: 'performance',
-          title: 'Performance Review',
-          message: `Your portfolio is up ${formatPercent(totalGainLossPercent)}. Consider rebalancing to maintain your target allocation.`,
-          action: 'Review allocation'
-        })
-      }
-    }
-
-    // Expert insights
-    if (investorLevel === 'expert') {
-      const volatility = portfolioData.reduce((sum, holding) => {
-        const weight = (holding.Total_Value || 0) / totalValue
-        return sum + (weight * Math.abs(holding.Gain_Loss_Percent || 0))
-      }, 0)
-
-      insights.push({
-        type: 'advanced',
-        title: 'Risk-Adjusted Performance',
-        message: `Your portfolio's volatility-adjusted return is ${(totalGainLossPercent / Math.max(volatility, 1)).toFixed(2)}%. Consider optimizing your Sharpe ratio.`,
-        action: 'Optimize risk-return'
-      })
-
-      const concentration = Math.max(...portfolioData.map(h => (h.Total_Value || 0) / totalValue * 100))
-      if (concentration > 20) {
-        insights.push({
-          type: 'risk',
-          title: 'Concentration Risk',
-          message: `Your largest holding represents ${concentration.toFixed(1)}% of your portfolio. Consider reducing concentration risk.`,
-          action: 'Diversify holdings'
-        })
-      }
-    }
-
-    setInsights(insights)
   }, [portfolioData, investorLevel])
 
   return (
