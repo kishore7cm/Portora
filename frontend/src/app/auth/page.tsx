@@ -30,13 +30,35 @@ export default function AuthPage() {
         const userCredential = await signInWithEmailAndPassword(auth, email, password)
         const user = userCredential.user
         
-        // Store user info in localStorage
-        localStorage.setItem('userId', user.uid)
-        localStorage.setItem('userEmail', user.email || '')
-        localStorage.setItem('userName', user.displayName || '')
-        localStorage.setItem('loggedIn', 'true')
+        // Check if user exists in Firebase users collection
+        const userDoc = await getDoc(doc(db, 'users', user.uid))
         
-        router.push('/dashboard')
+        if (userDoc.exists()) {
+          // User exists - check if onboarding is completed
+          const userData = userDoc.data()
+          
+          // Store user info in localStorage
+          localStorage.setItem('userId', user.uid)
+          localStorage.setItem('userEmail', user.email || '')
+          localStorage.setItem('userName', userData.name || user.displayName || '')
+          localStorage.setItem('loggedIn', 'true')
+          
+          if (userData.onboardingCompleted) {
+            // User has completed onboarding - go to dashboard
+            router.push('/dashboard')
+          } else {
+            // User exists but hasn't completed onboarding - go to onboarding
+            router.push('/onboarding')
+          }
+        } else {
+          // User doesn't exist in Firebase - go to onboarding
+          localStorage.setItem('userId', user.uid)
+          localStorage.setItem('userEmail', user.email || '')
+          localStorage.setItem('userName', user.displayName || '')
+          localStorage.setItem('loggedIn', 'true')
+          
+          router.push('/onboarding')
+        }
       } else {
         // Signup
         if (password !== confirmPassword) {
@@ -52,24 +74,14 @@ export default function AuthPage() {
           displayName: name
         })
 
-        // Create user document in Firestore
-        await setDoc(doc(db, 'users', user.uid), {
-          uid: user.uid,
-          email: user.email,
-          name: name,
-          createdAt: new Date(),
-          lastLogin: new Date(),
-          portfolioValue: 0,
-          lastYearValue: 0
-        })
-
         // Store user info in localStorage
         localStorage.setItem('userId', user.uid)
         localStorage.setItem('userEmail', user.email || '')
         localStorage.setItem('userName', name)
         localStorage.setItem('loggedIn', 'true')
         
-        router.push('/dashboard')
+        // New users always go to onboarding
+        router.push('/onboarding')
       }
     } catch (error: any) {
       setError(error.message)

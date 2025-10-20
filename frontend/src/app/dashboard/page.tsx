@@ -718,28 +718,28 @@ export default function SimpleDashboard() {
                           {portfolioData.map((holding, index) => (
                             <tr key={index} className="border-b border-gray-100 hover:bg-gray-50">
                               <td className="py-4 px-4">
-                                <div className="font-bold text-black text-base">{holding.Ticker}</div>
-                                <div className="text-xs text-gray-500">{holding.Category || 'Unknown'}</div>
+                                <div className="font-bold text-black text-base">{holding.Ticker || holding.ticker || holding.symbol}</div>
+                                <div className="text-xs text-gray-500">{holding.Category || holding.category || holding.asset_type || 'Unknown'}</div>
                               </td>
-                              <td className="py-4 px-4 text-gray-600 text-sm">{formatCount(holding.Qty || 0)}</td>
-                              <td className="py-4 px-4 text-gray-600 text-sm">{formatCurrency(holding.Current_Price || 0)}</td>
+                              <td className="py-4 px-4 text-gray-600 text-sm">{formatCount(holding.Qty || holding.shares || 0)}</td>
+                              <td className="py-4 px-4 text-gray-600 text-sm">{formatCurrency(holding.Current_Price || holding.current_price || 0)}</td>
                               <td className="py-4 px-4">
-                                <div className="font-semibold text-black text-sm">{formatCurrency(holding.Total_Value || 0)}</div>
+                                <div className="font-semibold text-black text-sm">{formatCurrency(holding.Total_Value || holding.total_value || 0)}</div>
                                 <div className={`text-xs font-medium ${
-                                  (holding.Gain_Loss_Percent || 0) >= 0 ? 'text-green-600' : 'text-red-600'
+                                  (holding.Gain_Loss_Percent || holding.gain_loss_percent || 0) >= 0 ? 'text-green-600' : 'text-red-600'
                                 }`}>
-                                  {formatPercent(holding.Gain_Loss_Percent || 0)}
+                                  {formatPercent(holding.Gain_Loss_Percent || holding.gain_loss_percent || 0)}
                                 </div>
                               </td>
                               <td className={`py-4 px-4 font-semibold text-sm ${
-                                (holding.Gain_Loss || 0) >= 0 ? 'text-green-600' : 'text-red-600'
+                                (holding.Gain_Loss || holding.gain_loss || 0) >= 0 ? 'text-green-600' : 'text-red-600'
                               }`}>
-                                {formatCurrency(holding.Gain_Loss || 0)}
+                                {formatCurrency(holding.Gain_Loss || holding.gain_loss || 0)}
                               </td>
                               <td className={`py-4 px-4 font-semibold text-sm ${
-                                (holding.Gain_Loss_Percent || 0) >= 0 ? 'text-green-600' : 'text-red-600'
+                                (holding.Gain_Loss_Percent || holding.gain_loss_percent || 0) >= 0 ? 'text-green-600' : 'text-red-600'
                               }`}>
-                                {formatPercent(holding.Gain_Loss_Percent || 0)}
+                                {formatPercent(holding.Gain_Loss_Percent || holding.gain_loss_percent || 0)}
                               </td>
                             </tr>
                           ))}
@@ -783,10 +783,71 @@ export default function SimpleDashboard() {
               {/* Holdings Tab */}
               {activeTab === 'holdings' && (
                 <div className="space-y-6">
-                  <div className="bg-white p-6 rounded-2xl shadow-lg border">
-                    <h3 className="text-xl font-semibold mb-4 text-[#1C3D5A]">All Holdings</h3>
-                    <p className="text-[#5A6A73]">Detailed holdings view coming soon...</p>
-                  </div>
+                  {portfolioData.length > 0 ? (
+                    <div className="bg-white p-6 rounded-lg border border-gray-200">
+                      <h3 className="text-base font-semibold mb-4 text-black">All Holdings</h3>
+                      <div className="overflow-x-auto">
+                        <table className="w-full">
+                          <thead>
+                            <tr className="border-b border-gray-200">
+                              <th className="text-left py-3 px-4 text-gray-500 font-medium text-xs">Ticker</th>
+                              <th className="text-left py-3 px-4 text-gray-500 font-medium text-xs">Category</th>
+                              <th className="text-left py-3 px-4 text-gray-500 font-medium text-xs">Quantity</th>
+                              <th className="text-left py-3 px-4 text-gray-500 font-medium text-xs">Price</th>
+                              <th className="text-left py-3 px-4 text-gray-500 font-medium text-xs">Value</th>
+                              <th className="text-left py-3 px-4 text-gray-500 font-medium text-xs">Gain/Loss</th>
+                              <th className="text-left py-3 px-4 text-gray-500 font-medium text-xs">% Change</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {portfolioData.map((holding, index) => (
+                              <tr key={index} className="border-b border-gray-100 hover:bg-gray-50">
+                                <td className="py-4 px-4">
+                                  <div className="font-bold text-black text-base">{holding.Ticker || holding.ticker || holding.symbol}</div>
+                                  <div className="text-xs text-gray-500">{holding.Category || holding.category || holding.asset_type || 'Unknown'}</div>
+                                </td>
+                                <td className="py-4 px-4 text-gray-600 text-sm">{formatCount(holding.Qty || holding.shares || 0)}</td>
+                                <td className="py-4 px-4 text-gray-600 text-sm">{formatCurrency(holding.Current_Price || holding.current_price || 0)}</td>
+                                <td className="py-4 px-4">
+                                  <div className="font-semibold text-black text-sm">{formatCurrency(holding.Total_Value || holding.total_value || 0)}</div>
+                                  <div className={`text-xs font-medium ${
+                                    (holding.Gain_Loss_Percent || holding.gain_loss_percent || 0) >= 0 ? 'text-green-600' : 'text-red-600'
+                                  }`}>
+                                    {formatPercent(holding.Gain_Loss_Percent || holding.gain_loss_percent || 0)}
+                                  </div>
+                                </td>
+                                <td className="py-4 px-4">
+                                  <div className={`font-semibold text-sm ${
+                                    (holding.Gain_Loss || holding.gain_loss || 0) >= 0 ? 'text-green-600' : 'text-red-600'
+                                  }`}>
+                                    {formatCurrency(holding.Gain_Loss || holding.gain_loss || 0)}
+                                  </div>
+                                </td>
+                                <td className="py-4 px-4">
+                                  <div className={`text-sm font-medium ${
+                                    (holding.Gain_Loss_Percent || holding.gain_loss_percent || 0) >= 0 ? 'text-green-600' : 'text-red-600'
+                                  }`}>
+                                    {formatPercent(holding.Gain_Loss_Percent || holding.gain_loss_percent || 0)}
+                                  </div>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="bg-white p-6 rounded-lg border border-gray-200 text-center">
+                      <h3 className="text-lg font-semibold text-gray-700 mb-2">No Holdings Found</h3>
+                      <p className="text-gray-500 mb-4">You haven't added any holdings yet.</p>
+                      <button
+                        onClick={() => setShowAddHoldings(true)}
+                        className="bg-[#C9A66B] text-white px-4 py-2 rounded-lg font-semibold hover:bg-[#1C3D5A] transition-colors"
+                      >
+                        Add Your First Holding
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
 
