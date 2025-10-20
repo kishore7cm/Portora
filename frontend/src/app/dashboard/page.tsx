@@ -962,78 +962,67 @@ export default function SimpleDashboard() {
                   ) : (
                     <>
                       {/* Investor Level Selector */}
-                  <div className="bg-white p-6 rounded-lg border border-gray-200">
-                    <h3 className="text-lg font-semibold mb-4 text-black">Your Investment Experience</h3>
-                    <div className="flex gap-4">
-                      {[
-                        { level: 'beginner', label: 'Beginner', description: 'New to investing' },
-                        { level: 'intermediate', label: 'Intermediate', description: 'Some experience' },
-                        { level: 'expert', label: 'Expert', description: 'Advanced professional' }
-                      ].map(({ level, label, description }) => (
-                        <button
-                          key={level}
-                          onClick={() => setInvestorLevel(level as any)}
-                          className={`px-4 py-2 rounded-lg border transition-colors ${
-                            investorLevel === level
-                              ? 'bg-[#C9A66B] text-white border-[#C9A66B]'
-                              : 'bg-white text-gray-700 border-gray-300 hover:border-[#C9A66B]'
-                          }`}
-                        >
-                          <div className="text-sm font-medium">{label}</div>
-                          <div className="text-xs opacity-75">{description}</div>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
+                      <div className="bg-white p-6 rounded-lg border border-gray-200">
+                        <h3 className="text-lg font-semibold mb-4 text-black">Your Investment Experience</h3>
+                        <div className="flex gap-4">
+                          {[
+                            { level: 'beginner', label: 'Beginner', description: 'New to investing' },
+                            { level: 'intermediate', label: 'Intermediate', description: 'Some experience' },
+                            { level: 'expert', label: 'Expert', description: 'Advanced professional' }
+                          ].map(({ level, label, description }) => (
+                            <button
+                              key={level}
+                              onClick={() => setInvestorLevel(level as any)}
+                              className={`px-4 py-2 rounded-lg border transition-colors ${
+                                investorLevel === level
+                                  ? 'bg-[#C9A66B] text-white border-[#C9A66B]'
+                                  : 'bg-white text-gray-700 border-gray-300 hover:border-[#C9A66B]'
+                              }`}
+                            >
+                              <div className="text-sm font-medium">{label}</div>
+                              <div className="text-xs opacity-75">{description}</div>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
 
-                  {/* Insights Content */}
-                  {portfolioData.length > 0 ? (
-                    <div className="space-y-4">
-                      <h3 className="text-lg font-semibold text-black">Personalized Insights</h3>
-                      {insights.length > 0 ? (
-                        insights.map((insight, index) => (
-                          <div key={index} className="bg-white p-6 rounded-lg border border-gray-200">
-                            <div className="flex items-start gap-4">
-                              <div className={`w-3 h-3 rounded-full mt-2 ${
-                                insight.type === 'education' ? 'bg-blue-500' :
-                                insight.type === 'recommendation' ? 'bg-green-500' :
-                                insight.type === 'warning' ? 'bg-yellow-500' :
-                                insight.type === 'analysis' ? 'bg-purple-500' :
-                                insight.type === 'performance' ? 'bg-indigo-500' :
-                                insight.type === 'advanced' ? 'bg-red-500' :
-                                'bg-gray-500'
-                              }`} />
-                              <div className="flex-1">
-                                <h4 className="font-semibold text-black mb-2">{insight.title}</h4>
-                                <p className="text-gray-600 mb-3">{insight.message}</p>
-                                <button className="text-[#C9A66B] text-sm font-medium hover:underline">
-                                  {insight.action} →
-                                </button>
+                      {/* Insights Content */}
+                      <div className="space-y-4">
+                        <h3 className="text-lg font-semibold text-black">Personalized Insights</h3>
+                        {insights.length > 0 ? (
+                          insights.map((insight, index) => (
+                            <div key={index} className="bg-white p-6 rounded-lg border border-gray-200">
+                              <div className="flex items-start gap-4">
+                                <div className={`w-3 h-3 rounded-full mt-2 ${
+                                  insight.type === 'education' ? 'bg-blue-500' :
+                                  insight.type === 'recommendation' ? 'bg-green-500' :
+                                  insight.type === 'warning' ? 'bg-yellow-500' :
+                                  insight.type === 'analysis' ? 'bg-purple-500' :
+                                  insight.type === 'performance' ? 'bg-indigo-500' :
+                                  insight.type === 'advanced' ? 'bg-red-500' :
+                                  'bg-gray-500'
+                                }`} />
+                                <div className="flex-1">
+                                  <h4 className="font-semibold text-black mb-2">{insight.title}</h4>
+                                  <p className="text-gray-600 mb-3">{insight.message}</p>
+                                  <button className="text-[#C9A66B] text-sm font-medium hover:underline">
+                                    {insight.action} →
+                                  </button>
+                                </div>
                               </div>
                             </div>
+                          ))
+                        ) : (
+                          <div className="bg-white p-6 rounded-lg border border-gray-200 text-center">
+                            <p className="text-gray-500">No insights available for your current portfolio.</p>
                           </div>
-                        ))
-                      ) : (
-                        <div className="bg-white p-6 rounded-lg border border-gray-200 text-center">
-                          <p className="text-gray-500">No insights available for your current portfolio.</p>
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="bg-white p-6 rounded-lg border border-gray-200 text-center">
-                      <h3 className="text-lg font-semibold text-black mb-2">No Portfolio Data</h3>
-                      <p className="text-gray-500 mb-4">Add your holdings to get personalized insights and recommendations.</p>
-                      <button
-                        onClick={() => setShowAddHoldings(true)}
-                        className="bg-[#C9A66B] text-white px-6 py-2 rounded-lg font-medium hover:bg-[#1C3D5A] transition-colors"
-                      >
-                        Add Holdings
-                      </button>
-                    </div>
-                  )}
+                        )}
+                      </div>
                     </>
                   )}
                 </div>
+              )}
+                </>
               )}
             </div>
           </div>
