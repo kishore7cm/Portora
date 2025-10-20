@@ -90,8 +90,35 @@ export default function OnboardingPage() {
     setManualHoldings(prev => prev.filter((_, i) => i !== index))
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleNext = () => {
+    // Validate current step before proceeding
+    if (step === 1) {
+      if (!formData.name || !formData.email) {
+        setError('Please fill in all required fields')
+        return
+      }
+    } else if (step === 2) {
+      if (!formData.investmentGoal || !formData.riskTolerance) {
+        setError('Please select your investment goal and risk tolerance')
+        return
+      }
+    } else if (step === 3) {
+      if (!formData.initialInvestment || !formData.investmentExperience) {
+        setError('Please fill in all required fields')
+        return
+      }
+    }
+    
+    setError('')
+    setStep(step + 1)
+  }
+
+  const handlePrevious = () => {
+    setError('')
+    setStep(step - 1)
+  }
+
+  const handleComplete = async () => {
     setLoading(true)
     setError('')
 
@@ -121,49 +148,50 @@ export default function OnboardingPage() {
       let holdings: any[] = []
       
       if (dataOption === 'csv' && csvFile) {
-        // Use CSV data
-        const reader = new FileReader()
-        reader.onload = async (e) => {
-          const csv = e.target?.result as string
-          const lines = csv.split('\n')
-          const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''))
-          
-          const csvData = lines.slice(1).map(line => {
-            const values = line.split(',').map(v => v.trim().replace(/"/g, ''))
-            const row: any = {}
-            headers.forEach((header, index) => {
-              const value = values[index]
-              if (value) {
-                if (['shares', 'purchase_price', 'total_cost', 'total_value'].includes(header)) {
-                  row[header] = parseFloat(value)
-                } else {
-                  row[header] = value
-                }
+        // Use CSV data - parse synchronously
+        const csv = await new Promise<string>((resolve) => {
+          const reader = new FileReader()
+          reader.onload = (e) => resolve(e.target?.result as string)
+          reader.readAsText(csvFile)
+        })
+        
+        const lines = csv.split('\n')
+        const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''))
+        
+        const csvData = lines.slice(1).map(line => {
+          const values = line.split(',').map(v => v.trim().replace(/"/g, ''))
+          const row: any = {}
+          headers.forEach((header, index) => {
+            const value = values[index]
+            if (value) {
+              if (['shares', 'purchase_price', 'total_cost', 'total_value'].includes(header)) {
+                row[header] = parseFloat(value)
+              } else {
+                row[header] = value
               }
-            })
-            return row
-          }).filter(row => row.symbol && row.shares)
-          
-          holdings = csvData.map(row => ({
-            symbol: row.symbol,
-            ticker: row.symbol,
-            asset_type: row.asset_type || 'Stock',
-            category: row.asset_type || 'Stock',
-            sector: row.sector || 'Technology',
-            brokerage: row.account_name || 'Unknown',
-            shares: row.shares,
-            purchase_price: row.purchase_price,
-            current_price: row.purchase_price,
-            total_cost: row.total_cost,
-            total_value: row.total_value,
-            gain_loss: row.total_value - row.total_cost,
-            gain_loss_percent: row.total_cost > 0 ? ((row.total_value - row.total_cost) / row.total_cost) * 100 : 0,
-            last_updated: new Date()
-          }))
-          
-          await savePortfolioData(holdings)
-        }
-        reader.readAsText(csvFile)
+            }
+          })
+          return row
+        }).filter(row => row.symbol && row.shares)
+        
+        holdings = csvData.map(row => ({
+          symbol: row.symbol,
+          ticker: row.symbol,
+          asset_type: row.asset_type || 'Stock',
+          category: row.asset_type || 'Stock',
+          sector: row.sector || 'Technology',
+          brokerage: row.account_name || 'Unknown',
+          shares: row.shares,
+          purchase_price: row.purchase_price,
+          current_price: row.purchase_price,
+          total_cost: row.total_cost,
+          total_value: row.total_value,
+          gain_loss: row.total_value - row.total_cost,
+          gain_loss_percent: row.total_cost > 0 ? ((row.total_value - row.total_cost) / row.total_cost) * 100 : 0,
+          last_updated: new Date()
+        }))
+        
+        await savePortfolioData(holdings)
       } else if (dataOption === 'manual' && manualHoldings.length > 0) {
         // Use manual data
         holdings = manualHoldings.map(holding => ({
@@ -298,7 +326,7 @@ export default function OnboardingPage() {
 
         {/* Form Content */}
         <div className="bg-[#FDFBF7] p-8 rounded-2xl shadow-lg border border-[#E3DED5]">
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-6">
             {step === 1 && (
               <div className="space-y-6">
                 <div>
@@ -625,7 +653,7 @@ export default function OnboardingPage() {
               {step > 1 && (
                 <button
                   type="button"
-                  onClick={() => setStep(step - 1)}
+                  onClick={handlePrevious}
                   className="px-6 py-3 border border-[#E3DED5] text-[#5A6A73] rounded-lg hover:bg-[#F5F1EB] transition-colors"
                 >
                   Previous
@@ -636,14 +664,15 @@ export default function OnboardingPage() {
                 {step < 4 ? (
                   <button
                     type="button"
-                    onClick={() => setStep(step + 1)}
+                    onClick={handleNext}
                     className="px-6 py-3 bg-[#1C3D5A] text-white rounded-lg hover:bg-[#C9A66B] transition-colors"
                   >
                     Next
                   </button>
                 ) : (
                   <button
-                    type="submit"
+                    type="button"
+                    onClick={handleComplete}
                     disabled={loading}
                     className="px-6 py-3 bg-[#C9A66B] text-white rounded-lg hover:bg-[#1C3D5A] transition-colors disabled:opacity-50"
                   >
@@ -652,7 +681,7 @@ export default function OnboardingPage() {
                 )}
               </div>
             </div>
-          </form>
+          </div>
         </div>
       </div>
     </YachtLayout>
