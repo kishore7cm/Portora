@@ -50,9 +50,6 @@ export default function SimpleDashboard() {
   // Insights system
   const [investorLevel, setInvestorLevel] = useState<'beginner' | 'intermediate' | 'expert'>('beginner')
   const [insights, setInsights] = useState<any[]>([])
-  
-  // Onboarding state
-  const [needsOnboarding, setNeedsOnboarding] = useState(false)
 
   // Navigation tabs
   const navigationTabs = [
@@ -63,14 +60,19 @@ export default function SimpleDashboard() {
 
   const [activeTab, setActiveTab] = useState('summary')
 
+  // Redirect to onboarding if no user
+  useEffect(() => {
+    if (!user) {
+      console.log('🔍 No user found, redirecting to onboarding')
+      router.push('/onboarding')
+      return
+    }
+  }, [user, router])
+
   // Fetch portfolio data from Firebase
   useEffect(() => {
     const fetchPortfolioData = async () => {
       if (!user) {
-        console.log('🔍 No user found, showing onboarding')
-        setNeedsOnboarding(true)
-        setPortfolioData([])
-        setLoading(false)
         return
       }
 
@@ -334,34 +336,7 @@ export default function SimpleDashboard() {
     )
   }
 
-  // Handle tab clicks when user needs onboarding
-  const handleTabClick = (tabId: string) => {
-    if (needsOnboarding) {
-      // Redirect to onboarding page when any tab is clicked
-      router.push('/onboarding')
-      return
-    }
-    setActiveTab(tabId)
-  }
 
-  // Onboarding button component
-  const OnboardingButton = () => (
-    <div className="text-center py-12">
-      <div className="bg-gradient-to-r from-[#FDFBF7] to-[#EDE9E3] rounded-2xl p-8 max-w-2xl mx-auto">
-        <h2 className="text-2xl font-bold text-[#1C3D5A] mb-4">Complete Your Profile</h2>
-        <p className="text-[#5A6A73] mb-6">
-          Set up your investment portfolio to unlock personalized insights and track your financial growth.
-        </p>
-        <Link
-          href="/onboarding"
-          className="bg-[#C9A66B] text-white px-8 py-4 rounded-lg font-semibold hover:bg-[#1C3D5A] transition-colors inline-flex items-center"
-        >
-          <User className="w-5 h-5 mr-2" />
-          Complete Profile Setup
-        </Link>
-      </div>
-    </div>
-  )
 
   // Update insights when portfolio data or investor level changes
   useEffect(() => {
@@ -491,7 +466,7 @@ export default function SimpleDashboard() {
                 {navigationTabs.map(({ id, label, icon: Icon, description }) => (
                   <button
                     key={id}
-                    onClick={() => handleTabClick(id)}
+                    onClick={() => setActiveTab(id)}
                     className={`w-full flex items-center px-3 py-2 rounded-lg text-[#1C3D5A] hover:bg-[#EDE9E3] hover:text-[#C9A66B] transition-all ${
                       activeTab === id ? "bg-[#1C3D5A] text-[#FDFBF7]" : ""
                     }`}
@@ -526,139 +501,8 @@ export default function SimpleDashboard() {
                 </div>
               )}
 
-              {/* Onboarding Content - Show when user needs to complete profile */}
-              {needsOnboarding && (
-                <div className="space-y-8">
-                  {/* Header */}
-                  <div className="text-center">
-                    <h1 className="text-4xl font-bold text-[#1C3D5A] mb-4">Complete Your Profile</h1>
-                    <p className="text-lg text-[#5A6A73] max-w-2xl mx-auto">
-                      Set up your investment portfolio to get personalized insights and track your financial growth.
-                    </p>
-                  </div>
 
-                  {/* Onboarding Steps */}
-                  <div className="grid md:grid-cols-3 gap-6">
-                    <div className="text-center p-6 bg-white rounded-lg border border-gray-200">
-                      <div className="w-16 h-16 bg-[#C9A66B] rounded-full flex items-center justify-center mx-auto mb-4">
-                        <User className="w-8 h-8 text-white" />
-                      </div>
-                      <h3 className="text-lg font-semibold text-[#1C3D5A] mb-2">Complete Your Profile</h3>
-                      <p className="text-[#5A6A73] text-sm">Tell us about your investment experience and goals</p>
-                    </div>
-
-                    <div className="text-center p-6 bg-white rounded-lg border border-gray-200">
-                      <div className="w-16 h-16 bg-[#C9A66B] rounded-full flex items-center justify-center mx-auto mb-4">
-                        <Database className="w-8 h-8 text-white" />
-                      </div>
-                      <h3 className="text-lg font-semibold text-[#1C3D5A] mb-2">Add Your Holdings</h3>
-                      <p className="text-[#5A6A73] text-sm">Import or manually enter your investment portfolio</p>
-                    </div>
-
-                    <div className="text-center p-6 bg-white rounded-lg border border-gray-200">
-                      <div className="w-16 h-16 bg-[#C9A66B] rounded-full flex items-center justify-center mx-auto mb-4">
-                        <Brain className="w-8 h-8 text-white" />
-                      </div>
-                      <h3 className="text-lg font-semibold text-[#1C3D5A] mb-2">Get Insights</h3>
-                      <p className="text-[#5A6A73] text-sm">Receive personalized recommendations and analysis</p>
-                    </div>
-                  </div>
-
-                  {/* Call to Action */}
-                  <div className="text-center bg-gradient-to-r from-[#FDFBF7] to-[#EDE9E3] rounded-2xl p-8">
-                    <h2 className="text-3xl font-bold text-[#1C3D5A] mb-4">Ready to Get Started?</h2>
-                    <p className="text-[#5A6A73] mb-8 max-w-2xl mx-auto">
-                      Complete your profile setup to unlock personalized portfolio insights, 
-                      track your investments, and make informed financial decisions.
-                    </p>
-                    <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                      <Link
-                        href="/onboarding"
-                        className="bg-[#C9A66B] text-white px-8 py-4 rounded-lg font-semibold hover:bg-[#1C3D5A] transition-colors flex items-center justify-center"
-                      >
-                        <User className="w-5 h-5 mr-2" />
-                        Complete Profile Setup
-                      </Link>
-                      <button
-                        onClick={() => setNeedsOnboarding(false)}
-                        className="border-2 border-[#C9A66B] text-[#C9A66B] px-8 py-4 rounded-lg font-semibold hover:bg-[#C9A66B] hover:text-white transition-colors"
-                      >
-                        Skip for Now
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Features Preview */}
-                  <div>
-                    <h3 className="text-2xl font-bold text-[#1C3D5A] text-center mb-8">What You'll Get</h3>
-                    <div className="grid md:grid-cols-2 gap-8">
-                      <div className="space-y-4">
-                        <div className="flex items-start gap-3">
-                          <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mt-1">
-                            <CheckCircle className="w-4 h-4 text-green-600" />
-                          </div>
-                          <div>
-                            <h4 className="font-semibold text-[#1C3D5A]">Portfolio Tracking</h4>
-                            <p className="text-[#5A6A73] text-sm">Monitor your investments in real-time with detailed analytics</p>
-                          </div>
-                        </div>
-                        <div className="flex items-start gap-3">
-                          <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mt-1">
-                            <CheckCircle className="w-4 h-4 text-green-600" />
-                          </div>
-                          <div>
-                            <h4 className="font-semibold text-[#1C3D5A]">Personalized Insights</h4>
-                            <p className="text-[#5A6A73] text-sm">Get recommendations based on your experience level and goals</p>
-                          </div>
-                        </div>
-                        <div className="flex items-start gap-3">
-                          <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mt-1">
-                            <CheckCircle className="w-4 h-4 text-green-600" />
-                          </div>
-                          <div>
-                            <h4 className="font-semibold text-[#1C3D5A]">Risk Analysis</h4>
-                            <p className="text-[#5A6A73] text-sm">Understand your portfolio's risk profile and diversification</p>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="space-y-4">
-                        <div className="flex items-start gap-3">
-                          <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mt-1">
-                            <CheckCircle className="w-4 h-4 text-green-600" />
-                          </div>
-                          <div>
-                            <h4 className="font-semibold text-[#1C3D5A]">Performance Metrics</h4>
-                            <p className="text-[#5A6A73] text-sm">Track gains, losses, and overall portfolio performance</p>
-                          </div>
-                        </div>
-                        <div className="flex items-start gap-3">
-                          <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mt-1">
-                            <CheckCircle className="w-4 h-4 text-green-600" />
-                          </div>
-                          <div>
-                            <h4 className="font-semibold text-[#1C3D5A]">Asset Allocation</h4>
-                            <p className="text-[#5A6A73] text-sm">Visualize your portfolio distribution across different asset classes</p>
-                          </div>
-                        </div>
-                        <div className="flex items-start gap-3">
-                          <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mt-1">
-                            <CheckCircle className="w-4 h-4 text-green-600" />
-                          </div>
-                          <div>
-                            <h4 className="font-semibold text-[#1C3D5A]">Goal Tracking</h4>
-                            <p className="text-[#5A6A73] text-sm">Set and monitor progress toward your financial objectives</p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Regular Dashboard Content - Only show when not in onboarding mode */}
-              {!needsOnboarding && (
-                <>
-                  {/* Add Holdings Form */}
+              {/* Add Holdings Form */}
               {showAddHoldings && (
                 <div className="space-y-6">
                   <div className="bg-white p-6 rounded-2xl shadow-lg border">
@@ -813,10 +657,6 @@ export default function SimpleDashboard() {
               {/* Summary Tab */}
               {activeTab === 'summary' && (
                 <div className="space-y-6">
-                  {/* Show onboarding button if no portfolio data */}
-                  {portfolioData.length === 0 && (
-                    <OnboardingButton />
-                  )}
                   
                   {/* Add Holdings Button */}
                   {portfolioData.length > 0 && (
@@ -943,25 +783,17 @@ export default function SimpleDashboard() {
               {/* Holdings Tab */}
               {activeTab === 'holdings' && (
                 <div className="space-y-6">
-                  {portfolioData.length === 0 ? (
-                    <OnboardingButton />
-                  ) : (
-                    <div className="bg-white p-6 rounded-2xl shadow-lg border">
-                      <h3 className="text-xl font-semibold mb-4 text-[#1C3D5A]">All Holdings</h3>
-                      <p className="text-[#5A6A73]">Detailed holdings view coming soon...</p>
-                    </div>
-                  )}
+                  <div className="bg-white p-6 rounded-2xl shadow-lg border">
+                    <h3 className="text-xl font-semibold mb-4 text-[#1C3D5A]">All Holdings</h3>
+                    <p className="text-[#5A6A73]">Detailed holdings view coming soon...</p>
+                  </div>
                 </div>
               )}
 
               {/* Insights Tab */}
               {activeTab === 'insights' && (
                 <div className="space-y-6">
-                  {portfolioData.length === 0 ? (
-                    <OnboardingButton />
-                  ) : (
-                    <>
-                      {/* Investor Level Selector */}
+                  {/* Investor Level Selector */}
                       <div className="bg-white p-6 rounded-lg border border-gray-200">
                         <h3 className="text-lg font-semibold mb-4 text-black">Your Investment Experience</h3>
                         <div className="flex gap-4">
@@ -1018,11 +850,7 @@ export default function SimpleDashboard() {
                           </div>
                         )}
                       </div>
-                    </>
-                  )}
                 </div>
-              )}
-                </>
               )}
             </div>
           </div>
