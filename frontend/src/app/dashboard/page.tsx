@@ -338,11 +338,30 @@ export default function SimpleDashboard() {
   const handleTabClick = (tabId: string) => {
     if (needsOnboarding) {
       // Redirect to onboarding page when any tab is clicked
-      window.location.href = '/onboarding'
+      router.push('/onboarding')
       return
     }
     setActiveTab(tabId)
   }
+
+  // Onboarding button component
+  const OnboardingButton = () => (
+    <div className="text-center py-12">
+      <div className="bg-gradient-to-r from-[#FDFBF7] to-[#EDE9E3] rounded-2xl p-8 max-w-2xl mx-auto">
+        <h2 className="text-2xl font-bold text-[#1C3D5A] mb-4">Complete Your Profile</h2>
+        <p className="text-[#5A6A73] mb-6">
+          Set up your investment portfolio to unlock personalized insights and track your financial growth.
+        </p>
+        <Link
+          href="/onboarding"
+          className="bg-[#C9A66B] text-white px-8 py-4 rounded-lg font-semibold hover:bg-[#1C3D5A] transition-colors inline-flex items-center"
+        >
+          <User className="w-5 h-5 mr-2" />
+          Complete Profile Setup
+        </Link>
+      </div>
+    </div>
+  )
 
   // Update insights when portfolio data or investor level changes
   useEffect(() => {
@@ -794,6 +813,11 @@ export default function SimpleDashboard() {
               {/* Summary Tab */}
               {activeTab === 'summary' && (
                 <div className="space-y-6">
+                  {/* Show onboarding button if no portfolio data */}
+                  {portfolioData.length === 0 && (
+                    <OnboardingButton />
+                  )}
+                  
                   {/* Add Holdings Button */}
                   {portfolioData.length > 0 && (
                     <div className="flex justify-end">
@@ -917,19 +941,27 @@ export default function SimpleDashboard() {
               )}
 
               {/* Holdings Tab */}
-              {activeTab === 'holdings' && portfolioData.length > 0 && (
+              {activeTab === 'holdings' && (
                 <div className="space-y-6">
-                  <div className="bg-white p-6 rounded-2xl shadow-lg border">
-                    <h3 className="text-xl font-semibold mb-4 text-[#1C3D5A]">All Holdings</h3>
-                    <p className="text-[#5A6A73]">Detailed holdings view coming soon...</p>
-                  </div>
+                  {portfolioData.length === 0 ? (
+                    <OnboardingButton />
+                  ) : (
+                    <div className="bg-white p-6 rounded-2xl shadow-lg border">
+                      <h3 className="text-xl font-semibold mb-4 text-[#1C3D5A]">All Holdings</h3>
+                      <p className="text-[#5A6A73]">Detailed holdings view coming soon...</p>
+                    </div>
+                  )}
                 </div>
               )}
 
               {/* Insights Tab */}
               {activeTab === 'insights' && (
                 <div className="space-y-6">
-                  {/* Investor Level Selector */}
+                  {portfolioData.length === 0 ? (
+                    <OnboardingButton />
+                  ) : (
+                    <>
+                      {/* Investor Level Selector */}
                   <div className="bg-white p-6 rounded-lg border border-gray-200">
                     <h3 className="text-lg font-semibold mb-4 text-black">Your Investment Experience</h3>
                     <div className="flex gap-4">
@@ -999,9 +1031,9 @@ export default function SimpleDashboard() {
                       </button>
                     </div>
                   )}
+                    </>
+                  )}
                 </div>
-              )}
-                </>
               )}
             </div>
           </div>
