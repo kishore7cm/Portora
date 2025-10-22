@@ -36,7 +36,7 @@ export function useAuth() {
   const logout = async () => {
     try {
       await signOut(auth)
-      router.push('/auth')
+      router.push('/login')
     } catch (error) {
       console.error('Error signing out:', error)
     }
