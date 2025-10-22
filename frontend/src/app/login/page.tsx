@@ -21,9 +21,21 @@ export default function LoginPage() {
   useEffect(() => {
     if (!authLoading && user) {
       console.log('✅ User already authenticated, redirecting to dashboard')
-      router.push('/dashboard')
+      // Use replace instead of push to prevent back button issues
+      router.replace('/dashboard')
     }
   }, [user, authLoading, router])
+
+  // Also check localStorage for immediate redirect
+  useEffect(() => {
+    const isLoggedIn = localStorage.getItem('loggedIn') === 'true'
+    const userId = localStorage.getItem('userId')
+    
+    if (isLoggedIn && userId && !authLoading) {
+      console.log('✅ Found cached login, redirecting to dashboard')
+      router.replace('/dashboard')
+    }
+  }, [authLoading, router])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

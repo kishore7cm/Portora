@@ -24,9 +24,16 @@ export default function LandingPage() {
   const router = useRouter()
 
   useEffect(() => {
-    if (!loading && !user) {
-      // User not logged in, redirect to login
-      router.push('/login')
+    if (!loading) {
+      if (!user) {
+        // User not logged in, redirect to login
+        console.log('🔍 No user found, redirecting to login')
+        router.replace('/login')
+      } else {
+        // User is logged in, redirect to dashboard
+        console.log('✅ User authenticated, redirecting to dashboard')
+        router.replace('/dashboard')
+      }
     }
   }, [user, loading, router])
 

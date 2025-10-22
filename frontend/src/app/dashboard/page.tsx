@@ -64,7 +64,7 @@ export default function SimpleDashboard() {
   useEffect(() => {
     if (!user) {
       console.log('🔍 No user found, redirecting to login')
-      router.push('/login')
+      router.replace('/login')
       return
     }
   }, [user, router])
@@ -160,13 +160,13 @@ export default function SimpleDashboard() {
         // No portfolio data found - redirect to onboarding
         console.log('⚠️ No portfolio data available - redirecting to onboarding')
         setPortfolioData([])
-        router.push('/onboarding')
+        router.replace('/onboarding')
         
       } catch (error) {
         console.log('❌ Error fetching data:', error)
         setPortfolioData([])
         // Redirect to onboarding if no portfolio data exists
-        router.push('/onboarding')
+        router.replace('/onboarding')
       } finally {
         setLoading(false)
       }
