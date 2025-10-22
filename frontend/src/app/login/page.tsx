@@ -14,28 +14,32 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [redirecting, setRedirecting] = useState(false)
   const router = useRouter()
   const { user, loading: authLoading } = useAuth()
 
-  // Redirect if already authenticated
+  // Redirect if already authenticated - single useEffect to prevent conflicts
   useEffect(() => {
-    if (!authLoading && user) {
-      console.log('✅ User already authenticated, redirecting to dashboard')
-      // Use replace instead of push to prevent back button issues
+    if (authLoading || redirecting) return // Don't redirect while loading or already redirecting
+    
+    // Check Firebase auth state first
+    if (user) {
+      console.log('✅ User already authenticated via Firebase, redirecting to dashboard')
+      setRedirecting(true)
       router.replace('/dashboard')
+      return
     }
-  }, [user, authLoading, router])
-
-  // Also check localStorage for immediate redirect
-  useEffect(() => {
+    
+    // Fallback to localStorage check
     const isLoggedIn = localStorage.getItem('loggedIn') === 'true'
     const userId = localStorage.getItem('userId')
     
-    if (isLoggedIn && userId && !authLoading) {
+    if (isLoggedIn && userId) {
       console.log('✅ Found cached login, redirecting to dashboard')
+      setRedirecting(true)
       router.replace('/dashboard')
     }
-  }, [authLoading, router])
+  }, [user, authLoading, redirecting, router])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -67,14 +71,16 @@ export default function LoginPage() {
     }
   }
 
-  // Show loading while checking authentication
-  if (authLoading) {
+  // Show loading while checking authentication or redirecting
+  if (authLoading || redirecting) {
     return (
       <YachtLayout title="Welcome to Portora" subtitle="Yacht Club Premium – Sophisticated Wealth Management">
         <div className="max-w-md mx-auto">
           <div className="bg-[#FDFBF7] p-8 rounded-2xl shadow-lg border border-[#E3DED5] text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#C9A66B] mx-auto mb-4"></div>
-            <p className="text-[#5A6A73]">Checking authentication...</p>
+            <p className="text-[#5A6A73]">
+              {redirecting ? 'Redirecting to dashboard...' : 'Checking authentication...'}
+            </p>
           </div>
         </div>
       </YachtLayout>

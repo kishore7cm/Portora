@@ -2,7 +2,7 @@
 
 import { useAuth } from '@/hooks/useAuth'
 import { useRouter } from 'next/navigation'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { 
   TrendingUp, 
@@ -22,25 +22,33 @@ import {
 export default function LandingPage() {
   const { user, loading } = useAuth()
   const router = useRouter()
+  const [redirecting, setRedirecting] = useState(false)
 
   useEffect(() => {
-    if (!loading) {
-      if (!user) {
-        // User not logged in, redirect to login
-        console.log('🔍 No user found, redirecting to login')
-        router.replace('/login')
-      } else {
-        // User is logged in, redirect to dashboard
-        console.log('✅ User authenticated, redirecting to dashboard')
-        router.replace('/dashboard')
-      }
+    if (loading || redirecting) return // Don't redirect while loading or already redirecting
+    
+    if (!user) {
+      // User not logged in, redirect to login
+      console.log('🔍 No user found, redirecting to login')
+      setRedirecting(true)
+      router.replace('/login')
+    } else {
+      // User is logged in, redirect to dashboard
+      console.log('✅ User authenticated, redirecting to dashboard')
+      setRedirecting(true)
+      router.replace('/dashboard')
     }
-  }, [user, loading, router])
+  }, [user, loading, redirecting, router])
 
-  if (loading) {
+  if (loading || redirecting) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#FDFBF7] to-[#EDE9E3] flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#C9A66B]"></div>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#C9A66B] mx-auto mb-4"></div>
+          <p className="text-[#5A6A73]">
+            {redirecting ? 'Redirecting...' : 'Loading...'}
+          </p>
+        </div>
       </div>
     )
   }
