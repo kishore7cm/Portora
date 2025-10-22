@@ -237,8 +237,12 @@ export default function OnboardingPage() {
         await savePortfolioData([cashHolding])
       }
 
-      // Redirect to dashboard
-      router.push('/dashboard')
+      console.log('✅ Onboarding completed successfully, redirecting to dashboard...')
+      
+      // Small delay to ensure all data is saved before redirect
+      setTimeout(() => {
+        router.push('/dashboard')
+      }, 1000)
     } catch (error: any) {
       setError(error.message)
     } finally {
@@ -637,9 +641,14 @@ export default function OnboardingPage() {
                   Portfolio Setup Complete!
                 </h3>
                 <p className="text-[#5A6A73]">
-                  We've created a sample portfolio for you to get started. 
-                  You can modify it later in your dashboard.
+                  {loading ? 'Saving your portfolio data...' : 'We\'ve created a portfolio for you to get started. You can modify it later in your dashboard.'}
                 </p>
+                {loading && (
+                  <div className="flex items-center justify-center space-x-2">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[#C9A66B]"></div>
+                    <span className="text-[#5A6A73] text-sm">Setting up your dashboard...</span>
+                  </div>
+                )}
               </div>
             )}
 
@@ -676,7 +685,7 @@ export default function OnboardingPage() {
                     disabled={loading}
                     className="px-6 py-3 bg-[#C9A66B] text-white rounded-lg hover:bg-[#1C3D5A] transition-colors disabled:opacity-50"
                   >
-                    {loading ? 'Setting up...' : 'Complete Setup'}
+                    {loading ? 'Completing Setup...' : 'Complete Setup & Go to Dashboard'}
                   </button>
                 )}
               </div>
