@@ -277,13 +277,26 @@ export default function OnboardingPage() {
     
     setLoading(true)
     try {
+      // Load mock portfolio data
+      const mockData = await import('@/data/mock_portfolio.json')
+      const mockHoldings = mockData.default || mockData
+      
+      // Save mock data to Firebase
+      await savePortfolioData(mockHoldings)
+      
+      // Update user document
       await setDoc(doc(db, 'users', user.uid), {
         onboardingCompleted: true,
-        has_portfolio_data: false,
+        has_portfolio_data: true,
         updated_at: new Date().toISOString()
       }, { merge: true })
       
-      router.push('/dashboard')
+      console.log('✅ Mock portfolio data loaded, redirecting to dashboard...')
+      
+      // Small delay to ensure data is saved
+      setTimeout(() => {
+        router.push('/dashboard')
+      }, 1000)
     } catch (error: any) {
       setError(error.message)
     } finally {
@@ -446,9 +459,158 @@ export default function OnboardingPage() {
                 
                 {/* Portfolio Data Options */}
                 <div className="border-t border-[#E3DED5] pt-6">
-                  <h3 className="text-lg font-semibold text-[#1C3D5A] mb-4">Add Your Portfolio Data (Optional)</h3>
+                  <h3 className="text-lg font-semibold text-[#1C3D5A] mb-4">Add Your Portfolio Data</h3>
                   
                   <div className="space-y-4">
+                    {/* Manual Upload Option */}
+                    <div className="border border-[#E3DED5] rounded-lg p-4">
+                      <div className="flex items-center mb-3">
+                        <input
+                          type="radio"
+                          name="dataOption"
+                          value="manual"
+                          checked={dataOption === 'manual'}
+                          onChange={(e) => setDataOption(e.target.value as 'manual')}
+                          className="text-[#C9A66B] focus:ring-[#C9A66B]"
+                        />
+                        <label className="ml-3 font-medium text-[#1C3D5A]">Upload Data Manually</label>
+                        <span className="ml-2 bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">Active</span>
+                      </div>
+                      {dataOption === 'manual' && (
+                        <div className="ml-6 space-y-4">
+                          <button
+                            type="button"
+                            onClick={addManualHolding}
+                            className="bg-[#C9A66B] text-white px-4 py-2 rounded-lg hover:bg-[#1C3D5A] transition-colors"
+                          >
+                            Add Holding
+                          </button>
+                          {manualHoldings.map((holding, index) => (
+                            <div key={index} className="bg-[#F5F1EB] p-4 rounded-lg space-y-3">
+                              <div className="flex justify-between items-center">
+                                <h4 className="font-medium text-[#1C3D5A]">Holding {index + 1}</h4>
+                                <button
+                                  type="button"
+                                  onClick={() => removeManualHolding(index)}
+                                  className="text-red-500 hover:text-red-700"
+                                >
+                                  Remove
+                                </button>
+                              </div>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {/* Ticker/Symbol */}
+                                <div>
+                                  <label className="block text-sm font-medium text-[#1C3D5A] mb-1">Ticker/Symbol</label>
+                                  <input
+                                    type="text"
+                                    placeholder="e.g., AAPL, MSFT, VTI"
+                                    value={holding.symbol || ''}
+                                    onChange={(e) => updateManualHolding(index, 'symbol', e.target.value)}
+                                    className="w-full px-3 py-2 border border-[#E3DED5] rounded-lg focus:ring-2 focus:ring-[#C9A66B] focus:border-transparent"
+                                  />
+                                </div>
+
+                                {/* Quantity */}
+                                <div>
+                                  <label className="block text-sm font-medium text-[#1C3D5A] mb-1">Quantity</label>
+                                  <input
+                                    type="number"
+                                    placeholder="e.g., 100"
+                                    value={holding.shares || ''}
+                                    onChange={(e) => updateManualHolding(index, 'shares', parseFloat(e.target.value) || 0)}
+                                    className="w-full px-3 py-2 border border-[#E3DED5] rounded-lg focus:ring-2 focus:ring-[#C9A66B] focus:border-transparent"
+                                  />
+                                </div>
+
+                                {/* Average Buy Price */}
+                                <div>
+                                  <label className="block text-sm font-medium text-[#1C3D5A] mb-1">Average Buy Price</label>
+                                  <input
+                                    type="number"
+                                    step="0.01"
+                                    placeholder="e.g., 150.00"
+                                    value={holding.purchase_price || ''}
+                                    onChange={(e) => updateManualHolding(index, 'purchase_price', parseFloat(e.target.value) || 0)}
+                                    className="w-full px-3 py-2 border border-[#E3DED5] rounded-lg focus:ring-2 focus:ring-[#C9A66B] focus:border-transparent"
+                                  />
+                                </div>
+
+                                {/* Sector */}
+                                <div>
+                                  <label className="block text-sm font-medium text-[#1C3D5A] mb-1">Sector</label>
+                                  <select
+                                    value={holding.sector || ''}
+                                    onChange={(e) => updateManualHolding(index, 'sector', e.target.value)}
+                                    className="w-full px-3 py-2 border border-[#E3DED5] rounded-lg focus:ring-2 focus:ring-[#C9A66B] focus:border-transparent"
+                                  >
+                                    <option value="">Select sector</option>
+                                    <option value="Technology">Technology</option>
+                                    <option value="Healthcare">Healthcare</option>
+                                    <option value="Finance">Finance</option>
+                                    <option value="Consumer">Consumer</option>
+                                    <option value="Energy">Energy</option>
+                                    <option value="Industrial">Industrial</option>
+                                    <option value="Other">Other</option>
+                                  </select>
+                                </div>
+
+                                {/* Holding Type */}
+                                <div>
+                                  <label className="block text-sm font-medium text-[#1C3D5A] mb-1">Holding Type</label>
+                                  <select
+                                    value={holding.asset_type || ''}
+                                    onChange={(e) => updateManualHolding(index, 'asset_type', e.target.value)}
+                                    className="w-full px-3 py-2 border border-[#E3DED5] rounded-lg focus:ring-2 focus:ring-[#C9A66B] focus:border-transparent"
+                                  >
+                                    <option value="">Select type</option>
+                                    <option value="Stock">Stock</option>
+                                    <option value="ETF">ETF</option>
+                                    <option value="Bond">Bond</option>
+                                    <option value="Crypto">Crypto</option>
+                                    <option value="Cash">Cash</option>
+                                    <option value="Other">Other</option>
+                                  </select>
+                                </div>
+
+                                {/* Current Value */}
+                                <div>
+                                  <label className="block text-sm font-medium text-[#1C3D5A] mb-1">Current Value ($)</label>
+                                  <input
+                                    type="number"
+                                    step="0.01"
+                                    placeholder="e.g., 10000"
+                                    value={holding.total_value || ''}
+                                    onChange={(e) => updateManualHolding(index, 'total_value', parseFloat(e.target.value) || 0)}
+                                    className="w-full px-3 py-2 border border-[#E3DED5] rounded-lg focus:ring-2 focus:ring-[#C9A66B] focus:border-transparent"
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Plaid Integration Option */}
+                    <div className="border border-[#E3DED5] rounded-lg p-4 opacity-50">
+                      <div className="flex items-center mb-3">
+                        <input
+                          type="radio"
+                          name="dataOption"
+                          value="plaid"
+                          disabled
+                          className="text-gray-400"
+                        />
+                        <label className="ml-3 font-medium text-gray-500">Connect via Plaid</label>
+                        <span className="ml-2 bg-gray-100 text-gray-500 text-xs px-2 py-1 rounded-full">Coming Soon</span>
+                      </div>
+                      <div className="ml-6">
+                        <p className="text-gray-500 text-sm">
+                          Automatically sync your portfolio data from your brokerage accounts.
+                        </p>
+                      </div>
+                    </div>
+
                     {/* CSV Upload Option */}
                     <div className="border border-[#E3DED5] rounded-lg p-4">
                       <div className="flex items-center mb-3">
@@ -624,7 +786,7 @@ export default function OnboardingPage() {
                         onClick={handleSkip}
                         className="text-[#5A6A73] hover:text-[#C9A66B] transition-colors underline"
                       >
-                        Skip for now - I'll add my portfolio later
+                        Skip for now - Load sample portfolio
                       </button>
                     </div>
                   </div>

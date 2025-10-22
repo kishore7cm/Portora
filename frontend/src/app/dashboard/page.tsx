@@ -60,11 +60,11 @@ export default function SimpleDashboard() {
 
   const [activeTab, setActiveTab] = useState('summary')
 
-  // Redirect to onboarding if no user
+  // Check portfolio data and redirect accordingly
   useEffect(() => {
     if (!user) {
-      console.log('🔍 No user found, redirecting to onboarding')
-      router.push('/onboarding')
+      console.log('🔍 No user found, redirecting to login')
+      router.push('/login')
       return
     }
   }, [user, router])
@@ -157,20 +157,23 @@ export default function SimpleDashboard() {
           }
         }
         
-        // No fallback test data - show empty state instead
-        console.log('⚠️ No portfolio data available - showing empty state')
+        // No portfolio data found - redirect to onboarding
+        console.log('⚠️ No portfolio data available - redirecting to onboarding')
         setPortfolioData([])
+        router.push('/onboarding')
         
       } catch (error) {
         console.log('❌ Error fetching data:', error)
         setPortfolioData([])
+        // Redirect to onboarding if no portfolio data exists
+        router.push('/onboarding')
       } finally {
         setLoading(false)
       }
     }
 
     fetchPortfolioData()
-  }, [user])
+  }, [user, router])
 
   // Calculate metrics from portfolio data
   const calculateMetrics = () => {
