@@ -166,15 +166,14 @@ export default function SimpleDashboard() {
       } catch (error) {
         console.log('❌ Error fetching data:', error)
         setPortfolioData([])
-        // Redirect to onboarding if no portfolio data exists
-        router.replace('/onboarding')
+        // No redirect - show empty state with options
       } finally {
         setLoading(false)
       }
     }
 
     fetchPortfolioData()
-  }, [user, router])
+  }, [user])
 
   // Calculate metrics from portfolio data
   const calculateMetrics = () => {
