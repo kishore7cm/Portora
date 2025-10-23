@@ -35,7 +35,7 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
     })
 
     return () => unsubscribe()
-  }, [router])
+  }, [])
 
   if (loading) {
     return (

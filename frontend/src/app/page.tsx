@@ -16,7 +16,7 @@ export default function LandingPage() {
     } else {
       router.replace('/login')
     }
-  }, [user, loading, router])
+  }, [user, loading])
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#FDFBF7] to-[#EDE9E3] flex items-center justify-center">

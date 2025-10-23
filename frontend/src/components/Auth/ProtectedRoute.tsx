@@ -16,7 +16,7 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
     if (!loading && !user) {
       router.push('/auth')
     }
-  }, [user, loading, router])
+  }, [user, loading])
 
   if (loading) {
     return (
