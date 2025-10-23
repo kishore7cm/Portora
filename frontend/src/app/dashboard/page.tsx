@@ -24,20 +24,9 @@ import { doc, setDoc } from 'firebase/firestore'
 import { db } from '@/lib/firebaseClient'
 
 export default function SimpleDashboard() {
+  // ALL HOOKS MUST BE CALLED FIRST - NO CONDITIONAL RETURNS BEFORE ALL HOOKS
   const { user, loading: authLoading, logout } = useAuth()
   const router = useRouter()
-  
-  // Show loading while authentication is being checked - MUST be before any other hooks
-  if (authLoading) {
-    return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#C9A66B] mx-auto mb-4"></div>
-          <p className="text-[#5A6A73]">Loading...</p>
-        </div>
-      </div>
-    )
-  }
   
   // State for portfolio data
   const [portfolioData, setPortfolioData] = useState<any[]>([])
@@ -71,6 +60,18 @@ export default function SimpleDashboard() {
   ]
 
   const [activeTab, setActiveTab] = useState('summary')
+  
+  // Show loading while authentication is being checked - AFTER ALL HOOKS
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#C9A66B] mx-auto mb-4"></div>
+          <p className="text-[#5A6A73]">Loading...</p>
+        </div>
+      </div>
+    )
+  }
 
   // Check portfolio data and redirect accordingly
   useEffect(() => {
