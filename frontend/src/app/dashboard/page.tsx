@@ -61,10 +61,6 @@ export default function SimpleDashboard() {
 
   const [activeTab, setActiveTab] = useState('summary')
   
-  // Memoize redirect function to avoid dependency issues
-  const redirectToLogin = useCallback(() => {
-    router.replace('/login')
-  }, [router])
   
   // Show loading while authentication is being checked - AFTER ALL HOOKS
   if (authLoading) {
