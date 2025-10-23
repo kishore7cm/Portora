@@ -1,9 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { signInWithEmailAndPassword } from 'firebase/auth'
 import { auth } from '@/lib/firebaseClient'
+import { useAuth } from '@/hooks/useAuth'
 import YachtLayout from '@/components/Layout/YachtLayout'
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react'
 
@@ -14,8 +15,15 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const router = useRouter()
+  const { user } = useAuth()
 
-  // Don't redirect here - let the main page handle all redirects
+  // Redirect if user is already authenticated
+  useEffect(() => {
+    if (user) {
+      console.log('✅ User authenticated, redirecting to dashboard')
+      router.replace('/dashboard')
+    }
+  }, [user, router])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -34,11 +42,7 @@ export default function LoginPage() {
       localStorage.setItem('userName', user.displayName || '')
       localStorage.setItem('loggedIn', 'true')
       
-      // Wait a moment for auth state to update, then redirect
-      setTimeout(() => {
-        console.log('🔄 Redirecting to dashboard...')
-        router.replace('/dashboard')
-      }, 500)
+      console.log('✅ Login successful, auth state will update and trigger redirect')
     } catch (error: any) {
       console.error('Login error:', error)
       setError('Incorrect login information')
