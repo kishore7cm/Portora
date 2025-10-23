@@ -157,10 +157,9 @@ export default function SimpleDashboard() {
           }
         }
         
-        // No portfolio data found - redirect to onboarding
-        console.log('⚠️ No portfolio data available - redirecting to onboarding')
+        // No portfolio data found - show empty state with options
+        console.log('⚠️ No portfolio data available - showing empty state')
         setPortfolioData([])
-        router.replace('/onboarding')
         
       } catch (error) {
         console.log('❌ Error fetching data:', error)
