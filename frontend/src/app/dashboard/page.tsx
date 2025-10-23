@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { 
   TrendingUp, 
@@ -61,6 +61,11 @@ export default function SimpleDashboard() {
 
   const [activeTab, setActiveTab] = useState('summary')
   
+  // Memoize redirect function to avoid dependency issues
+  const redirectToLogin = useCallback(() => {
+    router.replace('/login')
+  }, [router])
+  
   // Show loading while authentication is being checked - AFTER ALL HOOKS
   if (authLoading) {
     return (
@@ -77,10 +82,10 @@ export default function SimpleDashboard() {
   useEffect(() => {
     if (!user) {
       console.log('🔍 No user found, redirecting to login')
-      router.replace('/login')
+      redirectToLogin()
       return
     }
-  }, [user, router])
+  }, [user, redirectToLogin])
 
   // Fetch portfolio data from Firebase
   useEffect(() => {
