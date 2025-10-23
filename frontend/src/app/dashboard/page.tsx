@@ -27,6 +27,18 @@ export default function SimpleDashboard() {
   const { user, loading: authLoading, logout } = useAuth()
   const router = useRouter()
   
+  // Show loading while authentication is being checked - MUST be before any other hooks
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#C9A66B] mx-auto mb-4"></div>
+          <p className="text-[#5A6A73]">Loading...</p>
+        </div>
+      </div>
+    )
+  }
+  
   // State for portfolio data
   const [portfolioData, setPortfolioData] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -62,14 +74,12 @@ export default function SimpleDashboard() {
 
   // Check portfolio data and redirect accordingly
   useEffect(() => {
-    if (authLoading) return // Don't redirect while auth is loading
-    
     if (!user) {
       console.log('🔍 No user found, redirecting to login')
       router.replace('/login')
       return
     }
-  }, [user, authLoading, router])
+  }, [user, router])
 
   // Fetch portfolio data from Firebase
   useEffect(() => {
@@ -434,18 +444,6 @@ export default function SimpleDashboard() {
       setInsights([])
     }
   }, [portfolioData, investorLevel])
-
-  // Show loading while authentication is being checked
-  if (authLoading) {
-    return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#C9A66B] mx-auto mb-4"></div>
-          <p className="text-[#5A6A73]">Loading...</p>
-        </div>
-      </div>
-    )
-  }
 
   return (
     <ProtectedRoute>
