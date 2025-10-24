@@ -33,8 +33,14 @@ export default function LoginPage() {
       localStorage.setItem('loggedIn', 'true')
       
       console.log('✅ Login successful, redirecting to dashboard')
-      // Direct redirect after successful login
-      router.replace('/dashboard')
+      console.log('🔍 User object:', user)
+      console.log('🔍 Auth state:', auth.currentUser)
+      
+      // Add a small delay to ensure auth state is updated
+      setTimeout(() => {
+        console.log('🔄 Redirecting to dashboard...')
+        router.replace('/dashboard')
+      }, 100)
     } catch (error: any) {
       console.error('Login error:', error)
       setError('Incorrect login information')

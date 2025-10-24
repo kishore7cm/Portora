@@ -1,6 +1,5 @@
 @import "tailwindcss";
 @import "tw-animate-css";
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=Inter:wght@400;500;600&display=swap');
 
 @custom-variant dark (&:is(.dark *));
 
@@ -124,10 +123,10 @@
   /* Yacht Club Premium Typography */
   h1, h2, h3, h4 {
     @apply text-primary;
-    font-family: 'Playfair Display', serif;
+    font-family: var(--font-playfair), serif;
   }
   p, span, div {
     @apply text-[#5A6A73];
-    font-family: 'Inter', sans-serif;
+    font-family: var(--font-inter), sans-serif;
   }
 }

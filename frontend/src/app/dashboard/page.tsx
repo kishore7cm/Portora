@@ -61,27 +61,20 @@ export default function SimpleDashboard() {
 
   const [activeTab, setActiveTab] = useState('summary')
   
-  
-  // Show loading while authentication is being checked - AFTER ALL HOOKS
-  if (authLoading) {
-    return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#C9A66B] mx-auto mb-4"></div>
-          <p className="text-[#5A6A73]">Loading...</p>
-        </div>
-      </div>
-    )
-  }
-
   // Check portfolio data and redirect accordingly
   useEffect(() => {
-    if (!user) {
+    console.log('🔍 Dashboard auth check:', { user: !!user, authLoading, userId: user?.uid })
+    
+    if (!authLoading && !user) {
       console.log('🔍 No user found, redirecting to login')
-      redirectToLogin()
+      router.replace('/login')
       return
     }
-  }, [user, redirectToLogin])
+    
+    if (user) {
+      console.log('✅ User authenticated, staying on dashboard')
+    }
+  }, [user, authLoading, router])
 
   // Fetch portfolio data from Firebase
   useEffect(() => {
@@ -96,78 +89,100 @@ export default function SimpleDashboard() {
         console.log('🔍 Fetching portfolio data for user:', userId)
         console.log('🔍 User object:', user)
         
-        // Try API first, but fallback to test data if API fails
+        // Try direct Firebase connection first (more reliable)
         try {
-          console.log('🔄 Testing portfolio API endpoint...')
-          const response = await fetch(`/api/portfolio?user_id=${userId}`)
-          console.log('🔍 Portfolio API response status:', response.status)
+          console.log('🔄 Attempting direct Firebase connection...')
+          console.log('🔄 Importing Firebase modules...')
+          const { db } = await import('@/lib/firebaseClient')
+          const { doc, getDoc } = await import('firebase/firestore')
+          console.log('🔄 Firebase modules imported successfully')
+          console.log('🔄 Database instance:', !!db)
           
-          if (response.ok) {
-            const data = await response.json()
-            console.log('📊 Portfolio data response:', data)
+          // Try to get portfolio data from portfolio_data collection
+          console.log('🔄 Creating document reference for:', userId)
+          const portfolioDocRef = doc(db, 'portfolio_data', userId)
+          console.log('🔄 Document reference created:', !!portfolioDocRef)
+          
+          console.log('🔄 Fetching document from Firebase...')
+          const portfolioDoc = await getDoc(portfolioDocRef)
+          console.log('🔄 Document fetch completed, exists:', portfolioDoc.exists())
+          
+          if (portfolioDoc.exists()) {
+            const portfolioData = portfolioDoc.data()
+            console.log('📊 Portfolio data found:', portfolioData)
+            console.log('📊 Holdings array:', portfolioData?.holdings)
+            console.log('📊 Holdings type:', typeof portfolioData?.holdings)
+            console.log('📊 Is array:', Array.isArray(portfolioData?.holdings))
             
-            if (data.data && data.data.length > 0) {
-              console.log('✅ User has portfolio data:', data.data.length, 'holdings')
-              console.log('📊 Holdings data:', data.data)
-              setPortfolioData(data.data)
+            // Check if portfolio data has holdings
+            if (portfolioData?.holdings && Array.isArray(portfolioData.holdings)) {
+              console.log('✅ Found holdings in portfolio_data collection')
+              const holdings = portfolioData.holdings
+              
+              // Transform the data to match dashboard format with better field mapping
+              const transformedHoldings = holdings.map((holding: any) => {
+                console.log('🔄 Transforming holding:', holding)
+                
+                // Calculate total value from shares and current price
+                const shares = holding.shares || holding.Qty || holding.qty || holding.quantity || 0
+                const currentPrice = holding.current_price || holding.Current_Price || holding.price || 0
+                const totalValue = shares * currentPrice || holding.total_value || holding.Total_Value || holding.value || 0
+                
+                // Calculate gain/loss percentage
+                const gainLoss = holding.gain_loss || holding.Gain_Loss || 0
+                const gainLossPercent = totalValue > 0 ? (gainLoss / (totalValue - gainLoss)) * 100 : 0
+                
+                const transformed = {
+                  Ticker: holding.symbol || holding.Ticker || holding.ticker,
+                  Category: holding.category || holding.Category || holding.asset_type || 'Stock',
+                  Qty: shares,
+                  Current_Price: currentPrice,
+                  Total_Value: totalValue,
+                  Gain_Loss: gainLoss,
+                  Gain_Loss_Percent: gainLossPercent,
+                  Brokerage: holding.brokerage || holding.Brokerage || 'Unknown',
+                  last_updated: holding.last_updated || new Date().toISOString()
+                }
+                
+                console.log('✅ Transformed holding:', transformed)
+                return transformed
+              })
+              
+              console.log('✅ Transformed holdings:', transformedHoldings)
+              setPortfolioData(transformedHoldings)
               return
+            } else {
+              console.log('⚠️ No holdings array found in portfolio data')
             }
           } else {
-            console.log('⚠️ API returned error status:', response.status)
-            throw new Error(`API returned ${response.status}: ${response.statusText}`)
+            console.log('⚠️ No portfolio document found for user:', userId)
           }
-        } catch (apiError) {
-          console.log('⚠️ API failed, trying direct Firebase connection:', apiError)
           
-          // Try direct Firebase connection as fallback
+          console.log('⚠️ No portfolio data found in portfolio_data collection')
+        } catch (firebaseError) {
+          console.log('❌ Direct Firebase connection failed:', firebaseError)
+          
+          // Try API as fallback
           try {
-            console.log('🔄 Attempting direct Firebase connection...')
-            console.log('🔄 Importing Firebase modules...')
-            const { db } = await import('@/lib/firebaseClient')
-            const { doc, getDoc } = await import('firebase/firestore')
-            console.log('🔄 Firebase modules imported successfully')
-            console.log('🔄 Database instance:', !!db)
+            console.log('🔄 Trying API as fallback...')
+            const response = await fetch(`/api/portfolio?user_id=${userId}`)
+            console.log('🔍 Portfolio API response status:', response.status)
             
-            // Try to get portfolio data from portfolio_data collection
-            console.log('🔄 Creating document reference for:', userId)
-            const portfolioDocRef = doc(db, 'portfolio_data', userId)
-            console.log('🔄 Document reference created:', !!portfolioDocRef)
-            
-            console.log('🔄 Fetching document from Firebase...')
-            const portfolioDoc = await getDoc(portfolioDocRef)
-            console.log('🔄 Document fetch completed, exists:', portfolioDoc.exists())
-            
-            if (portfolioDoc.exists()) {
-              const portfolioData = portfolioDoc.data()
-              console.log('📊 Portfolio data found:', portfolioData)
+            if (response.ok) {
+              const data = await response.json()
+              console.log('📊 Portfolio data response:', data)
               
-              // Check if portfolio data has holdings
-              if (portfolioData.holdings && Array.isArray(portfolioData.holdings)) {
-                console.log('✅ Found holdings in portfolio_data collection')
-                const holdings = portfolioData.holdings
-                
-                // Transform the data to match dashboard format
-                const transformedHoldings = holdings.map((holding: any) => ({
-                  Ticker: holding.Ticker || holding.ticker || holding.symbol,
-                  Category: holding.Category || holding.category || holding.asset_type || 'Stock',
-                  Qty: holding.Qty || holding.qty || holding.quantity || 0,
-                  Current_Price: holding.Current_Price || holding.current_price || holding.price || 0,
-                  Total_Value: holding.Total_Value || holding.total_value || holding.value || 0,
-                  Gain_Loss: holding.Gain_Loss || holding.gain_loss || 0,
-                  Gain_Loss_Percent: holding.Gain_Loss_Percent || holding.gain_loss_percent || 0,
-                  Brokerage: holding.Brokerage || holding.brokerage || 'Unknown',
-                  last_updated: holding.last_updated || new Date().toISOString()
-                }))
-                
-                console.log('✅ Transformed holdings:', transformedHoldings)
-                setPortfolioData(transformedHoldings)
+              if (data.data && data.data.length > 0) {
+                console.log('✅ User has portfolio data from API:', data.data.length, 'holdings')
+                console.log('📊 Holdings data:', data.data)
+                setPortfolioData(data.data)
                 return
               }
+            } else {
+              console.log('⚠️ API returned error status:', response.status)
             }
-            
-            console.log('⚠️ No portfolio data found in portfolio_data collection')
-          } catch (firebaseError) {
-            console.log('❌ Direct Firebase connection failed:', firebaseError)
+          } catch (apiError) {
+            console.log('❌ API also failed:', apiError)
           }
         }
         
@@ -341,18 +356,6 @@ export default function SimpleDashboard() {
     }
   }
 
-  if (loading) {
-    return (
-      <ProtectedRoute>
-        <div className="min-h-screen bg-gradient-to-br from-[#FDFBF7] to-[#EDE9E3] flex items-center justify-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#C9A66B]"></div>
-        </div>
-      </ProtectedRoute>
-    )
-  }
-
-
-
   // Update insights when portfolio data or investor level changes
   useEffect(() => {
     if (!user || portfolioData.length === 0) {
@@ -446,6 +449,28 @@ export default function SimpleDashboard() {
       setInsights([])
     }
   }, [portfolioData, investorLevel])
+
+  // Show loading while authentication is being checked - AFTER ALL HOOKS
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#C9A66B] mx-auto mb-4"></div>
+          <p className="text-[#5A6A73]">Loading...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (loading) {
+    return (
+      <ProtectedRoute>
+        <div className="min-h-screen bg-gradient-to-br from-[#FDFBF7] to-[#EDE9E3] flex items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#C9A66B]"></div>
+        </div>
+      </ProtectedRoute>
+    )
+  }
 
   return (
     <ProtectedRoute>
