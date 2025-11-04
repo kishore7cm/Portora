@@ -1,6 +1,9 @@
 'use client'
 
 import Link from 'next/link'
+import Navbar from '@/components/site/Navbar'
+import Footer from '@/components/site/Footer'
+import Container from '@/components/ui/Container'
 import { 
   TrendingUp, 
   Shield, 
@@ -16,113 +19,84 @@ import {
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#FDFBF7] to-[#EDE9E3]">
-      {/* Navigation */}
-      <nav className="bg-white/80 backdrop-blur-sm border-b border-[#E3DED5] sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <Link href="/" className="text-2xl font-bold text-[#1C3D5A]">Portora</Link>
-            </div>
-            <div className="hidden md:block">
-              <div className="ml-10 flex items-baseline space-x-8">
-                <Link href="/#features" className="text-[#5A6A73] hover:text-[#1C3D5A] transition-colors">Features</Link>
-                <Link href="/#pricing" className="text-[#5A6A73] hover:text-[#1C3D5A] transition-colors">Pricing</Link>
-                <Link href="/about" className="text-[#1C3D5A] font-semibold">About</Link>
-                <Link href="/contact" className="text-[#5A6A73] hover:text-[#1C3D5A] transition-colors">Contact</Link>
-              </div>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Link 
-                href="/auth" 
-                className="text-[#5A6A73] hover:text-[#1C3D5A] transition-colors"
-              >
-                Sign In
-              </Link>
-              <Link 
-                href="/auth" 
-                className="bg-[#C9A66B] text-white px-6 py-2 rounded-lg hover:bg-[#1C3D5A] transition-colors"
-              >
-                Get Started
-              </Link>
-            </div>
-          </div>
-        </div>
-      </nav>
+    <div className="min-h-screen bg-gradient-soft">
+      <Navbar />
 
       {/* Hero Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-5xl md:text-6xl font-bold text-[#1C3D5A] mb-6">
-            About <span className="text-[#C9A66B]">Portora</span>
-          </h1>
-          <p className="text-xl text-[#5A6A73] mb-8">
-            We're revolutionizing wealth management with sophisticated tools, 
-            AI-powered insights, and a premium experience for serious investors.
-          </p>
-        </div>
+      <section className="py-20 md:py-32">
+        <Container>
+          <div className="max-w-4xl mx-auto text-center">
+            <h1 className="text-5xl md:text-6xl font-bold text-neutral-900 mb-6">
+              About <span className="bg-gradient-to-r from-brand-600 via-brand-500 to-brand-400 bg-clip-text text-transparent">Portora</span>
+            </h1>
+            <p className="text-xl text-neutral-600 mb-8">
+              We're revolutionizing wealth management with sophisticated tools, 
+              AI-powered insights, and a premium experience for serious investors.
+            </p>
+          </div>
+        </Container>
       </section>
 
       {/* Mission Section */}
-      <section className="py-20 bg-white/50">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-20 bg-white">
+        <Container>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
-              <h2 className="text-4xl font-bold text-[#1C3D5A] mb-6">Our Mission</h2>
-              <p className="text-lg text-[#5A6A73] mb-6">
+              <h2 className="text-4xl font-bold text-neutral-900 mb-6">Our Mission</h2>
+              <p className="text-lg text-neutral-600 mb-6">
                 To democratize sophisticated wealth management tools and make them accessible 
                 to every serious investor, regardless of portfolio size.
               </p>
-              <p className="text-lg text-[#5A6A73] mb-8">
+              <p className="text-lg text-neutral-600 mb-8">
                 We believe that everyone deserves access to the same level of portfolio 
                 management sophistication that was once reserved for institutional investors.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link 
-                  href="/auth" 
-                  className="bg-[#C9A66B] text-white px-6 py-3 rounded-lg font-semibold hover:bg-[#1C3D5A] transition-colors flex items-center justify-center"
+                  href="/signup" 
+                  className="rounded-xl bg-gradient-brand text-white px-6 py-3 font-semibold hover:shadow-brand shadow-medium transition-all duration-300 flex items-center justify-center"
                 >
                   Join Our Mission
                   <ArrowRight className="ml-2 w-4 h-4" />
                 </Link>
                 <Link 
                   href="/contact" 
-                  className="border-2 border-[#C9A66B] text-[#C9A66B] px-6 py-3 rounded-lg font-semibold hover:bg-[#C9A66B] hover:text-white transition-colors"
+                  className="rounded-xl border-2 border-brand-600 text-brand-600 px-6 py-3 font-semibold hover:bg-brand-600 hover:text-white transition-all duration-300 shadow-soft"
                 >
                   Learn More
                 </Link>
               </div>
             </div>
-            <div className="bg-[#FDFBF7] p-8 rounded-2xl shadow-lg border border-[#E3DED5]">
+            <div className="bg-neutral-50 p-8 rounded-2xl shadow-medium border border-neutral-200">
               <div className="grid grid-cols-2 gap-6">
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-[#C9A66B] mb-2">10K+</div>
-                  <div className="text-sm text-[#5A6A73]">Active Users</div>
+                  <div className="text-3xl font-bold text-brand-600 mb-2">10K+</div>
+                  <div className="text-sm text-neutral-600">Active Users</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-[#C9A66B] mb-2">$2.5B+</div>
-                  <div className="text-sm text-[#5A6A73]">Assets Managed</div>
+                  <div className="text-3xl font-bold text-brand-600 mb-2">$2.5B+</div>
+                  <div className="text-sm text-neutral-600">Assets Managed</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-[#C9A66B] mb-2">99.9%</div>
-                  <div className="text-sm text-[#5A6A73]">Uptime</div>
+                  <div className="text-3xl font-bold text-brand-600 mb-2">99.9%</div>
+                  <div className="text-sm text-neutral-600">Uptime</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-[#C9A66B] mb-2">4.9★</div>
-                  <div className="text-sm text-[#5A6A73]">User Rating</div>
+                  <div className="text-3xl font-bold text-brand-600 mb-2">4.9★</div>
+                  <div className="text-sm text-neutral-600">User Rating</div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
+        </Container>
       </section>
 
       {/* Values Section */}
-      <section className="py-20">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-20 bg-neutral-50">
+        <Container>
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-[#1C3D5A] mb-4">Our Values</h2>
-            <p className="text-xl text-[#5A6A73] max-w-2xl mx-auto">
+            <h2 className="text-4xl font-bold text-neutral-900 mb-4">Our Values</h2>
+            <p className="text-xl text-neutral-600 max-w-2xl mx-auto">
               The principles that guide everything we do
             </p>
           </div>
@@ -160,22 +134,23 @@ export default function AboutPage() {
                 description: "Sophisticated tools should be accessible to every serious investor, regardless of portfolio size."
               }
             ].map((value, index) => (
-              <div key={index} className="bg-[#FDFBF7] p-8 rounded-2xl shadow-lg border border-[#E3DED5] hover:shadow-xl transition-shadow">
-                <div className="text-[#C9A66B] mb-4">{value.icon}</div>
-                <h3 className="text-xl font-semibold text-[#1C3D5A] mb-3">{value.title}</h3>
-                <p className="text-[#5A6A73]">{value.description}</p>
+              <div key={index} className="bg-white p-8 rounded-2xl shadow-soft border border-neutral-200 hover:shadow-medium hover:border-brand-200 transition-all duration-300 group">
+                <div className="text-brand-600 mb-4 group-hover:scale-110 transition-transform duration-300">{value.icon}</div>
+                <h3 className="text-xl font-semibold text-neutral-900 mb-3 group-hover:text-brand-600 transition-colors">{value.title}</h3>
+                <p className="text-neutral-600">{value.description}</p>
               </div>
             ))}
           </div>
-        </div>
+        </Container>
       </section>
 
       {/* Team Section */}
-      <section className="py-20 bg-[#1C3D5A] text-white">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-20 bg-gradient-brand text-white relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.1),transparent_70%)]" />
+        <Container className="relative">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold mb-4">Meet Our Team</h2>
-            <p className="text-xl text-gray-300 max-w-2xl mx-auto">
+            <p className="text-xl text-white/90 max-w-2xl mx-auto">
               A diverse group of financial experts, engineers, and visionaries
             </p>
           </div>
@@ -198,83 +173,46 @@ export default function AboutPage() {
                 description: "Former BlackRock portfolio manager with deep expertise in institutional investing."
               }
             ].map((member, index) => (
-              <div key={index} className="bg-white/10 backdrop-blur-sm p-6 rounded-2xl border border-white/20">
-                <h3 className="text-xl font-semibold text-[#C9A66B] mb-2">{member.name}</h3>
-                <p className="text-lg text-gray-300 mb-3">{member.role}</p>
-                <p className="text-gray-300">{member.description}</p>
+              <div key={index} className="bg-white/10 backdrop-blur-sm p-6 rounded-2xl border border-white/20 hover:bg-white/15 transition-all duration-300">
+                <h3 className="text-xl font-semibold text-white mb-2">{member.name}</h3>
+                <p className="text-lg text-white/80 mb-3">{member.role}</p>
+                <p className="text-white/70">{member.description}</p>
               </div>
             ))}
           </div>
-        </div>
+        </Container>
       </section>
 
       {/* CTA Section */}
-      <section className="py-20">
-        <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
-          <h2 className="text-4xl font-bold text-[#1C3D5A] mb-6">
-            Ready to Join Us?
-          </h2>
-          <p className="text-xl text-[#5A6A73] mb-8">
-            Become part of the sophisticated investor community that's transforming wealth management.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link 
-              href="/auth" 
-              className="bg-[#C9A66B] text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-[#1C3D5A] transition-colors flex items-center justify-center"
-            >
-              Get Started Free
-              <ArrowRight className="ml-2 w-5 h-5" />
-            </Link>
-            <Link 
-              href="/contact" 
-              className="border-2 border-[#C9A66B] text-[#C9A66B] px-8 py-4 rounded-lg text-lg font-semibold hover:bg-[#C9A66B] hover:text-white transition-colors"
-            >
-              Contact Us
-            </Link>
+      <section className="py-20 bg-white">
+        <Container>
+          <div className="max-w-4xl mx-auto text-center">
+            <h2 className="text-4xl font-bold text-neutral-900 mb-6">
+              Ready to Join Us?
+            </h2>
+            <p className="text-xl text-neutral-600 mb-8">
+              Become part of the sophisticated investor community that's transforming wealth management.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link 
+                href="/signup" 
+                className="rounded-xl bg-gradient-brand text-white px-8 py-4 text-lg font-semibold hover:shadow-brand shadow-medium transition-all duration-300 flex items-center justify-center"
+              >
+                Get Started Free
+                <ArrowRight className="ml-2 w-5 h-5" />
+              </Link>
+              <Link 
+                href="/contact" 
+                className="rounded-xl border-2 border-brand-600 text-brand-600 px-8 py-4 text-lg font-semibold hover:bg-brand-600 hover:text-white transition-all duration-300 shadow-soft"
+              >
+                Contact Us
+              </Link>
+            </div>
           </div>
-        </div>
+        </Container>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-[#1C3D5A] text-white py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div>
-              <h3 className="text-2xl font-bold text-[#C9A66B] mb-4">Portora</h3>
-              <p className="text-gray-300">
-                Sophisticated wealth management for the modern investor.
-              </p>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Product</h4>
-              <ul className="space-y-2 text-gray-300">
-                <li><Link href="/#features" className="hover:text-[#C9A66B] transition-colors">Features</Link></li>
-                <li><Link href="/#pricing" className="hover:text-[#C9A66B] transition-colors">Pricing</Link></li>
-                <li><Link href="/about" className="hover:text-[#C9A66B] transition-colors">About</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Support</h4>
-              <ul className="space-y-2 text-gray-300">
-                <li><Link href="/contact" className="hover:text-[#C9A66B] transition-colors">Contact</Link></li>
-                <li><Link href="#" className="hover:text-[#C9A66B] transition-colors">Help Center</Link></li>
-                <li><Link href="#" className="hover:text-[#C9A66B] transition-colors">Documentation</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Legal</h4>
-              <ul className="space-y-2 text-gray-300">
-                <li><Link href="#" className="hover:text-[#C9A66B] transition-colors">Privacy Policy</Link></li>
-                <li><Link href="#" className="hover:text-[#C9A66B] transition-colors">Terms of Service</Link></li>
-                <li><Link href="#" className="hover:text-[#C9A66B] transition-colors">Security</Link></li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t border-gray-700 mt-8 pt-8 text-center text-gray-300">
-            <p>&copy; 2025 Portora. All rights reserved. Yacht Club Premium © 2025</p>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   )
 }

@@ -1,6 +1,9 @@
 'use client'
 
 import Link from 'next/link'
+import Navbar from '@/components/site/Navbar'
+import Footer from '@/components/site/Footer'
+import Container from '@/components/ui/Container'
 import { 
   Check, 
   X, 
@@ -73,39 +76,9 @@ export default function PricingPage() {
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#FDFBF7] to-[#EDE9E3]">
-      {/* Navigation */}
-      <nav className="bg-white/80 backdrop-blur-sm border-b border-[#E3DED5] sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <Link href="/" className="text-2xl font-bold text-[#1C3D5A]">Portora</Link>
-            </div>
-            <div className="hidden md:block">
-              <div className="ml-10 flex items-baseline space-x-8">
-                <Link href="/#features" className="text-[#5A6A73] hover:text-[#1C3D5A] transition-colors">Features</Link>
-                <Link href="/pricing" className="text-[#1C3D5A] font-semibold">Pricing</Link>
-                <Link href="/about" className="text-[#5A6A73] hover:text-[#1C3D5A] transition-colors">About</Link>
-                <Link href="/contact" className="text-[#5A6A73] hover:text-[#1C3D5A] transition-colors">Contact</Link>
-              </div>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Link 
-                href="/auth" 
-                className="text-[#5A6A73] hover:text-[#1C3D5A] transition-colors"
-              >
-                Sign In
-              </Link>
-              <Link 
-                href="/auth" 
-                className="bg-[#C9A66B] text-white px-6 py-2 rounded-lg hover:bg-[#1C3D5A] transition-colors"
-              >
-                Get Started
-              </Link>
-            </div>
-          </div>
-        </div>
-      </nav>
+    <>
+      <Navbar />
+      <div className="min-h-screen bg-gradient-soft">
 
       {/* Hero Section */}
       <section className="py-20 px-4 sm:px-6 lg:px-8">
@@ -169,11 +142,11 @@ export default function PricingPage() {
                 </div>
 
                 <Link
-                  href="/auth"
-                  className={`w-full block text-center py-3 px-6 rounded-lg font-semibold transition-colors ${
+                  href={plan.cta === "Contact Sales" ? "/contact" : "/signup"}
+                  className={`w-full block text-center py-3 px-6 rounded-xl font-semibold transition-all duration-300 ${
                     plan.popular
-                      ? 'bg-[#C9A66B] text-white hover:bg-[#1C3D5A]'
-                      : 'border-2 border-[#C9A66B] text-[#C9A66B] hover:bg-[#C9A66B] hover:text-white'
+                      ? 'bg-gradient-brand text-white hover:shadow-brand shadow-medium'
+                      : 'border-2 border-brand-600 text-brand-600 hover:bg-brand-600 hover:text-white shadow-soft'
                   }`}
                 >
                   {plan.cta}
@@ -283,15 +256,15 @@ export default function PricingPage() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link 
-              href="/auth" 
-              className="bg-[#C9A66B] text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-[#1C3D5A] transition-colors flex items-center justify-center"
+              href="/signup" 
+              className="rounded-xl bg-gradient-brand text-white px-8 py-4 text-lg font-semibold hover:shadow-brand shadow-medium transition-all duration-300 flex items-center justify-center"
             >
               Start Free Trial
               <ArrowRight className="ml-2 w-5 h-5" />
             </Link>
             <Link 
               href="/contact" 
-              className="border-2 border-[#C9A66B] text-[#C9A66B] px-8 py-4 rounded-lg text-lg font-semibold hover:bg-[#C9A66B] hover:text-white transition-colors"
+              className="rounded-xl border-2 border-brand-600 text-brand-600 px-8 py-4 text-lg font-semibold hover:bg-brand-600 hover:text-white transition-all duration-300 shadow-soft"
             >
               Contact Sales
             </Link>
@@ -299,46 +272,8 @@ export default function PricingPage() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-[#1C3D5A] text-white py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div>
-              <h3 className="text-2xl font-bold text-[#C9A66B] mb-4">Portora</h3>
-              <p className="text-gray-300">
-                Sophisticated wealth management for the modern investor.
-              </p>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Product</h4>
-              <ul className="space-y-2 text-gray-300">
-                <li><Link href="/#features" className="hover:text-[#C9A66B] transition-colors">Features</Link></li>
-                <li><Link href="/pricing" className="hover:text-[#C9A66B] transition-colors">Pricing</Link></li>
-                <li><Link href="/about" className="hover:text-[#C9A66B] transition-colors">About</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Support</h4>
-              <ul className="space-y-2 text-gray-300">
-                <li><Link href="/contact" className="hover:text-[#C9A66B] transition-colors">Contact</Link></li>
-                <li><Link href="#" className="hover:text-[#C9A66B] transition-colors">Help Center</Link></li>
-                <li><Link href="#" className="hover:text-[#C9A66B] transition-colors">Documentation</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Legal</h4>
-              <ul className="space-y-2 text-gray-300">
-                <li><Link href="#" className="hover:text-[#C9A66B] transition-colors">Privacy Policy</Link></li>
-                <li><Link href="#" className="hover:text-[#C9A66B] transition-colors">Terms of Service</Link></li>
-                <li><Link href="#" className="hover:text-[#C9A66B] transition-colors">Security</Link></li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t border-gray-700 mt-8 pt-8 text-center text-gray-300">
-            <p>&copy; 2025 Portora. All rights reserved. Yacht Club Premium © 2025</p>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
+    </>
   )
 }

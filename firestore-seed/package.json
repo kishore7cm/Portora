@@ -1,0 +1,16 @@
+{
+  "type": "module",
+  "name": "firestore-seed",
+  "version": "1.0.0",
+  "description": "",
+  "main": "seedFirestore.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "firebase": "^12.4.0"
+  }
+}

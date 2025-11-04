@@ -3,15 +3,17 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { signInWithEmailAndPassword } from 'firebase/auth'
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth'
 import { auth } from '@/lib/firebaseClient'
 import Navbar from '@/components/site/Navbar'
 import Container from '@/components/ui/Container'
-import { Mail, Lock, Eye, EyeOff } from 'lucide-react'
+import { User, Mail, Lock, Eye, EyeOff } from 'lucide-react'
 
-export default function LoginPage() {
+export default function SignUpPage() {
+  const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -22,25 +24,44 @@ export default function LoginPage() {
     setLoading(true)
     setError('')
 
+    if (password !== confirmPassword) {
+      setError('Passwords do not match')
+      setLoading(false)
+      return
+    }
+
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters')
+      setLoading(false)
+      return
+    }
+
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password)
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password)
       const user = userCredential.user
       
-      console.log('✅ Login successful for user:', user.uid)
-      
+      // Update profile with name
+      await updateProfile(user, {
+        displayName: name
+      })
+
       // Store user info in localStorage
       localStorage.setItem('userId', user.uid)
       localStorage.setItem('userEmail', user.email || '')
-      localStorage.setItem('userName', user.displayName || '')
+      localStorage.setItem('userName', name)
       localStorage.setItem('loggedIn', 'true')
       
-      // Add a small delay to ensure auth state is updated
-      setTimeout(() => {
-        router.replace('/dashboard')
-      }, 100)
+      // New users always go to onboarding
+      router.push('/onboarding')
     } catch (error: any) {
-      console.error('Login error:', error)
-      setError('Incorrect email or password. Please try again.')
+      console.error('Signup error:', error)
+      if (error.code === 'auth/email-already-in-use') {
+        setError('This email is already registered. Please sign in instead.')
+      } else if (error.code === 'auth/weak-password') {
+        setError('Password is too weak. Please choose a stronger password.')
+      } else {
+        setError('Unable to create account. Please try again.')
+      }
     } finally {
       setLoading(false)
     }
@@ -54,7 +75,7 @@ export default function LoginPage() {
           <Container>
             <div className="max-w-md mx-auto bg-white p-8 rounded-2xl shadow-medium border border-neutral-200 text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-600 mx-auto mb-4"></div>
-              <p className="text-neutral-600">Signing in...</p>
+              <p className="text-neutral-600">Creating your account...</p>
             </div>
           </Container>
         </div>
@@ -70,14 +91,31 @@ export default function LoginPage() {
           <div className="max-w-md mx-auto bg-white p-8 rounded-2xl shadow-medium border border-neutral-200">
             <div className="text-center mb-8">
               <h1 className="text-3xl font-bold text-neutral-900 mb-2">
-                Welcome Back
+                Create Account
               </h1>
               <p className="text-neutral-600">
-                Sign in to access your portfolio
+                Start managing your wealth today
               </p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
+              <div>
+                <label className="block text-sm font-semibold text-neutral-900 mb-2">
+                  Full Name
+                </label>
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400 w-5 h-5" />
+                  <input
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 border border-neutral-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 bg-white transition-all duration-200"
+                    placeholder="Enter your full name"
+                    required
+                  />
+                </div>
+              </div>
+
               <div>
                 <label className="block text-sm font-semibold text-neutral-900 mb-2">
                   Email Address
@@ -106,8 +144,9 @@ export default function LoginPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="w-full pl-10 pr-12 py-3 border border-neutral-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 bg-white transition-all duration-200"
-                    placeholder="Enter your password"
+                    placeholder="Create a password"
                     required
+                    minLength={6}
                   />
                   <button
                     type="button"
@@ -116,6 +155,24 @@ export default function LoginPage() {
                   >
                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-neutral-900 mb-2">
+                  Confirm Password
+                </label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400 w-5 h-5" />
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 border border-neutral-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 bg-white transition-all duration-200"
+                    placeholder="Confirm your password"
+                    required
+                    minLength={6}
+                  />
                 </div>
               </div>
 
@@ -130,18 +187,18 @@ export default function LoginPage() {
                 disabled={loading}
                 className="w-full rounded-xl bg-gradient-brand text-white font-semibold py-3 px-4 hover:shadow-brand shadow-medium transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? 'Signing in...' : 'Sign In'}
+                {loading ? 'Creating account...' : 'Create Account'}
               </button>
             </form>
 
             <div className="mt-6 text-center">
               <p className="text-neutral-600">
-                Don't have an account?{' '}
+                Already have an account?{' '}
                 <Link
-                  href="/signup"
+                  href="/login"
                   className="text-brand-600 hover:text-brand-700 font-semibold transition-colors"
                 >
-                  Sign up
+                  Sign in
                 </Link>
               </p>
             </div>

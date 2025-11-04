@@ -1,0 +1,477 @@
+{
+    "users": [
+      {
+        "user_id": "M7iRCRQmA9SBUwF0EjogrzBD5Dj2",
+        "uid": "M7iRCRQmA9SBUwF0EjogrzBD5Dj2",
+        "email": "john.doe@example.com",
+        "displayName": "John Doe",
+        "name": "John Doe",
+        "onboardingCompleted": true,
+        "has_portfolio_data": true,
+        "portfolioValue": 68000.25,
+        "created_at": "2025-10-26T06:40:00.000Z",
+        "updated_at": "2025-10-26T06:40:00.000Z"
+      },
+      {
+        "user_id": "deVmMLNy8NgIg77OMLvLwrQUpx33",
+        "uid": "deVmMLNy8NgIg77OMLvLwrQUpx33",
+        "email": "jane.smith@example.com",
+        "displayName": "Jane Smith",
+        "name": "Jane Smith",
+        "onboardingCompleted": true,
+        "has_portfolio_data": true,
+        "portfolioValue": 24000.75,
+        "created_at": "2025-10-26T06:40:00.000Z",
+        "updated_at": "2025-10-26T06:40:00.000Z"
+      },
+      {
+        "user_id": "CodUTozan9dmsGPXCbn7ySdtPz33",
+        "uid": "CodUTozan9dmsGPXCbn7ySdtPz33",
+        "email": "mike.johnson@example.com",
+        "displayName": "Mike Johnson",
+        "name": "Mike Johnson",
+        "onboardingCompleted": true,
+        "has_portfolio_data": true,
+        "portfolioValue": 120000.5,
+        "created_at": "2025-10-26T06:40:00.000Z",
+        "updated_at": "2025-10-26T06:40:00.000Z"
+      },
+      {
+        "user_id": "nynhTU51I6SBXtEPrtd2uNLtTuh2",
+        "uid": "nynhTU51I6SBXtEPrtd2uNLtTuh2",
+        "email": "sarah.wilson@example.com",
+        "displayName": "Sarah Wilson",
+        "name": "Sarah Wilson",
+        "onboardingCompleted": true,
+        "has_portfolio_data": true,
+        "portfolioValue": 47000.9,
+        "created_at": "2025-10-26T06:40:00.000Z",
+        "updated_at": "2025-10-26T06:40:00.000Z"
+      },
+      {
+        "user_id": "NEDUWYFXkifIBHk8JQMjvAxbPrr1",
+        "uid": "NEDUWYFXkifIBHk8JQMjvAxbPrr1",
+        "email": "david.brown@example.com",
+        "displayName": "David Brown",
+        "name": "David Brown",
+        "onboardingCompleted": true,
+        "has_portfolio_data": true,
+        "portfolioValue": 32500.1,
+        "created_at": "2025-10-26T06:40:00.000Z",
+        "updated_at": "2025-10-26T06:40:00.000Z"
+      },
+      {
+        "user_id": "T1U68Nft91fpFnus8PHmfsTjFN52",
+        "uid": "T1U68Nft91fpFnus8PHmfsTjFN52",
+        "email": "lisa.davis@example.com",
+        "displayName": "Lisa Davis",
+        "name": "Lisa Davis",
+        "onboardingCompleted": true,
+        "has_portfolio_data": true,
+        "portfolioValue": 58500.35,
+        "created_at": "2025-10-26T06:40:00.000Z",
+        "updated_at": "2025-10-26T06:40:00.000Z"
+      },
+      {
+        "user_id": "YOzs0A0b5VXOpsmcaP1ihT8KHM72",
+        "uid": "YOzs0A0b5VXOpsmcaP1ihT8KHM72",
+        "email": "robert.miller@example.com",
+        "displayName": "Robert Miller",
+        "name": "Robert Miller",
+        "onboardingCompleted": true,
+        "has_portfolio_data": true,
+        "portfolioValue": 110000.75,
+        "created_at": "2025-10-26T06:40:00.000Z",
+        "updated_at": "2025-10-26T06:40:00.000Z"
+      },
+      {
+        "user_id": "Qk1rzEo9gpRb2NBjKGT1uE81Xi12",
+        "uid": "Qk1rzEo9gpRb2NBjKGT1uE81Xi12",
+        "email": "emily.garcia@example.com",
+        "displayName": "Emily Garcia",
+        "name": "Emily Garcia",
+        "onboardingCompleted": true,
+        "has_portfolio_data": true,
+        "portfolioValue": 76500.2,
+        "created_at": "2025-10-26T06:40:00.000Z",
+        "updated_at": "2025-10-26T06:40:00.000Z"
+      },
+      {
+        "user_id": "d6PzK3l1TSY4qBkbIQnY4qM4N8D2",
+        "uid": "d6PzK3l1TSY4qBkbIQnY4qM4N8D2",
+        "email": "alex.martinez@example.com",
+        "displayName": "Alex Martinez",
+        "name": "Alex Martinez",
+        "onboardingCompleted": true,
+        "has_portfolio_data": true,
+        "portfolioValue": 30500.4,
+        "created_at": "2025-10-26T06:40:00.000Z",
+        "updated_at": "2025-10-26T06:40:00.000Z"
+      },
+      {
+        "user_id": "0Y0zpJ6dCnQKQ6wqFpa7ZRWZVNn2",
+        "uid": "0Y0zpJ6dCnQKQ6wqFpa7ZRWZVNn2",
+        "email": "olivia.anderson@example.com",
+        "displayName": "Olivia Anderson",
+        "name": "Olivia Anderson",
+        "onboardingCompleted": true,
+        "has_portfolio_data": true,
+        "portfolioValue": 139500.8,
+        "created_at": "2025-10-26T06:40:00.000Z",
+        "updated_at": "2025-10-26T06:40:00.000Z"
+      }
+    ],
+    "portfolio_data": [
+      {
+        "user_id": "M7iRCRQmA9SBUwF0EjogrzBD5Dj2",
+        "totalPortfolioValue": 68000.25,
+        "lastUpdated": "2025-10-26T06:40:00.000Z",
+        "holdings": [
+          {
+            "asset_type": "Stock",
+            "brokerage": "Fidelity",
+            "category": "Equity",
+            "sector": "Technology",
+            "ticker": "AAPL",
+            "shares": 25,
+            "purchase_price": 160,
+            "current_price": 190,
+            "gain_loss": 750,
+            "gain_loss_percent": 7.5,
+            "total_cost": 4000,
+            "total_value": 4750
+          },
+          {
+            "asset_type": "ETF",
+            "brokerage": "Vanguard",
+            "category": "Index Fund",
+            "sector": "Diversified",
+            "ticker": "VOO",
+            "shares": 15,
+            "purchase_price": 400,
+            "current_price": 430,
+            "gain_loss": 450,
+            "gain_loss_percent": 7.5,
+            "total_cost": 6000,
+            "total_value": 6450
+          }
+        ]
+      },
+      {
+        "user_id": "deVmMLNy8NgIg77OMLvLwrQUpx33",
+        "totalPortfolioValue": 24000.75,
+        "lastUpdated": "2025-10-26T06:40:00.000Z",
+        "holdings": [
+          {
+            "asset_type": "Stock",
+            "brokerage": "Robinhood",
+            "category": "Equity",
+            "sector": "Energy",
+            "ticker": "XOM",
+            "shares": 20,
+            "purchase_price": 100,
+            "current_price": 115,
+            "gain_loss": 300,
+            "gain_loss_percent": 15,
+            "total_cost": 2000,
+            "total_value": 2300
+          },
+          {
+            "asset_type": "Cash",
+            "brokerage": "Manual Entry",
+            "category": "Cash",
+            "sector": "N/A",
+            "ticker": "USD",
+            "shares": 0,
+            "purchase_price": 0,
+            "current_price": 1,
+            "gain_loss": 0,
+            "gain_loss_percent": 0,
+            "total_cost": 0,
+            "total_value": 8000
+          }
+        ]
+      },
+      {
+        "user_id": "CodUTozan9dmsGPXCbn7ySdtPz33",
+        "totalPortfolioValue": 120000.5,
+        "lastUpdated": "2025-10-26T06:40:00.000Z",
+        "holdings": [
+          {
+            "asset_type": "Stock",
+            "brokerage": "Charles Schwab",
+            "category": "Equity",
+            "sector": "Automotive",
+            "ticker": "TSLA",
+            "shares": 10,
+            "purchase_price": 220,
+            "current_price": 250,
+            "gain_loss": 300,
+            "gain_loss_percent": 13.6,
+            "total_cost": 2200,
+            "total_value": 2500
+          },
+          {
+            "asset_type": "ETF",
+            "brokerage": "Vanguard",
+            "category": "Index Fund",
+            "sector": "Technology",
+            "ticker": "VGT",
+            "shares": 8,
+            "purchase_price": 480,
+            "current_price": 515,
+            "gain_loss": 280,
+            "gain_loss_percent": 7.3,
+            "total_cost": 3840,
+            "total_value": 4120
+          }
+        ]
+      },
+      {
+        "user_id": "nynhTU51I6SBXtEPrtd2uNLtTuh2",
+        "totalPortfolioValue": 47000.9,
+        "lastUpdated": "2025-10-26T06:40:00.000Z",
+        "holdings": [
+          {
+            "asset_type": "Stock",
+            "brokerage": "Fidelity",
+            "category": "Equity",
+            "sector": "Healthcare",
+            "ticker": "JNJ",
+            "shares": 12,
+            "purchase_price": 160,
+            "current_price": 175,
+            "gain_loss": 180,
+            "gain_loss_percent": 9.3,
+            "total_cost": 1920,
+            "total_value": 2100
+          },
+          {
+            "asset_type": "ETF",
+            "brokerage": "Vanguard",
+            "category": "Bond Fund",
+            "sector": "Fixed Income",
+            "ticker": "BND",
+            "shares": 25,
+            "purchase_price": 75,
+            "current_price": 78,
+            "gain_loss": 75,
+            "gain_loss_percent": 4.0,
+            "total_cost": 1875,
+            "total_value": 1950
+          }
+        ]
+      },
+      {
+        "user_id": "NEDUWYFXkifIBHk8JQMjvAxbPrr1",
+        "totalPortfolioValue": 32500.1,
+        "lastUpdated": "2025-10-26T06:40:00.000Z",
+        "holdings": [
+          {
+            "asset_type": "Stock",
+            "brokerage": "Fidelity",
+            "category": "Equity",
+            "sector": "Finance",
+            "ticker": "JPM",
+            "shares": 15,
+            "purchase_price": 150,
+            "current_price": 165,
+            "gain_loss": 225,
+            "gain_loss_percent": 10,
+            "total_cost": 2250,
+            "total_value": 2475
+          },
+          {
+            "asset_type": "ETF",
+            "brokerage": "BlackRock",
+            "category": "Index Fund",
+            "sector": "Large Cap",
+            "ticker": "IVV",
+            "shares": 5,
+            "purchase_price": 450,
+            "current_price": 470,
+            "gain_loss": 100,
+            "gain_loss_percent": 4.4,
+            "total_cost": 2250,
+            "total_value": 2350
+          }
+        ]
+      },
+      {
+        "user_id": "T1U68Nft91fpFnus8PHmfsTjFN52",
+        "totalPortfolioValue": 58500.35,
+        "lastUpdated": "2025-10-26T06:40:00.000Z",
+        "holdings": [
+          {
+            "asset_type": "Stock",
+            "brokerage": "Robinhood",
+            "category": "Equity",
+            "sector": "Retail",
+            "ticker": "COST",
+            "shares": 10,
+            "purchase_price": 530,
+            "current_price": 570,
+            "gain_loss": 400,
+            "gain_loss_percent": 7.5,
+            "total_cost": 5300,
+            "total_value": 5700
+          },
+          {
+            "asset_type": "ETF",
+            "brokerage": "Vanguard",
+            "category": "Bond Fund",
+            "sector": "Fixed Income",
+            "ticker": "BNDX",
+            "shares": 20,
+            "purchase_price": 50,
+            "current_price": 52,
+            "gain_loss": 40,
+            "gain_loss_percent": 4.0,
+            "total_cost": 1000,
+            "total_value": 1040
+          }
+        ]
+      },
+      {
+        "user_id": "YOzs0A0b5VXOpsmcaP1ihT8KHM72",
+        "totalPortfolioValue": 110000.75,
+        "lastUpdated": "2025-10-26T06:40:00.000Z",
+        "holdings": [
+          {
+            "asset_type": "Stock",
+            "brokerage": "Charles Schwab",
+            "category": "Equity",
+            "sector": "Technology",
+            "ticker": "MSFT",
+            "shares": 20,
+            "purchase_price": 300,
+            "current_price": 340,
+            "gain_loss": 800,
+            "gain_loss_percent": 13.3,
+            "total_cost": 6000,
+            "total_value": 6800
+          },
+          {
+            "asset_type": "ETF",
+            "brokerage": "Vanguard",
+            "category": "Index Fund",
+            "sector": "Global Equity",
+            "ticker": "VXUS",
+            "shares": 10,
+            "purchase_price": 55,
+            "current_price": 59,
+            "gain_loss": 40,
+            "gain_loss_percent": 7.2,
+            "total_cost": 550,
+            "total_value": 590
+          }
+        ]
+      },
+      {
+        "user_id": "Qk1rzEo9gpRb2NBjKGT1uE81Xi12",
+        "totalPortfolioValue": 76500.2,
+        "lastUpdated": "2025-10-26T06:40:00.000Z",
+        "holdings": [
+          {
+            "asset_type": "Stock",
+            "brokerage": "Fidelity",
+            "category": "Equity",
+            "sector": "Consumer Goods",
+            "ticker": "PG",
+            "shares": 18,
+            "purchase_price": 145,
+            "current_price": 155,
+            "gain_loss": 180,
+            "gain_loss_percent": 6.9,
+            "total_cost": 2610,
+            "total_value": 2790
+          },
+          {
+            "asset_type": "ETF",
+            "brokerage": "Vanguard",
+            "category": "Index Fund",
+            "sector": "Mid Cap",
+            "ticker": "VO",
+            "shares": 10,
+            "purchase_price": 210,
+            "current_price": 225,
+            "gain_loss": 150,
+            "gain_loss_percent": 7.1,
+            "total_cost": 2100,
+            "total_value": 2250
+          }
+        ]
+      },
+      {
+        "user_id": "d6PzK3l1TSY4qBkbIQnY4qM4N8D2",
+        "totalPortfolioValue": 30500.4,
+        "lastUpdated": "2025-10-26T06:40:00.000Z",
+        "holdings": [
+          {
+            "asset_type": "Stock",
+            "brokerage": "Robinhood",
+            "category": "Equity",
+            "sector": "Healthcare",
+            "ticker": "PFE",
+            "shares": 40,
+            "purchase_price": 35,
+            "current_price": 37,
+            "gain_loss": 80,
+            "gain_loss_percent": 5.7,
+            "total_cost": 1400,
+            "total_value": 1480
+          },
+          {
+            "asset_type": "Cash",
+            "brokerage": "Manual Entry",
+            "category": "Cash",
+            "sector": "N/A",
+            "ticker": "USD",
+            "shares": 0,
+            "purchase_price": 0,
+            "current_price": 1,
+            "gain_loss": 0,
+            "gain_loss_percent": 0,
+            "total_cost": 0,
+            "total_value": 12000
+          }
+        ]
+      },
+      {
+        "user_id": "0Y0zpJ6dCnQKQ6wqFpa7ZRWZVNn2",
+        "totalPortfolioValue": 139500.8,
+        "lastUpdated": "2025-10-26T06:40:00.000Z",
+        "holdings": [
+          {
+            "asset_type": "Stock",
+            "brokerage": "Fidelity",
+            "category": "Equity",
+            "sector": "Technology",
+            "ticker": "NVDA",
+            "shares": 10,
+            "purchase_price": 380,
+            "current_price": 460,
+            "gain_loss": 800,
+            "gain_loss_percent": 21,
+            "total_cost": 3800,
+            "total_value": 4600
+          },
+          {
+            "asset_type": "ETF",
+            "brokerage": "Vanguard",
+            "category": "Index Fund",
+            "sector": "Total Market",
+            "ticker": "VTI",
+            "shares": 8,
+            "purchase_price": 230,
+            "current_price": 255,
+            "gain_loss": 200,
+            "gain_loss_percent": 10.8,
+            "total_cost": 1840,
+            "total_value": 2040
+          }
+        ]
+      }
+    ]
+  }
+  
