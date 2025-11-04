@@ -41,18 +41,16 @@ export default function Navbar() {
 
         {/* Desktop Auth Buttons */}
         <div className="hidden items-center gap-3 md:flex">
-          <Link 
-            href="/login" 
-            className="rounded-xl border border-neutral-300 px-5 py-2.5 text-sm font-semibold text-neutral-700 hover:bg-neutral-50 hover:border-neutral-400 transition-all duration-200 hover:shadow-soft"
+          <div 
+            className="rounded-xl border border-neutral-300 px-5 py-2.5 text-sm font-semibold text-neutral-700 pointer-events-none opacity-50 cursor-not-allowed"
           >
             Sign in
-          </Link>
-          <Link 
-            href="/signup" 
-            className="rounded-xl bg-gradient-brand px-5 py-2.5 text-sm font-semibold text-white hover:shadow-brand shadow-soft transition-all duration-200 hover:scale-105"
+          </div>
+          <div 
+            className="rounded-xl bg-gradient-brand px-5 py-2.5 text-sm font-semibold text-white shadow-soft pointer-events-none opacity-50 cursor-not-allowed"
           >
             Sign up
-          </Link>
+          </div>
         </div>
 
         {/* Mobile Menu Button */}
@@ -81,18 +79,16 @@ export default function Navbar() {
             <NavLink href="#pricing">Pricing</NavLink>
             <NavLink href="#demo">Demo</NavLink>
             <div className="mt-4 flex items-center gap-3 pt-4 border-t border-neutral-200/60">
-              <Link 
-                href="/login" 
-                className="flex-1 rounded-xl border border-neutral-300 px-4 py-2.5 text-center text-sm font-semibold text-neutral-700 hover:bg-neutral-50 transition-colors duration-200"
+              <div 
+                className="flex-1 rounded-xl border border-neutral-300 px-4 py-2.5 text-center text-sm font-semibold text-neutral-700 pointer-events-none opacity-50 cursor-not-allowed"
               >
                 Sign in
-              </Link>
-              <Link 
-                href="/signup" 
-                className="flex-1 rounded-xl bg-gradient-brand px-4 py-2.5 text-center text-sm font-semibold text-white hover:shadow-brand transition-all duration-200"
+              </div>
+              <div 
+                className="flex-1 rounded-xl bg-gradient-brand px-4 py-2.5 text-center text-sm font-semibold text-white shadow-soft pointer-events-none opacity-50 cursor-not-allowed"
               >
                 Sign up
-              </Link>
+              </div>
             </div>
           </Container>
         </div>

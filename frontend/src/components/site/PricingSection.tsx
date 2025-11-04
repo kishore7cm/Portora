@@ -127,12 +127,11 @@ export default function PricingSection() {
                   Email support
                 </li>
               </ul>
-              <Link 
-                href="/signup" 
-                className="mt-8 inline-block w-full rounded-xl bg-gradient-brand px-6 py-4 font-semibold text-white hover:shadow-brand shadow-medium hover:scale-105 transition-all duration-300"
+              <div 
+                className="mt-8 inline-block w-full rounded-xl bg-gradient-brand px-6 py-4 font-semibold text-white shadow-medium pointer-events-none opacity-50 cursor-not-allowed"
               >
                 Join the Beta
-              </Link>
+              </div>
             </div>
           </div>
 
@@ -170,12 +169,11 @@ export default function PricingSection() {
                   PDF reports
                 </li>
               </ul>
-              <Link 
-                href="/signup" 
-                className="mt-8 inline-block w-full rounded-xl bg-gradient-brand px-6 py-4 font-semibold text-white hover:shadow-brand shadow-medium hover:scale-105 transition-all duration-300"
+              <div 
+                className="mt-8 inline-block w-full rounded-xl bg-gradient-brand px-6 py-4 font-semibold text-white shadow-medium pointer-events-none opacity-50 cursor-not-allowed"
               >
                 Start Free Trial
-              </Link>
+              </div>
             </div>
           </div>
 
