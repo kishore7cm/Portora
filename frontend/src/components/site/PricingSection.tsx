@@ -129,7 +129,8 @@ export default function PricingSection() {
               </ul>
               <Link 
                 href="/signup" 
-                className="mt-8 inline-block w-full rounded-xl bg-gradient-brand px-6 py-4 font-semibold text-white hover:shadow-brand shadow-medium hover:scale-105 transition-all duration-300"
+                className="mt-8 inline-block w-full rounded-xl bg-gradient-brand px-6 py-4 font-semibold text-white hover:shadow-brand shadow-medium hover:scale-105 transition-all duration-300 pointer-events-none opacity-50 cursor-not-allowed"
+                onClick={(e) => e.preventDefault()}
               >
                 Join the Beta
               </Link>
@@ -172,7 +173,8 @@ export default function PricingSection() {
               </ul>
               <Link 
                 href="/signup" 
-                className="mt-8 inline-block w-full rounded-xl bg-gradient-brand px-6 py-4 font-semibold text-white hover:shadow-brand shadow-medium hover:scale-105 transition-all duration-300"
+                className="mt-8 inline-block w-full rounded-xl bg-gradient-brand px-6 py-4 font-semibold text-white hover:shadow-brand shadow-medium hover:scale-105 transition-all duration-300 pointer-events-none opacity-50 cursor-not-allowed"
+                onClick={(e) => e.preventDefault()}
               >
                 Start Free Trial
               </Link>

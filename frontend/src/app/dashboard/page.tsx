@@ -24,7 +24,9 @@ import {
   PieChart as PieChartIcon,
   Target,
   Activity,
-  TrendingDown
+  TrendingDown,
+  Sparkles,
+  Sun
 } from 'lucide-react'
 import {
   LineChart,
@@ -77,6 +79,21 @@ export default function SimpleDashboard() {
   // Insights system
   const [investorLevel, setInvestorLevel] = useState<'beginner' | 'intermediate' | 'expert'>('beginner')
   const [insights, setInsights] = useState<any[]>([])
+  
+  // Christmas theme toggle
+  const [christmasTheme, setChristmasTheme] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('christmasTheme') === 'true'
+    }
+    return false
+  })
+  
+  // Save theme preference to localStorage
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('christmasTheme', christmasTheme.toString())
+    }
+  }, [christmasTheme])
 
   // Navigation tabs
   const navigationTabs = [
@@ -693,13 +710,63 @@ export default function SimpleDashboard() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-neutral-50">
-        <div className="max-w-screen-xl mx-auto px-8 pt-8">
+      <div className={`min-h-screen relative ${christmasTheme ? 'bg-gradient-to-br from-neutral-50 via-red-50/30 to-green-50/30' : 'bg-neutral-50'}`}>
+        {/* Christmas Snow Animation - Background */}
+        {christmasTheme && (
+          <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+            {[...Array(100)].map((_, i) => (
+              <div
+                key={i}
+                className="absolute text-white/70 animate-snowflake filter drop-shadow-[0_0_2px_rgba(59,130,246,0.8)]"
+                style={{
+                  left: `${(i * 7) % 100}%`,
+                  animationDelay: `${Math.random() * 15}s`,
+                  animationDuration: `${10 + Math.random() * 10}s`,
+                  fontSize: `${8 + Math.random() * 8}px`,
+                  opacity: 0.4 + Math.random() * 0.4,
+                  textShadow: '0 0 3px rgba(59, 130, 246, 0.8), 0 0 6px rgba(59, 130, 246, 0.6)',
+                }}
+              >
+                ❄
+              </div>
+            ))}
+          </div>
+        )}
+        {/* Subtle Christmas Border Pattern */}
+        {christmasTheme && (
+          <>
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-red-200/50 via-green-200/50 to-red-200/50"></div>
+            <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-green-200/50 via-red-200/50 to-green-200/50"></div>
+          </>
+        )}
+        
+        <div className="max-w-screen-xl mx-auto px-8 pt-8 relative z-10 bg-transparent">
           {/* Header */}
           <div className="flex justify-between items-center mb-6">
             <div className="text-left flex-1">
-              <h1 className="text-4xl font-bold text-neutral-900 mb-2">Portfolio</h1>
+              <div className="flex items-center gap-3">
+                <h1 className={`text-4xl font-bold mb-2 ${christmasTheme ? 'text-transparent bg-clip-text bg-gradient-to-r from-red-400 via-green-500 to-red-400' : 'text-neutral-900'}`}>
+                  Portfolio
+                </h1>
+                {christmasTheme && <span className="text-xl animate-pulse">🎄</span>}
+              </div>
               <p className="text-neutral-600 text-sm">Track your investments and performance</p>
+            </div>
+            
+            {/* Theme Toggle Button */}
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setChristmasTheme(!christmasTheme)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl font-medium text-sm transition-all duration-200 ${
+                  christmasTheme 
+                    ? 'bg-gradient-to-r from-red-400 to-green-500 text-white hover:from-red-500 hover:to-green-600' 
+                    : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'
+                }`}
+                title={christmasTheme ? 'Disable Christmas Theme' : 'Enable Christmas Theme'}
+              >
+                {christmasTheme ? <Sparkles className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
+                <span className="hidden sm:inline">{christmasTheme ? 'Christmas' : 'Normal'}</span>
+              </button>
             </div>
             
             {/* Profile and Logout Buttons */}
@@ -719,24 +786,32 @@ export default function SimpleDashboard() {
           </div>
 
           {/* Top Navigation Tabs */}
-          <div className="mb-8 border-b border-neutral-200">
+          <div className={`mb-8 border-b rounded-t-lg p-2 ${
+            christmasTheme 
+              ? 'border-green-200/50 bg-gradient-to-r from-red-50/30 to-green-50/30' 
+              : 'border-neutral-200 bg-neutral-50'
+          }`}>
             <nav className="flex gap-1">
               {navigationTabs.map(({ id, label, icon: Icon }) => (
-                  <button
-                    key={id}
-                    onClick={() => setActiveTab(id)}
-                  className={`flex items-center gap-2 px-6 py-3 text-sm font-semibold transition-all duration-200 border-b-2 ${
+                <button
+                  key={id}
+                  onClick={() => setActiveTab(id)}
+                  className={`flex items-center gap-2 px-6 py-3 text-sm font-semibold transition-all duration-200 border-b-2 rounded-t-lg ${
                     activeTab === id
-                      ? "text-brand-600 border-brand-600"
-                      : "text-neutral-600 border-transparent hover:text-brand-600 hover:border-brand-300"
+                      ? christmasTheme
+                        ? "text-red-500 border-red-400 bg-white shadow-md"
+                        : "text-brand-600 border-brand-600 bg-white shadow-md"
+                      : christmasTheme
+                        ? "text-neutral-600 border-transparent hover:text-green-500 hover:border-green-300/50 hover:bg-white/50"
+                        : "text-neutral-600 border-transparent hover:text-brand-600 hover:border-brand-300 hover:bg-white/50"
                   }`}
                 >
                   <Icon className="w-4 h-4" />
                   {label}
-                  </button>
-                ))}
-              </nav>
-            </div>
+                </button>
+              ))}
+            </nav>
+          </div>
 
             {/* Main Content */}
           <div className="space-y-10">
@@ -906,10 +981,14 @@ export default function SimpleDashboard() {
                   {portfolioData.length > 0 && (
                       <button
                         onClick={() => setShowAddHoldings(true)}
-                      className="bg-gradient-brand text-white px-5 py-2 rounded-2xl font-semibold hover:shadow-md shadow-sm transition-all duration-200 flex items-center hover:translate-y-[1px]"
+                      className={`px-5 py-2 rounded-2xl font-semibold hover:shadow-md shadow-sm transition-all duration-200 flex items-center hover:translate-y-[1px] ${
+                        christmasTheme
+                          ? 'bg-gradient-to-r from-red-400 to-green-500 text-white hover:from-red-500 hover:to-green-600'
+                          : 'bg-gradient-brand text-white hover:shadow-brand'
+                      }`}
                       >
                         <Plus className="w-4 h-4 mr-2" />
-                        Add More Holdings
+                        Add More Holdings{christmasTheme ? ' 🎁' : ''}
                       </button>
                   )}
                 </div>
@@ -918,34 +997,52 @@ export default function SimpleDashboard() {
                   {portfolioData.length > 0 ? (
                     <>
                     {/* Quick Summary Banner */}
-                    <div className="bg-brand-50 border border-brand-100 rounded-lg p-4 text-brand-700">
-                      <div className="flex items-center gap-2">
-                        <Info className="w-4 h-4" />
+                    <div className={`rounded-lg p-4 relative overflow-hidden ${
+                      christmasTheme
+                        ? 'bg-gradient-to-r from-red-50/50 via-green-50/50 to-red-50/50 border border-green-200/50 text-neutral-700'
+                        : 'bg-brand-50 border border-brand-100 text-brand-700'
+                    }`}>
+                      {christmasTheme && (
+                        <div className="absolute top-2 right-2 text-lg opacity-70 animate-pulse">🎅</div>
+                      )}
+                      <div className="flex items-center gap-2 relative z-10">
+                        <Info className={`w-4 h-4 ${christmasTheme ? 'text-red-400' : 'text-brand-600'}`} />
                         <span className="text-sm font-medium">
                           Your portfolio grew by {formatCurrency(metrics.totalValue * 0.068)} this month 📈 — outperforming 65% of users.
+                          {christmasTheme && <span className="text-green-500"> 🎄</span>}
                         </span>
                       </div>
                     </div>
 
                     {/* KPI Cards */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                      <Card className="hover:shadow-md transition-all duration-200 hover:translate-y-[1px]">
-                        <CardContent className="p-6">
+                      <Card className={`hover:shadow-md transition-all duration-200 hover:translate-y-[1px] ${
+                        christmasTheme
+                          ? 'border border-red-200/50 hover:border-red-300 bg-gradient-to-br from-red-50/30 to-white'
+                          : 'hover:shadow-md transition-all duration-200 hover:translate-y-[1px]'
+                      }`}>
+                        <CardContent className="p-6 relative">
+                          {christmasTheme && <div className="absolute top-2 right-2 text-base opacity-60">🎁</div>}
                           <div className="flex items-center justify-between mb-2">
                             <h3 className="text-sm font-medium text-neutral-600">Total Portfolio Value</h3>
-                            <DollarSign className="w-5 h-5 text-brand-500" />
-                    </div>
+                            <DollarSign className={`w-5 h-5 ${christmasTheme ? 'text-red-400' : 'text-brand-500'}`} />
+                          </div>
                           <p className="text-4xl font-bold text-neutral-900 mt-1">{formatCurrency(metrics.totalValue)}</p>
                           <p className="text-xs text-neutral-500 mt-2">Updated 2h ago</p>
                         </CardContent>
                       </Card>
 
-                      <Card className="hover:shadow-md transition-all duration-200 hover:translate-y-[1px] bg-gradient-to-br from-brand-50 via-white to-white">
-                        <CardContent className="p-6">
+                      <Card className={`hover:shadow-md transition-all duration-200 hover:translate-y-[1px] ${
+                        christmasTheme
+                          ? 'bg-gradient-to-br from-green-50/30 via-white to-green-50/30 border border-green-200/50 hover:border-green-300'
+                          : 'bg-gradient-to-br from-brand-50 via-white to-white'
+                      }`}>
+                        <CardContent className="p-6 relative">
+                          {christmasTheme && <div className="absolute top-2 right-2 text-base opacity-60">⭐</div>}
                           <div className="flex items-center justify-between mb-2">
                             <h3 className="text-sm font-medium text-neutral-600">Portfolio Health Score</h3>
                             <Target className="w-5 h-5 text-green-500" />
-                    </div>
+                          </div>
                           <p className={`text-4xl font-bold mt-1 ${healthScore >= 70 ? 'text-green-600' : healthScore >= 50 ? 'text-yellow-600' : 'text-red-600'}`}>
                             {healthScore} / 100
                           </p>
@@ -953,26 +1050,36 @@ export default function SimpleDashboard() {
                         </CardContent>
                       </Card>
 
-                      <Card className="hover:shadow-md transition-all duration-200 hover:translate-y-[1px]">
-                        <CardContent className="p-6 flex justify-between">
+                      <Card className={`hover:shadow-md transition-all duration-200 hover:translate-y-[1px] ${
+                        christmasTheme
+                          ? 'border border-red-200/50 hover:border-red-300 bg-gradient-to-br from-red-50/30 to-white'
+                          : ''
+                      }`}>
+                        <CardContent className="p-6 flex justify-between relative">
+                          {christmasTheme && <div className="absolute top-2 right-2 text-base opacity-60">🎄</div>}
                           <div>
                             <h3 className="text-sm font-medium text-neutral-600 mb-1">Cash Allocation</h3>
-                            <p className="text-2xl font-semibold text-brand-600 mt-1">{formatPercent(metrics.cashAllocation)}</p>
-                    </div>
-                          <PieChartIcon className="w-10 h-10 text-brand-500 self-center" />
+                            <p className={`text-2xl font-semibold mt-1 ${christmasTheme ? 'text-neutral-900' : 'text-brand-600'}`}>{formatPercent(metrics.cashAllocation)}</p>
+                          </div>
+                          <PieChartIcon className={`w-10 h-10 self-center ${christmasTheme ? 'text-red-400/70' : 'text-brand-500'}`} />
                         </CardContent>
                       </Card>
 
-                      <Card className="hover:shadow-md transition-all duration-200 hover:translate-y-[1px]">
-                        <CardContent className="p-6 flex justify-between">
+                      <Card className={`hover:shadow-md transition-all duration-200 hover:translate-y-[1px] ${
+                        christmasTheme
+                          ? 'border border-green-200/50 hover:border-green-300 bg-gradient-to-br from-green-50/30 to-white'
+                          : ''
+                      }`}>
+                        <CardContent className="p-6 flex justify-between relative">
+                          {christmasTheme && <div className="absolute top-2 right-2 text-base opacity-60">🎅</div>}
                           <div>
                             <h3 className="text-sm font-medium text-neutral-600 mb-1">Stock Allocation</h3>
                             <p className="text-2xl font-semibold text-green-600 mt-1">{formatPercent(metrics.stockAllocation)}</p>
                           </div>
-                          <TrendingUp className="w-10 h-10 text-green-500 self-center" />
+                          <TrendingUp className={`w-10 h-10 self-center ${christmasTheme ? 'text-green-500/70' : 'text-green-500'}`} />
                         </CardContent>
                       </Card>
-                  </div>
+                    </div>
 
                     {/* Section Divider */}
                     <div className="border-t border-neutral-200 pt-10">
