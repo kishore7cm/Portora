@@ -27,7 +27,8 @@ export default function Page() {
             <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row sm:gap-6">
               <Link 
                 href="/signup" 
-                className="w-full rounded-xl bg-gradient-brand px-8 py-4 text-center font-semibold text-white hover:shadow-brand shadow-medium hover:scale-105 transition-all duration-300 sm:w-auto"
+                className="w-full rounded-xl bg-gradient-brand px-8 py-4 text-center font-semibold text-white hover:shadow-brand shadow-medium hover:scale-105 transition-all duration-300 sm:w-auto pointer-events-none opacity-50 cursor-not-allowed"
+                onClick={(e) => e.preventDefault()}
               >
                 Get started
               </Link>
@@ -174,7 +175,8 @@ export default function Page() {
           </p>
           <Link 
             href="/signup" 
-            className="mt-8 inline-block rounded-xl bg-white px-8 py-4 font-semibold text-brand-600 hover:bg-neutral-50 shadow-strong hover:shadow-brand hover:scale-105 transition-all duration-300"
+            className="mt-8 inline-block rounded-xl bg-white px-8 py-4 font-semibold text-brand-600 hover:bg-neutral-50 shadow-strong hover:shadow-brand hover:scale-105 transition-all duration-300 pointer-events-none opacity-50 cursor-not-allowed"
+            onClick={(e) => e.preventDefault()}
           >
             Get started
           </Link>
