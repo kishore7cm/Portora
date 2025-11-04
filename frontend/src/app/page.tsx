@@ -25,13 +25,11 @@ export default function Page() {
               Connect accounts, visualize allocation, and get actionable signals to keep your investments on track.
             </p>
             <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row sm:gap-6">
-              <Link 
-                href="/signup" 
-                className="w-full rounded-xl bg-gradient-brand px-8 py-4 text-center font-semibold text-white hover:shadow-brand shadow-medium hover:scale-105 transition-all duration-300 sm:w-auto pointer-events-none opacity-50 cursor-not-allowed"
-                onClick={(e) => e.preventDefault()}
+              <div 
+                className="w-full rounded-xl bg-gradient-brand px-8 py-4 text-center font-semibold text-white shadow-medium sm:w-auto pointer-events-none opacity-50 cursor-not-allowed"
               >
                 Get started
-              </Link>
+              </div>
               <a 
                 href="#demo" 
                 className="w-full rounded-xl border-2 border-neutral-300 px-8 py-4 text-center font-semibold text-neutral-800 hover:bg-neutral-50 hover:border-brand-400 hover:text-brand-600 transition-all duration-300 shadow-soft hover:shadow-medium sm:w-auto"
@@ -173,13 +171,11 @@ export default function Page() {
           <p className="mt-4 text-lg text-white/90 md:text-xl max-w-2xl mx-auto">
             Sign up and see your portfolio summary in minutes.
           </p>
-          <Link 
-            href="/signup" 
-            className="mt-8 inline-block rounded-xl bg-white px-8 py-4 font-semibold text-brand-600 hover:bg-neutral-50 shadow-strong hover:shadow-brand hover:scale-105 transition-all duration-300 pointer-events-none opacity-50 cursor-not-allowed"
-            onClick={(e) => e.preventDefault()}
+          <div 
+            className="mt-8 inline-block rounded-xl bg-white px-8 py-4 font-semibold text-brand-600 shadow-strong pointer-events-none opacity-50 cursor-not-allowed"
           >
             Get started
-          </Link>
+          </div>
         </Container>
       </section>
 

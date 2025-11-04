@@ -208,13 +208,11 @@ export default function PricingSection() {
                   Priority support
                 </li>
               </ul>
-              <Link 
-                href="/signup" 
-                className="mt-8 inline-block w-full rounded-xl border-2 border-brand-600 px-6 py-4 font-semibold text-brand-600 hover:bg-brand-600 hover:text-white shadow-soft hover:shadow-medium transition-all duration-300 pointer-events-none opacity-50 cursor-not-allowed"
-                onClick={(e) => e.preventDefault()}
+              <div 
+                className="mt-8 inline-block w-full rounded-xl border-2 border-brand-600 px-6 py-4 font-semibold text-brand-600 shadow-soft pointer-events-none opacity-50 cursor-not-allowed"
               >
                 Upgrade Now
-              </Link>
+              </div>
             </div>
           </div>
         </div>
